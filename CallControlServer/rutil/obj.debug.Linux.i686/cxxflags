@@ -1,0 +1,1 @@
+        -march=i686 -D_REENTRANT  -g  -Wall -I.. -I../build/../contrib/ares -DOS_MAJOR_VER=2 -DOS_MINOR_VER=6 -DOS_POINT_VER=9-55 -DOS_PATCH_VER=ELsmp -DUSE_ARES

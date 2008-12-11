@@ -1,0 +1,14 @@
+/.cvsignore/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/COPYING/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/INSTALL/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/README/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/README.windows/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/sip.mcp.xml/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/sip_MacPrefix.pch/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/update-svn-ignores.sh/1.1.1.1/Tue Nov 25 10:47:54 2008//
+D/certs////
+D/dum////
+D/recon////
+D/sip.xcode////
+D/sip.xcodeproj////
+D/stack////

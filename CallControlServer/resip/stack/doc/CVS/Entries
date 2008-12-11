@@ -1,0 +1,67 @@
+/.cvsignore/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ClassDiag.vsd/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/FifoFlow.pdf/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/FifoFlow.vsd/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/Makefile/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 1.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 10.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 11.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 12.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 13.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 14.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 15.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 16.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 17.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 18.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 19.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 2.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 20.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 21.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 22.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 23.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 24.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 25.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 26.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 3.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 4.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 5.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 6.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 7.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 8.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - 9.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - Architecture.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - Main Event Loop.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams - Process Incoming UDP.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams.pdf/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ReSIP diagrams.sitx/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ResipArchitecture.graffle/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ResipArchitecture.jpg/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ResipArchitecture.pdf/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/ResipArchitecture.png/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/client-invite-state.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/client-invite-tree.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/client-noninvite-state.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/client-noninvite-tree.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/design-overview.xml/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/design.css/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/fsm-dot.awk/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/htmlcss.xsl/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/oxygenProject.xpr/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/reSIProcate-logo-big.gif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/reSIProcate-logo-small-w.gif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/reSIProcate-logo-small.gif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/reSIProcate-logo.ai/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/reSIProcate-logo.svg/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/server-invite-state.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/server-invite-tree.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/server-noninvite-state.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/server-noninvite-tree.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/srv-inv-fsm.dot/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/srv-inv-tree.dot/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/stale-state.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/stale-tree.tif/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/using-dialogUsageManager.html/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/using-dialogUsageManager.pdf/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/using-dialogUsageManager.xml/1.1.1.1/Tue Nov 25 10:47:54 2008//
+/using.txt/1.1.1.1/Tue Nov 25 10:47:54 2008//
+D/static////

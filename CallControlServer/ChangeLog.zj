@@ -1,0 +1,55 @@
+原始版本: reSiprocate-1.2.3 已升级至1.4.1版本
+
+1. 增加功能: 如果某个站点注册到本服务器,则将其视为受信站点 
+
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   涉及文件: repro/monkeys/IsTrustedNode.cxx L43-L52 注释: 检查请求的From域,验证uri是否注册过
+             repro/monkeys/IsTrustedNode.hxx L18-L21 L30-L32
+	     repro/repro.cxx L292 注释: 使用新的构造函数构建IsTrustedNode类
+   日期: 2008-10-29	     
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   
+   预期更新: 为了在proxy-proxy之间的消息传递避免挑战式验证,还需要进一步更改. !!! 2008-11-18. 
+   一个方案是启动时带-disable-auth参数，来取消所有的验证 2008-11-25
+
+   *********************************************************************************************
+   在MessageFilterRule.cxx增加一个对于user name的检查,如果不匹配,也不由本服务负责.主要适用于dum
+   修改ServerAuthManager::handle函数,只认证注册请求
+   目前基本明确会启动三种服务:B2BUA Dum(UAS) Prxoy
+   以上修改日期: 2008-12-11
+   *********************************************************************************************
+
+2. 增加功能: 为dum增加host检查规则,如果请求的Request-URI和添加的host匹配则由dum处理,否则由下一个TU处理(这里是proxy)
+   涉及文件: repro/repro.cxx L428-L436   日期: 2008-10-29. (已取消)
+   涉及文件: repro/repro.cxx resip/stack/MessageFilterRule.cxx 增加调用ismydomain函数来解决 日期: 2008-11-25
+   
+3. 增加功能: 为dum增加处理Subscribe请求的能力(来自客户端的订阅)
+   涉及文件: repro/repro.cxx L439
+   涉及文件: repro/megaeyes/MySubscriptionHandler.cxx 新增一个类继承自ServerSubscriptionHandler类,实现onNewSubscription/onRefresh/onExpired接口
+   涉及文件: repro/megaeyes/XmlContents.cxx 新增一个类继承自Contents,用于获取电信的content-type: application/global_eye_v10+xml 
+   参考文件: resip/stack/ContentsFactory.hxx L24. 
+   参考文件: resip/stack/ContentsFactoryBase.cxx L15. 
+   参考函数: DialogUsageManager::validateContent
+
+	     
+4. 增加功能: 为dum增加发出Notify请求的能力(发给客户端)
+   涉及文件: repro/megaeyes/MySubscriptionHandler.cxx,放到了NotifyUsers函数里.
+
+
+5. 增加功能: 为dum增加处理Message请求的能力(来自前端的报警信息) 注意: 3 4 5相互关联构成一个报警的逻辑整体
+   涉及文件: repro/repro.cxx L438
+   涉及文件: repro/megaeyes/MyPagerMessageHandler.cxx 新增一个类继承自ServerPagerMessageHandler类,实现onMessageArrived接口.注意还得管理好资源释放功能
+   	     着重看DialogSet.cxx L570,这里new出来的mServerPagerMessage没有释放						      
+	     我注意到:ServerPagerMessage::send函数将会执行delete this来释放对象
+
+
+6. 增加功能: 为dum增加发出Message请求的能力(发给前端,用于参数配置/前端存储通知)
+
+
+7. 增加功能: 为dum增加把Register的信息发送给平台设备管理中心的功能
+
+
+10. 增加功能: 为dum增加B2BUA的逻辑实体,处理Invite/Info请求等相互关联的会话逻辑实体
+    涉及文件: repro/repro.cxx L432-L436
+
+

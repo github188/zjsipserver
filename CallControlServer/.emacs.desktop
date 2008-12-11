@@ -1,0 +1,126 @@
+;; -*- coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Thu Dec 11 19:39:45 2008
+;; Emacs version 21.3.1
+
+;; Global section:
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring nil)
+(setq regexp-search-ring '("no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "loop" "io:" "io" "real" "m_sRet"))
+(setq register-alist nil)
+
+;; Buffer section:
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.hxx"
+  "MessageFilterRule.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1182
+  '(212 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.cxx"
+  "MessageFilterRule.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1579
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/CommandLineParser.cxx"
+  "CommandLineParser.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  451
+  '(9536 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/CommandLineParser.hxx"
+  "CommandLineParser.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  917
+  '(430 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/monkeys/IsTrustedNode.hxx"
+  "IsTrustedNode.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  950
+  '(711 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/monkeys/IsTrustedNode.cxx"
+  "IsTrustedNode.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1163
+  '(486 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/ServerAuthManager.cxx"
+  "ServerAuthManager.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  9972
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MyPagerMessageHandler.cxx"
+  "MyPagerMessageHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  676
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
+  "ChangeLog.zj"
+  'text-mode
+  '(nil)
+  2110
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
+  "repro.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  9292
+  '(8768 nil)
+  nil
+  nil
+  nil)
+
