@@ -1,1 +1,2 @@
-cvs ci -m "" 
+cvs ci -m "$1"
+/opt/CollabNet_Subversion/bin/svn ci -m "$1" 
