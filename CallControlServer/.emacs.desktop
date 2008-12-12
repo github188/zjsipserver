@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Fri Dec 12 16:10:26 2008
+;; Created Fri Dec 12 17:34:09 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -103,23 +103,23 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
-  "ChangeLog.zj"
-  'text-mode
-  '(nil)
-  2110
-  '(nil nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
   "repro.cxx"
   'c++-mode
   '(abbrev-mode nil)
   9292
   '(8768 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
+  "ChangeLog.zj"
+  'text-mode
+  '(nil)
+  2270
+  '(nil nil)
   nil
   nil
   nil)

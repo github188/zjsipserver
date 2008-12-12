@@ -48,8 +48,11 @@
 
 7. 增加功能: 为dum增加把Register的信息发送给平台设备管理中心的功能
 
+8. 代码重构: 把在MessageFilterRule和IsTrustedNode里的更改提取出来,放到自己的继承类里
+
+
+
 
 10. 增加功能: 为dum增加B2BUA的逻辑实体,处理Invite/Info请求等相互关联的会话逻辑实体
     涉及文件: repro/repro.cxx L432-L436
-
 
