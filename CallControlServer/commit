@@ -1,2 +1,2 @@
-cvs ci -m "$1"
+cvs ci resip repro rutil b2bua -m "$1"
 /opt/CollabNet_Subversion/bin/svn ci -m "$1" 

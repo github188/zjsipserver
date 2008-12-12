@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Thu Dec 11 19:39:45 2008
+;; Created Fri Dec 12 16:10:26 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name nil)
 (setq tags-table-list nil)
 (setq search-ring nil)
-(setq regexp-search-ring '("no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "loop" "io:" "io" "real" "m_sRet"))
+(setq regexp-search-ring '("loop" "CHJDevQuery" "no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "io:" "io"))
 (setq register-alist nil)
 
 ;; Buffer section:
