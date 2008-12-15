@@ -39,8 +39,8 @@
 #include "repro/monkeys/SimpleTargetHandler.hxx"
 
 //zhangjun change begin: 包含自定义的subscribe处理类和Message处理类
-#include "repro/megaeyes/MySubscriptionHandler.hxx"
-#include "repro/megaeyes/MyPagerMessageHandler.hxx"
+#include "repro/megaeyes/MegaSubscriptionHandler.hxx"
+#include "repro/megaeyes/MegaPagerMessageHandler.hxx"
 #include "repro/megaeyes/MegaIsTrustedNode.hxx"
 //zhangjun change end 
 
@@ -440,8 +440,8 @@ main(int argc, char** argv)
 //   }                                           //zhangjun comment
 
     //zhangjun change begin:增加subscribe处理类的实例和Message处理类的实例
-    MyServerSubscriptionHandler subscriber(*dum);
-    MyServerPagerMessageHandler messager(*dum);
+    MegaServerSubscriptionHandler subscriber(*dum);
+    MegaServerPagerMessageHandler messager(*dum);
     //zhangjun change end
 
 

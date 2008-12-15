@@ -1,5 +1,5 @@
-#if !defined(RESIP_MYSUBSCRIPTIONHANDLER_HXX)
-#define RESIP_MYSUBSCRIPTIONHANDLER_HXX
+#if !defined(RESIP_MEGASUBSCRIPTIONHANDLER_HXX)
+#define RESIP_MEGASUBSCRIPTIONHANDLER_HXX
 
 #include "resip/dum/SubscriptionHandler.hxx"
 #include "resip/dum/DialogUsageManager.hxx"
@@ -12,13 +12,13 @@
 namespace repro
 {
     
-class MyServerSubscriptionHandler: public resip::ServerSubscriptionHandler
+class MegaServerSubscriptionHandler: public resip::ServerSubscriptionHandler
 {
 public:
-    MyServerSubscriptionHandler(resip::DialogUsageManager& dum)
+    MegaServerSubscriptionHandler(resip::DialogUsageManager& dum)
 	:resip::ServerSubscriptionHandler(),mDum(dum)
 	{}
-    virtual ~MyServerSubscriptionHandler()
+    virtual ~MegaServerSubscriptionHandler()
 	{}
 
     virtual void onNewSubscription( resip::ServerSubscriptionHandle handle, const resip::SipMessage& sub );

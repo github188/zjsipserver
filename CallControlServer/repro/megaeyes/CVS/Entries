@@ -2,12 +2,12 @@
 /Common.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MarkupSTL.cpp/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MarkupSTL.h/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/MySubscriptionHandler.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/MySubscriptionHandler.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /XmlContents.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /XmlContents.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MegaIsTrustedNode.cxx/1.1/Mon Dec 15 03:19:22 2008//
 /MegaIsTrustedNode.hxx/1.1/Mon Dec 15 03:08:39 2008//
-/MegaPagerMessageHandler.cxx/1.1/Thu Dec 11 11:22:39 2008//
-/MegaPagerMessageHandler.hxx/1.1/Tue Nov 25 10:47:54 2008//
+/MegaPagerMessageHandler.cxx/1.2/Mon Dec 15 05:29:24 2008//
+/MegaPagerMessageHandler.hxx/1.2/Mon Dec 15 05:30:56 2008//
+/MegaSubscriptionHandler.cxx/1.1/Mon Dec 15 05:30:33 2008//
+/MegaSubscriptionHandler.hxx/1.1/Mon Dec 15 05:30:09 2008//
 D

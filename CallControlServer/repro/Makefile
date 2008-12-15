@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2008/12/15 05:02:50 zhangjun Exp $
+# $Id: Makefile,v 1.3 2008/12/15 05:32:32 zhangjun Exp $
 VERSION:=$(shell cat VERSION)
 REPRO_USER?=repro
 
@@ -77,8 +77,8 @@ SRC 	+=   \
 	monkeys/QValueTargetHandler.cxx \
 	monkeys/SimpleTargetHandler.cxx \
 	\
-	megaeyes/MySubscriptionHandler.cxx \
-	megaeyes/MyPagerMessageHandler.cxx \
+	megaeyes/MegaSubscriptionHandler.cxx \
+	megaeyes/MegaPagerMessageHandler.cxx \
 	megaeyes/MarkupSTL.cpp \
 	megaeyes/XmlContents.cxx \
 	megaeyes/Common.cxx \

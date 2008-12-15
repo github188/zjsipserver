@@ -2,7 +2,7 @@
 #include "resip/stack/config.hxx"
 #endif
 
-#include "repro/megaeyes/MySubscriptionHandler.hxx"
+#include "repro/megaeyes/MegaSubscriptionHandler.hxx"
 #include "resip/dum/ServerSubscription.hxx"
 #include "repro/megaeyes/XmlContents.hxx"
 #include "rutil/Logger.hxx"
@@ -15,7 +15,7 @@ using namespace resip;
 using namespace repro;
 
 void 
-MyServerSubscriptionHandler::onNewSubscription( resip::ServerSubscriptionHandle handle, const resip::SipMessage& sub)
+MegaServerSubscriptionHandler::onNewSubscription( resip::ServerSubscriptionHandle handle, const resip::SipMessage& sub)
 {
     Data xmlBody = sub.getContents()->getBodyData();
 
@@ -83,18 +83,18 @@ MyServerSubscriptionHandler::onNewSubscription( resip::ServerSubscriptionHandle 
 }
 
 void
-MyServerSubscriptionHandler::onRefresh( resip::ServerSubscriptionHandle handle, const resip::SipMessage& sub)
+MegaServerSubscriptionHandler::onRefresh( resip::ServerSubscriptionHandle handle, const resip::SipMessage& sub)
 {
 }
  
 void 
-MyServerSubscriptionHandler::onExpired( resip::ServerSubscriptionHandle handle, resip::SipMessage& notify)
+MegaServerSubscriptionHandler::onExpired( resip::ServerSubscriptionHandle handle, resip::SipMessage& notify)
 {
 
 }
 
 void 
-MyServerSubscriptionHandler::onTerminated( resip::ServerSubscriptionHandle handle )
+MegaServerSubscriptionHandler::onTerminated( resip::ServerSubscriptionHandle handle )
 {
     //操作用户索引表
     ForwardMap::iterator i = mForwardMap.find( handle.getId() );
@@ -116,7 +116,7 @@ MyServerSubscriptionHandler::onTerminated( resip::ServerSubscriptionHandle handl
     }
 }
 
-int MyServerSubscriptionHandler::NotifyUsers( std::string &devid, resip::Data &xmlBody )
+int MegaServerSubscriptionHandler::NotifyUsers( std::string &devid, resip::Data &xmlBody )
 {
     InvertMap::iterator i = mInvertMap.find( devid );
 

@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Mon Dec 15 13:05:55 2008
+;; Created Mon Dec 15 13:32:22 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name nil)
 (setq tags-table-list nil)
 (setq search-ring nil)
-(setq regexp-search-ring '("istrusted" "istru" "loop" "CHJDevQuery" "no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "io:"))
+(setq regexp-search-ring '("my" "istrusted" "istru" "loop" "CHJDevQuery" "no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -48,17 +48,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MyPagerMessageHandler.cxx"
-  "MyPagerMessageHandler.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  676
-  '(nil nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/XmlContents.hxx"
   "XmlContents.hxx"
   'c++-mode
@@ -84,7 +73,7 @@
   "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaIsTrustedNode.hxx"
   "MegaIsTrustedNode.hxx"
   'c++-mode
-  '(abbrev-mode)
+  '(abbrev-mode nil)
   509
   '(nil nil)
   nil
@@ -95,7 +84,7 @@
   "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaIsTrustedNode.cxx"
   "MegaIsTrustedNode.cxx"
   'c++-mode
-  '(abbrev-mode)
+  '(abbrev-mode nil)
   1344
   '(292 nil)
   nil
@@ -103,22 +92,11 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
-  "repro.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1626
-  '(8599 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/Makefile"
-  "Makefile"
-  'makefile-mode
+  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
+  "ChangeLog.zj"
+  'text-mode
   '(nil)
-  1875
+  2186
   '(nil nil)
   nil
   nil
@@ -136,11 +114,66 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
-  "ChangeLog.zj"
-  'text-mode
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaPagerMessageHandler.cxx"
+  "MegaPagerMessageHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1602
+  '(69 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaSubscriptionHandler.cxx"
+  "MegaSubscriptionHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  3892
+  '(69 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaSubscriptionHandler.hxx"
+  "MegaSubscriptionHandler.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  67
+  '(383 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaPagerMessageHandler.hxx"
+  "MegaPagerMessageHandler.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  219
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
+  "repro.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1857
+  '(13449 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/Makefile"
+  "Makefile"
+  'makefile-mode
   '(nil)
-  1068
+  1856
   '(nil nil)
   nil
   nil
