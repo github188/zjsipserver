@@ -25,7 +25,7 @@
 #include "repro/BerkeleyDb.hxx"
 #include "repro/WebAdmin.hxx"
 #include "repro/WebAdminThread.hxx"
-#include "repro/monkeys/IsTrustedNode.hxx"
+//#include "repro/monkeys/IsTrustedNode.hxx"
 #include "repro/monkeys/AmIResponsible.hxx"
 #include "repro/monkeys/ConstantLocationMonkey.hxx"
 #include "repro/monkeys/DigestAuthenticator.hxx"
@@ -41,6 +41,7 @@
 //zhangjun change begin: 包含自定义的subscribe处理类和Message处理类
 #include "repro/megaeyes/MySubscriptionHandler.hxx"
 #include "repro/megaeyes/MyPagerMessageHandler.hxx"
+#include "repro/megaeyes/MegaIsTrustedNode.hxx"
 //zhangjun change end 
 
 
@@ -296,7 +297,7 @@ main(int argc, char** argv)
 	locators->addProcessor(std::auto_ptr<Processor>(srf));
 
 	//检查是否来自受信站点(基于aclstore)
-	IsTrustedNode* isTrusted = new IsTrustedNode(store.mAclStore,regData); //zhangjun change:加入regData,如果是来自本域已注册用户的请求,则认为受信
+	MegaIsTrustedNode* isTrusted = new MegaIsTrustedNode(store.mAclStore,regData); //zhangjun change:加入regData,如果是来自本域已注册用户的请求,则认为受信
 	locators->addProcessor(std::auto_ptr<Processor>(isTrusted));
 
 	if (!args.mNoChallenge)

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1.1.1 2008/11/25 10:47:54 zhangjun Exp $
+# $Id: Makefile,v 1.2 2008/12/15 05:02:50 zhangjun Exp $
 VERSION:=$(shell cat VERSION)
 REPRO_USER?=repro
 
@@ -82,6 +82,7 @@ SRC 	+=   \
 	megaeyes/MarkupSTL.cpp \
 	megaeyes/XmlContents.cxx \
 	megaeyes/Common.cxx \
+	megaeyes/MegaIsTrustedNode.cxx \
 	\
 
 

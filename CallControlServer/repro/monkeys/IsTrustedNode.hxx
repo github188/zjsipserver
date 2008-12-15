@@ -2,10 +2,6 @@
 #define RESIP_ISTRUSTEDNODE_REQUEST_PROCESSOR_HXX 
 #include "repro/Processor.hxx"
 
-//zhangjun change begin
-#include "resip/dum/RegistrationPersistenceManager.hxx"
-//zhangjun change end
-
 #include <iosfwd>
 
 namespace repro
@@ -15,11 +11,7 @@ namespace repro
   class IsTrustedNode: public Processor
   {
     public:
-//zhangjun change begin 
-      //IsTrustedNode(AclStore& store);
-      IsTrustedNode(AclStore& store, resip::RegistrationPersistenceManager& regdata);
-//zhangjun change end
-
+      IsTrustedNode(AclStore& store);
       virtual ~IsTrustedNode();
 
       virtual processor_action_t process(RequestContext &);
@@ -27,10 +19,6 @@ namespace repro
 
   private:
        AclStore& mAclStore;
-//zhangjun change begin 
-      resip::RegistrationPersistenceManager& mRegStore;
-//zhangjun change end
-
   };
 }
 #endif

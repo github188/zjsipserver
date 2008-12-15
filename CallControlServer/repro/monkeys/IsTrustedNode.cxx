@@ -18,16 +18,9 @@ using namespace resip;
 using namespace repro;
 using namespace std;
 
-//zhangjun change begin
-
-//IsTrustedNode::IsTrustedNode(AclStore& store) :
-//   mAclStore(store)
-//{}
-
-IsTrustedNode::IsTrustedNode(AclStore& store, resip::RegistrationPersistenceManager& regdata)
-    :mAclStore(store),mRegStore(regdata)
+IsTrustedNode::IsTrustedNode(AclStore& store) :
+   mAclStore(store)
 {}
-//zhangjun change end
 
 IsTrustedNode::~IsTrustedNode()
 {}
@@ -39,17 +32,6 @@ IsTrustedNode::process(RequestContext& context)
             << "; reqcontext = " << context);
 
    resip::SipMessage& request = context.getOriginalRequest();
-
-   //zhangjun change begin
-   const resip::Uri& inputUri = request.header(h_From).uri();
-   mRegStore.lockRecord(inputUri);
-   resip::ContactList contacts = mRegStore.getContacts(inputUri);
-   mRegStore.unlockRecord(inputUri);
-   if ( !contacts.empty() )
-   {
-       context.setFromTrustedNode();
-   }
-   //zhangjun change end
 
    if(mAclStore.isRequestTrusted(request))
    {

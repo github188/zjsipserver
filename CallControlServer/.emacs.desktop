@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Fri Dec 12 17:34:09 2008
+;; Created Mon Dec 15 13:02:39 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,32 +10,10 @@
 (setq tags-file-name nil)
 (setq tags-table-list nil)
 (setq search-ring nil)
-(setq regexp-search-ring '("loop" "CHJDevQuery" "no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "io:" "io"))
+(setq regexp-search-ring '("istrusted" "istru" "loop" "CHJDevQuery" "no" "logtype" "'n'" "'s'" "''" "nocha" "disable" "disable-au" "zhangjun" "message" "parse" "io:"))
 (setq register-alist nil)
 
 ;; Buffer section:
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.hxx"
-  "MessageFilterRule.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1182
-  '(212 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.cxx"
-  "MessageFilterRule.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1579
-  '(nil nil)
-  nil
-  nil
-  nil)
-
 (desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/CommandLineParser.cxx"
   "CommandLineParser.cxx"
@@ -54,28 +32,6 @@
   '(abbrev-mode nil)
   917
   '(430 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/monkeys/IsTrustedNode.hxx"
-  "IsTrustedNode.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  950
-  '(711 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/monkeys/IsTrustedNode.cxx"
-  "IsTrustedNode.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1163
-  '(486 nil)
   nil
   nil
   nil)
@@ -103,12 +59,78 @@
   nil)
 
 (desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/XmlContents.hxx"
+  "XmlContents.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  125
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.cxx"
+  "MessageFilterRule.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  5014
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaIsTrustedNode.hxx"
+  "MegaIsTrustedNode.hxx"
+  'c++-mode
+  '(abbrev-mode)
+  509
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaIsTrustedNode.cxx"
+  "MegaIsTrustedNode.cxx"
+  'c++-mode
+  '(abbrev-mode)
+  1344
+  '(292 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
   "repro.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  9292
-  '(8768 nil)
+  1626
+  '(8599 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/Makefile"
+  "Makefile"
+  'makefile-mode
+  '(nil)
+  1875
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.hxx"
+  "MessageFilterRule.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1661
+  '(212 nil)
   nil
   nil
   nil)
@@ -118,7 +140,7 @@
   "ChangeLog.zj"
   'text-mode
   '(nil)
-  2270
+  1068
   '(nil nil)
   nil
   nil
