@@ -28,6 +28,24 @@ private:
     resip::DialogUsageManager& mDum;    
 };
 
+class MegaClientPagerMessageHandler : public resip::ClientPagerMessageHandler
+{
+public:
+    MegaClientPagerMessageHandler()
+	:resip::ClientPagerMessageHandler()
+	{}
+    
+    ~MegaClientPagerMessageHandler()
+	{}
+    
+    virtual void onSuccess( resip::ClientPagerMessageHandle, const resip::SipMessage& status);
+
+    virtual void onFailure( resip::ClientPagerMessageHandle, const resip::SipMessage& status, std::auto_ptr<resip::Contents> contents);
+
+private:
+//    int parseMessage( const resip::Data &xmlBody, std::string &msgType, std::string &msgSrcId );
+};
+
 }
 
 #endif

@@ -42,6 +42,8 @@
 #include "repro/megaeyes/MegaSubscriptionHandler.hxx"
 #include "repro/megaeyes/MegaPagerMessageHandler.hxx"
 #include "repro/megaeyes/MegaIsTrustedNode.hxx"
+#include "repro/megaeyes/MegaWebServer.hxx"
+#include "repro/megaeyes/MegaWebServerThread.hxx"
 //zhangjun change end 
 
 
@@ -440,8 +442,9 @@ main(int argc, char** argv)
 //   }                                           //zhangjun comment
 
     //zhangjun change begin:增加subscribe处理类的实例和Message处理类的实例
-    MegaServerSubscriptionHandler subscriber(*dum);
-    MegaServerPagerMessageHandler messager(*dum);
+    MegaServerSubscriptionHandler subscribe_handler(*dum);
+    MegaServerPagerMessageHandler messag_handler(*dum);
+    MegaClientPagerMessageHandler messager;
     //zhangjun change end
 
 
@@ -489,8 +492,9 @@ main(int argc, char** argv)
 	//!!!zhangjun change end
 
 	//zhangjun change begin:设置dum处理subscribe的类和处理Message的类
-	dum->addServerSubscriptionHandler( "alarm", &subscriber );
-	dum->setServerPagerMessageHandler( &messager );
+	dum->addServerSubscriptionHandler( "alarm", &subscribe_handler );
+	dum->setServerPagerMessageHandler( &messag_handler );
+	dum->setClientPagerMessageHandler( &messager );//active message request
 	//zhangjun change end
     }
    
@@ -539,6 +543,13 @@ main(int argc, char** argv)
     stack.setFixBadDialogIdentifiers(false);
     stack.setFixBadCSeqNumbers(false);
 
+
+//zhangjun add mega web server
+    //web access interface
+    MegaWebServer mws( regData, 8080, resip::V4, realm, dum );
+    MegaWebServerThread mwsThread(mws);
+//zhangjun add end
+
     /* Make it all go */
     stackThread.run();
     proxy.run();
@@ -547,6 +558,9 @@ main(int argc, char** argv)
     {
 	dumThread->run();
     }
+    
+    mwsThread.run();//zhangjun add
+
    
     while (!finished)
     {
@@ -564,6 +578,7 @@ main(int argc, char** argv)
     {
 	dumThread->shutdown();
     }
+    mwsThread.shutdown();//zhangjun add
 
     proxy.join();
     stackThread.join();
@@ -573,6 +588,7 @@ main(int argc, char** argv)
 	dumThread->join();
 	delete dumThread;
     }
+    mwsThread.join();
 
 #if defined(USE_SSL)
     if(certServer)

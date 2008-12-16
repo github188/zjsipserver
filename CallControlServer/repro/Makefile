@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2008/12/15 05:32:32 zhangjun Exp $
+# $Id: Makefile,v 1.4 2008/12/16 11:37:44 zhangjun Exp $
 VERSION:=$(shell cat VERSION)
 REPRO_USER?=repro
 
@@ -83,6 +83,9 @@ SRC 	+=   \
 	megaeyes/XmlContents.cxx \
 	megaeyes/Common.cxx \
 	megaeyes/MegaIsTrustedNode.cxx \
+	megaeyes/MegaWebServerThread.cxx \
+	megaeyes/MegaWebServer.cxx \
+	megaeyes/MegaHttpConnection.cxx \
 	\
 
 

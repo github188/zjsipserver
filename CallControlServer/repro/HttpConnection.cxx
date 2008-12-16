@@ -280,6 +280,7 @@ HttpConnection::tryParse()
    pb.data( uri, start );
  
    DebugLog (<< "parse found URI " << uri );
+
    mParsedRequest = true;
      
    

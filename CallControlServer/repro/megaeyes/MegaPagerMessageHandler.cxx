@@ -37,10 +37,10 @@ MegaServerPagerMessageHandler::onMessageArrived( resip::ServerPagerMessageHandle
     int ret = parseMessage( xmlReqBody, MsgType, MsgSrcId );
     if ( !ret && MsgType=="MSG_ALARM_TRANS_REQ" )
     {
-	MegaServerSubscriptionHandler *handler = dynamic_cast<MegaServerSubscriptionHandler*>( mDum.getServerSubscriptionHandler("alarm") );
-	if ( handler )
+	MegaServerSubscriptionHandler *subhandler = dynamic_cast<MegaServerSubscriptionHandler*>( mDum.getServerSubscriptionHandler("alarm") );
+	if ( subhandler )
 	{
-	    handler->NotifyUsers( MsgSrcId, xmlReqBody );
+	    subhandler->NotifyUsers( MsgSrcId, xmlReqBody );
 	    InfoLog( << "Terminal : " << MsgSrcId << " Alarm Begin!!!" );
 	}
     }
@@ -81,3 +81,23 @@ MegaServerPagerMessageHandler::parseMessage( const resip::Data &xmlBody, std::st
 
     return -1;
 }
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+
+void MegaClientPagerMessageHandler::onSuccess( resip::ClientPagerMessageHandle, const resip::SipMessage& status )
+{
+    //!!!向其他proxy或本地前端发送Message指令,收到响应后返回给http server
+    return ;
+}
+
+void MegaClientPagerMessageHandler::onFailure( resip::ClientPagerMessageHandle handle, const resip::SipMessage& status, std::auto_ptr<resip::Contents> contents)
+{
+    int sn = common::msgmap[handle.getId()];
+
+    InfoLog( << "Recv fail Message Resp: " << status.brief() << " contents: " << contents->getBodyData() << " pagenumber is "<< sn ) ;
+
+    
+
+    return ;
+}
+

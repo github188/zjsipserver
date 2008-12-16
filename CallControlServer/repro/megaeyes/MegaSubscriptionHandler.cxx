@@ -124,7 +124,7 @@ int MegaServerSubscriptionHandler::NotifyUsers( std::string &devid, resip::Data 
     {
 	InfoLog( << "Terminal : " << devid << " Alarm Subscribe Relation is Founded!!!" );	
 
-	//遍历订阅此前端的所有subs
+	//遍历订阅此前端的所有subscriber
 	std::list<resip::Handled::Id>::iterator h = (i->second).begin();
 	for ( ; h!=(i->second).end() ;++h )
 	{

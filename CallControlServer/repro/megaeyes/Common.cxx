@@ -7,6 +7,8 @@
 namespace common
 {
 
+MsgMap msgmap;
+
 std::map<std::string,std::string> msgTypeMap;
 
 int initMap()
@@ -70,7 +72,7 @@ int Atoi( std::string snum, size_t maxlen, int defaultret, int radix )
     return defaultret;
 }
 
-int MakeXmlReponse( const char *req, std::string &resp )
+int MakeXmlReponse( const char *req, std::string &resp, int code )
 {
     assert( req );
 
@@ -106,7 +108,7 @@ int MakeXmlReponse( const char *req, std::string &resp )
 	    //<IE_RESULT Value = "²Ù×÷½á¹û" ErrorCode = "´íÎóÂë" /> 
 	    ReqXML.AddElem( "IE_RESULT" );
 	    ReqXML.SetAttrib( "Value", "Success" );
-	    ReqXML.SetAttrib( "ErrorCode", 0 );
+	    ReqXML.SetAttrib( "ErrorCode", code );
 
 	    resp = ReqXML.GetDoc();
 
