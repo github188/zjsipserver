@@ -13,6 +13,10 @@
 
 #include <map>
 
+#include "rutil/Mutex.hxx"
+#include "rutil/Condition.hxx"
+#include "rutil/Lock.hxx"
+
 namespace resip
 {
 class RegistrationPersistenceManager;
@@ -20,14 +24,12 @@ class Security;
 class DataStream;
 }
 
-
 namespace repro
 {
 class Store;
 class UserStore;
 class RouteStore;
 typedef std::map<resip::Data, resip::Data> Dictionary;
-
 
 class MegaHttpConnection;
 
