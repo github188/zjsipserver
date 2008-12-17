@@ -4,6 +4,7 @@
 
 #include "repro/megaeyes/MegaPagerMessageHandler.hxx"
 #include "resip/dum/ServerPagerMessage.hxx"
+#include "resip/dum/ClientPagerMessage.hxx"
 #include "repro/megaeyes/MegaSubscriptionHandler.hxx"
 #include "rutil/Logger.hxx"
 #include "repro/megaeyes/XmlContents.hxx"
@@ -84,20 +85,48 @@ MegaServerPagerMessageHandler::parseMessage( const resip::Data &xmlBody, std::st
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
-void MegaClientPagerMessageHandler::onSuccess( resip::ClientPagerMessageHandle, const resip::SipMessage& status )
+void MegaClientPagerMessageHandler::onSuccess( resip::ClientPagerMessageHandle handle, const resip::SipMessage& status )
 {
     //!!!向其他proxy或本地前端发送Message指令,收到响应后返回给http server
+    int pn = common::msgmap[handle.getId()];
+
+    if ( common::resultmap.find(pn) != common::resultmap.end() )
+    {
+	if ( !common::resultmap[pn].end )
+	{
+	    common::resultmap[pn].code = status.header(h_StatusLine).statusCode();
+	    common::resultmap[pn].data = status.getContents()->getBodyData();
+	    common::resultmap[pn].end  = true;
+	}
+    }
+    else
+	InfoLog( << "Invalid pn " <<pn );
+
+    InfoLog( << "Recv fail Message Resp: " << status.brief() << " contents: " << status.getContents()->getBodyData() << " pagenumber is "<< pn ) ;
+
+    handle->endCommand();
     return ;
 }
 
 void MegaClientPagerMessageHandler::onFailure( resip::ClientPagerMessageHandle handle, const resip::SipMessage& status, std::auto_ptr<resip::Contents> contents)
 {
-    int sn = common::msgmap[handle.getId()];
+    int pn = common::msgmap[handle.getId()];
 
-    InfoLog( << "Recv fail Message Resp: " << status.brief() << " contents: " << contents->getBodyData() << " pagenumber is "<< sn ) ;
+    if ( common::resultmap.find(pn) != common::resultmap.end() )
+    {
+	if ( !common::resultmap[pn].end )
+	{
+	    common::resultmap[pn].code = status.header(h_StatusLine).statusCode();
+	    common::resultmap[pn].data = contents->getBodyData();
+	    common::resultmap[pn].end  = true;
+	}
+    }
+    else
+	InfoLog( << "Invalid pn " <<pn );
 
-    
+    InfoLog( << "Recv fail Message Resp: " << status.brief() << " contents: " << contents->getBodyData() << " pagenumber is "<< pn ) ;
 
+    handle->endCommand();
     return ;
 }
 

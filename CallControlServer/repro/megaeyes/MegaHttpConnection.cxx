@@ -23,16 +23,13 @@ using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::REPRO
 
-int MegaHttpConnection::nextPageNumber=1;
 
-
-MegaHttpConnection::MegaHttpConnection( MegaWebServer& base, Socket pSock ):
-   mMws( base ),
-   mPageNumber(nextPageNumber++),
-   mSock(pSock),
-   mParsedRequest(false),
-   mCtime(time(NULL))
-    
+MegaHttpConnection::MegaHttpConnection( MegaWebServer& base, Socket pSock, int pageNumber )
+    :mMws( base ),
+     mPageNumber(pageNumber),
+     mSock(pSock),
+     mParsedRequest(false),
+     mCtime(time(NULL))
 {
     assert( mSock > 0 );
 }
@@ -52,11 +49,8 @@ MegaHttpConnection::~MegaHttpConnection()
 void 
 MegaHttpConnection::buildFdSet(FdSet& fdset)
 {
-   if ( !mTxBuffer.empty() )
-   {
-      fdset.setWrite(mSock);
-   }
-   fdset.setRead(mSock);
+//    fdset.setWrite(mSock);
+    fdset.setRead(mSock);
 }
 
 bool 
@@ -84,7 +78,18 @@ MegaHttpConnection::process(FdSet& fdset)
 	}
     }
 
-    if ( (!mTxBuffer.empty()) && fdset.readyToWrite( mSock ) )
+    if( common::resultmap[mPageNumber].end )
+    {
+	InfoLog( << "MegaHttpConnection::process: page " << mPageNumber <<" get result!");
+	setResp( common::resultmap[mPageNumber].data, resip::Mime("text","xml"), common::resultmap[mPageNumber].code );
+	common::resultmap[mPageNumber].end = false;//防止一次发送响应发不完
+    }
+    else
+    {
+	InfoLog( << "MegaHttpConnection::process: page " << mPageNumber <<" end is "<< common::resultmap[mPageNumber].end );
+    }
+    
+    if ( !mTxBuffer.empty() )
     {
 	bool ok = processSomeWrites();
 	if ( !ok )
@@ -102,8 +107,7 @@ MegaHttpConnection::processSomeReads()
    const int bufSize = 8000;
    char buf[bufSize];
    
- 
-#if defined(WIN32)
+ #if defined(WIN32)
    int bytesRead = ::recv(mSock, buf, bufSize, 0);
 #else
    int bytesRead = ::read(mSock, buf, bufSize);
@@ -252,6 +256,9 @@ MegaHttpConnection::tryParse()
 void 
 MegaHttpConnection::sipReq( )
 {
+    common::Result result;
+    common::resultmap[mPageNumber] = result;
+
     //这里假设dstid已经是一个合法的sip uri,实际还不是!!!
     std::string uri = "<sip:" + mDstId + "@192.168.5.232" + ">";//低效的做法 稍后重构!!!
     resip::NameAddr to( uri.c_str() );
@@ -259,10 +266,8 @@ MegaHttpConnection::sipReq( )
     InfoLog ( << "Target is " << to << " pagenumber is "<< mPageNumber );
 
 #if 1
-    ClientPagerMessageHandle cpmh = mMws.mDum->makePagerMessage(to);
-
+    ClientPagerMessageHandle cpmh = mMws.mDum->makePagerMessage(to);//这个sip请求里面From域的内容是空的,所以不会被proxy要求验证权限!!!
     common::msgmap[cpmh.getId()] = mPageNumber;
-
     std::auto_ptr<Contents> req( new XmlContents( mContent ) );
     cpmh->page(req);
 #else
@@ -272,12 +277,16 @@ MegaHttpConnection::sipReq( )
 }
 
 void 
-MegaHttpConnection::setResp( std::string &resp, const Mime& pType)
+MegaHttpConnection::setResp( resip::Data &resp, const Mime& pType, int code )
 {
     //request
     if ( mContent.size() > 0 && resp.empty() )
     {
-	common::MakeXmlReponse( mContent.data(), resp );
+	common::MakeXmlReponse( mContent.data(), resp, code );
+    }
+    else if ( !resp.empty() && code )
+    {
+	common::MakeXmlReponse( resp.data(), resp, code );
     }
 
     mTxBuffer += "HTTP/1.0 200 OK" ; mTxBuffer += Symbols::CRLF;
@@ -303,7 +312,7 @@ MegaHttpConnection::setResp( std::string &resp, const Mime& pType)
    
     mTxBuffer += Symbols::CRLF;
    
-    mTxBuffer += resp.c_str();
+    mTxBuffer += resp;
 }
 
 void
@@ -348,6 +357,30 @@ MegaHttpConnection::processSomeWrites()
    if (bytesWritten == INVALID_SOCKET)
    {
       int e = getErrno();
+      switch (e)
+      {
+      case EAGAIN:
+	  DebugLog (<< "No Buffer ready to write");
+	  return true;
+      case EINTR:
+	  DebugLog (<< "The call was interrupted by a signal before any data was read.");
+	  break;
+      case EIO:
+	  DebugLog (<< "I/O error");
+	  break;
+      case EBADF:
+	  DebugLog (<< "fd is not a valid file descriptor or is not open for reading.");
+	  break;
+      case EINVAL:
+	  DebugLog (<< "fd is attached to an object which is unsuitable for reading.");
+	  break;
+      case EFAULT:
+	  DebugLog (<< "buf is outside your accessible address space.");
+	  break;
+      default:
+	  DebugLog (<< "Some other error");
+	  break;
+      }
       InfoLog (<< "MegaHttpConnection failed write on " << mSock << " " << strerror(e));
 
       return false;

@@ -21,14 +21,14 @@ namespace repro
 	friend class MegaWebServer;
       
     public:
-	MegaHttpConnection( MegaWebServer& mws, resip::Socket pSock );
+	MegaHttpConnection( MegaWebServer& mws, resip::Socket pSock, int pageNumber );
 	~MegaHttpConnection();
       
 	void buildFdSet( resip::FdSet& fdset );
 	bool process( resip::FdSet& fdset );
 
 	void sipReq( );
-	void setResp( std::string &resp, const resip::Mime& pType );
+	void setResp( resip::Data &resp, const resip::Mime& pType, int code=0 );
 
     private:
 	bool processSomeReads();
@@ -38,7 +38,6 @@ namespace repro
             
 	MegaWebServer& mMws;
 	const int mPageNumber;
-	static int nextPageNumber;
             
 	resip::Socket mSock;
 	resip::Data mRxBuffer;

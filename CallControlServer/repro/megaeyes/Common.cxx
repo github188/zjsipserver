@@ -8,6 +8,7 @@ namespace common
 {
 
 MsgMap msgmap;
+ResultMap resultmap;
 
 std::map<std::string,std::string> msgTypeMap;
 
@@ -70,6 +71,15 @@ int Atoi( std::string snum, size_t maxlen, int defaultret, int radix )
     }
 
     return defaultret;
+}
+
+int MakeXmlReponse( const char *req, resip::Data &resp, int code )
+{
+    std::string temp;
+
+    int ret = MakeXmlReponse( req, temp, code );
+    resp = temp.c_str();
+    return ret;
 }
 
 int MakeXmlReponse( const char *req, std::string &resp, int code )

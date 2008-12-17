@@ -24,6 +24,8 @@
 #include "resip/stack/ssl/Security.hxx"
 #endif
 
+#include "repro/megaeyes/Common.hxx"
+
 using namespace resip;
 using namespace repro;
 using namespace std;
@@ -158,54 +160,59 @@ MegaWebServer::buildFdSet(FdSet& fdset)
 void 
 MegaWebServer::process(FdSet& fdset)
 {
-   if (fdset.readyToRead(mFd))
-   {
-      Tuple tuple(mTuple);
-      struct sockaddr& peer = tuple.getMutableSockaddr();
-      socklen_t peerLen = tuple.length();
-      Socket sock = accept( mFd, &peer, &peerLen);
-      if ( sock == SOCKET_ERROR )
-      {
-         int e = getErrno();
-         switch (e)
-         {
+    if (fdset.readyToRead(mFd))
+    {
+	Tuple tuple(mTuple);
+	struct sockaddr& peer = tuple.getMutableSockaddr();
+	socklen_t peerLen = tuple.length();
+	Socket sock = accept( mFd, &peer, &peerLen);
+	if ( sock == SOCKET_ERROR )
+	{
+	    int e = getErrno();
+	    switch (e)
+	    {
             case EWOULDBLOCK:
-               // !jf! this can not be ready in some cases 
-               return;
+		// !jf! this can not be ready in some cases 
+		return;
             default:
-               ErrLog(<< "Some error reading from socket: " << e);
-               // .bwc. This is almost certainly a bad assert that a nefarious
-               // endpoint could hit.
-               // assert(0); // Transport::error(e);
-         }
-         return;
-      }
-      makeSocketNonBlocking(sock);
+		ErrLog(<< "Some error reading from socket: " << e);
+		// .bwc. This is almost certainly a bad assert that a nefarious
+		// endpoint could hit.
+		// assert(0); // Transport::error(e);
+	    }
+	    return;
+	}
+	makeSocketNonBlocking(sock);
       
-      int c = nextConnection;
-      nextConnection = ( nextConnection+1 ) % MaxConnections;
+	int c = 0;
+
+	do 
+	{
+	    c = nextConnection;
+	    nextConnection = ( nextConnection+1 ) % MaxConnections;
+	}
+	while( mConnection[c] );
+
+	mConnection[c] = new MegaHttpConnection(*this,sock,c);
       
-      if ( mConnection[c] )
-      {
-         delete mConnection[c]; mConnection[c] = 0;
-      }
-      
-      mConnection[c] = new MegaHttpConnection(*this,sock);
-      
-      DebugLog (<< "Received TCP connection as connection=" << c << " fd=" << (int)sock);
-   }
-    
-   for( int i=0; i<MaxConnections; i++)
-   {
-      if ( mConnection[i] )
-      {
-         bool ok = mConnection[i]->process(fdset);
-         if ( !ok )
-         {
-	     delete mConnection[i]; mConnection[i]=0;
-         }
-      }
-   }
+	DebugLog (<< "Received TCP connection as connection=" << c << " fd=" << (int)sock);
+    }
+
+    //InfoLog( << "MegaWebServer process!" );    
+    for( int i=0; i<MaxConnections; i++)
+    {
+	if ( mConnection[i] )
+	{
+	    InfoLog( << "pageNumber "<< i << " process!" );
+	    bool ok = mConnection[i]->process(fdset);
+	    if ( !ok )
+	    {
+		InfoLog( << "pageNumber "<< i << " process end!" );
+		delete mConnection[i]; 
+		mConnection[i]=0;
+	    }
+	}
+    }
 }
 
 bool MegaWebServer::isSane()

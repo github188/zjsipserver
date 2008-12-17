@@ -31,7 +31,7 @@
    
 3. 增加功能: 为dum增加处理Subscribe请求的能力(来自客户端的订阅)
    涉及文件: repro/repro.cxx L439
-   涉及文件: repro/megaeyes/MySubscriptionHandler.cxx 新增一个类继承自ServerSubscriptionHandler类,实现onNewSubscription/onRefresh/onExpired接口
+   涉及文件: repro/megaeyes/MegaSubscriptionHandler.cxx 新增一个类继承自ServerSubscriptionHandler类,实现onNewSubscription/onRefresh/onExpired接口
    涉及文件: repro/megaeyes/XmlContents.cxx 新增一个类继承自Contents,用于获取电信的content-type: application/global_eye_v10+xml 
    参考文件: resip/stack/ContentsFactory.hxx L24. 
    参考文件: resip/stack/ContentsFactoryBase.cxx L15. 
@@ -39,23 +39,24 @@
 
 	     
 4. 增加功能: 为dum增加发出Notify请求的能力(发给客户端)
-   涉及文件: repro/megaeyes/MySubscriptionHandler.cxx,放到了NotifyUsers函数里.
+   涉及文件: repro/megaeyes/MegaSubscriptionHandler.cxx,放到了NotifyUsers函数里.
 
 
 5. 增加功能: 为dum增加处理Message请求的能力(来自前端的报警信息) 注意: 3 4 5相互关联构成一个报警的逻辑整体
    涉及文件: repro/repro.cxx L438
-   涉及文件: repro/megaeyes/MyPagerMessageHandler.cxx 新增一个类继承自ServerPagerMessageHandler类,实现onMessageArrived接口.注意还得管理好资源释放功能
+   涉及文件: repro/megaeyes/MegaPagerMessageHandler.cxx 新增一个类继承自ServerPagerMessageHandler类,实现onMessageArrived接口.注意还得管理好资源释放功能
    	     着重看DialogSet.cxx L570,这里new出来的mServerPagerMessage没有释放						      
 	     我注意到:ServerPagerMessage::send函数将会执行delete this来释放对象
 
 
 6. 增加功能: 为dum增加发出Message请求的能力(发给前端,用于参数配置/前端存储通知)
-
+   涉及文件: MegaHttpConnection.cxx MegaWebServer.cxx MegaWebServerThread.cxx MegaPagerMessageHandler.cxx(实现clientpagemessage的回调) 
+   日期: 2008-12-17
 
 7. 增加功能: 为dum增加把Register的信息发送给平台设备管理中心的功能
 
 8. 代码重构: 把在MessageFilterRule和IsTrustedNode里的更改提取出来,放到自己的继承类里
-
+   只继承了IsTrustedNode, 没有继承MessageFilterRule	     
 
 
 

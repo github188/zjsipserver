@@ -28,7 +28,7 @@ MegaWebServerThread::thread()
            FdSet fdset; 
      
            mMws.buildFdSet(fdset);
-           fdset.selectMilliSeconds( 10*1000 );
+           fdset.selectMilliSeconds( 1000 );
            
            mMws.process(fdset);
       }

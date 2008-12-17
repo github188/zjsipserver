@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Wed Dec 17 09:49:33 2008
+;; Created Wed Dec 17 17:09:01 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name nil)
 (setq tags-table-list nil)
 (setq search-ring nil)
-(setq regexp-search-ring '("subxml" "sub" "page" "pTy" "webad" "realm" "httpcon" "httpbase" "messager" "handle" "my" "istrusted" "istru" "loop" "CHJDevQuery"))
+(setq regexp-search-ring '("\\[" "resp" "subxml" "sub" "page" "pTy" "webad" "realm" "httpcon" "httpbase" "messager" "handle" "my" "istrusted" "istru" "loop"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -92,17 +92,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
-  "ChangeLog.zj"
-  'text-mode
-  '(nil)
-  2186
-  '(nil nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.hxx"
   "MessageFilterRule.hxx"
   'c++-mode
@@ -169,17 +158,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
-  "repro.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  17133
-  '(17076 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaWebServerThread.hxx"
   "MegaWebServerThread.hxx"
   'c++-mode
@@ -213,44 +191,11 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaHttpConnection.hxx"
-  "MegaHttpConnection.hxx"
-  'c++-mode
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/SmartPtr_T.h"
+  "SmartPtr_T.h"
+  'c-mode
   '(abbrev-mode nil)
-  662
-  '(368 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/Common.cxx"
-  "Common.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  3906
-  '(nil nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaPagerMessageHandler.cxx"
-  "MegaPagerMessageHandler.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  3244
-  '(3104 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaWebServerThread.cxx"
-  "MegaWebServerThread.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  466
+  1504
   '(nil nil)
   nil
   nil
@@ -261,29 +206,51 @@
   "Common.hxx"
   'c++-mode
   '(abbrev-mode nil)
-  407
-  '(144 nil)
+  332
+  '(332 nil)
   nil
   nil
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaHttpConnection.cxx"
-  "MegaHttpConnection.cxx"
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaHttpConnection.hxx"
+  "MegaHttpConnection.hxx"
   'c++-mode
   '(abbrev-mode nil)
-  6207
-  '(6205 nil)
+  710
+  '(368 nil)
   nil
   nil
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/SmartPtr_T.h"
-  "SmartPtr_T.h"
-  'c-mode
-  '(abbrev-mode)
-  1504
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/Common.cxx"
+  "Common.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  3064
+  '(2923 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaWebServer.hxx"
+  "MegaWebServer.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1399
+  '(646 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaWebServerThread.cxx"
+  "MegaWebServerThread.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  541
   '(nil nil)
   nil
   nil
@@ -294,19 +261,96 @@
   "MegaWebServer.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  95
-  '(4577 nil)
+  4863
+  '(4569 nil)
   nil
   nil
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaWebServer.hxx"
-  "MegaWebServer.hxx"
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
+  "repro.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  319
-  '(646 nil)
+  10121
+  '(17076 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/monkeys/DigestAuthenticator.cxx"
+  "DigestAuthenticator.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  3530
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaHttpConnection.cxx"
+  "MegaHttpConnection.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  6671
+  '(8684 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaPagerMessageHandler.cxx"
+  "MegaPagerMessageHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  3047
+  '(3281 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
+  "ChangeLog.zj"
+  'text-mode
+  '(nil)
+  2677
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  nil
+  "b2bua"
+  'dired-mode
+  nil
+  3028
+  '(nil nil)
+  t
+  '("/home/zhangjun/projects/alpha/CallControlServer/b2bua/")
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/Makefile"
+  "Makefile<2>"
+  'makefile-mode
+  '(nil)
+  633
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/README.txt"
+  "README.txt"
+  'text-mode
+  '(nil)
+  3478
+  '(nil nil)
   nil
   nil
   nil)
