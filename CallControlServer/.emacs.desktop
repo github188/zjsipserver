@@ -2,15 +2,15 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Wed Dec 17 17:09:01 2008
+;; Created Wed Dec 24 19:30:51 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
 (setq desktop-missing-file-warning nil)
-(setq tags-file-name nil)
-(setq tags-table-list nil)
+(setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
+(setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("\\[" "resp" "subxml" "sub" "page" "pTy" "webad" "realm" "httpcon" "httpbase" "messager" "handle" "my" "istrusted" "istru" "loop"))
+(setq regexp-search-ring '("main" "\\[" "resp" "subxml" "sub" "page" "pTy" "webad" "realm" "httpcon" "httpbase" "messager" "handle" "my" "istrusted" "istru"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -120,17 +120,6 @@
   '(abbrev-mode nil)
   825
   '(949 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/repro/Makefile"
-  "Makefile"
-  'makefile-mode
-  '(nil)
-  1976
-  '(nil nil)
   nil
   nil
   nil)
@@ -334,22 +323,66 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/Makefile"
-  "Makefile<2>"
-  'makefile-mode
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/README.txt"
+  "README.txt"
+  'text-mode
   '(nil)
-  633
+  1534
   '(nil nil)
   nil
   nil
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/README.txt"
-  "README.txt"
-  'text-mode
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/Makefile"
+  "Makefile"
+  'makefile-mode
   '(nil)
-  3478
+  1976
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/InviteSessionHandler.hxx"
+  "InviteSessionHandler.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  2311
+  '(1 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MyInviteSessionHandler.cxx"
+  "MyInviteSessionHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  8592
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.cxx"
+  "B2BCall.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  30872
+  '(nil nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/XmlContents.cxx"
+  "XmlContents.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1920
   '(nil nil)
   nil
   nil

@@ -2,7 +2,6 @@
 /AuthenticationManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /AuthenticationManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /AuthorizationManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/B2BCall.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /B2BCall.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /B2BCallManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /B2BCallManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
@@ -30,7 +29,6 @@
 /MyAppDialog.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MyDialogSetHandler.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MyDialogSetHandler.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/MyInviteSessionHandler.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MyInviteSessionHandler.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /README.txt/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /RtpProxyRecurringTask.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
@@ -40,3 +38,5 @@
 /TaskManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /TaskManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 D/obj.debug.Linux.i686////
+/B2BCall.cxx/1.2/Wed Dec 24 07:44:49 2008//
+/MyInviteSessionHandler.cxx/1.2/Wed Dec 24 07:44:15 2008//

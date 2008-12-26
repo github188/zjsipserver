@@ -223,49 +223,49 @@ void MyInviteSessionHandler::onNewSession(ClientInviteSessionHandle cis, InviteS
 }
 
 void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg) {
-  B2BUA_LOG_DEBUG("onTerminated, reason = %d", reason);
-  B2BCall *call = getB2BCall(is.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onTerminated: unrecognised dialog");
-    return;
-  }
-  MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-  switch(reason) {
-  case PeerEnded: // received a BYE or CANCEL from peer
-    B2BUA_LOG_DEBUG("onTerminated: PeerEnded");
-    if(msg != NULL) {
-      if(msg->isRequest()) {
-        if(msg->header(h_RequestLine).getMethod() == CANCEL) {
-          call->onCancel();
-        } else if(msg->header(h_RequestLine).getMethod() == BYE) {
-          // MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-          call->onHangup(myAppDialog);
-        } else {
-          B2BUA_LOG_WARNING("unrecognised terminate method");
-        }
-      } else {
-        B2BUA_LOG_WARNING("terminate::PeerEnded, but message is not request");
-      }
-    } else {
-      B2BUA_LOG_WARNING("terminate::PeerEnded, but no message");
+    B2BUA_LOG_DEBUG("onTerminated, reason = %d", reason);
+    B2BCall *call = getB2BCall(is.get());
+    if(call == NULL) {
+	B2BUA_LOG_WARNING("onTerminated: unrecognised dialog");
+	return;
     }
-    break;
-  case Ended: // ended by the application
-    B2BUA_LOG_DEBUG("onTerminated: Ended");
-    //call->onFailure(myAppDialog);
-    break;
-  case GeneralFailure: // ended due to a failure
-    B2BUA_LOG_DEBUG("onTerminated: GeneralFailure");
-    call->onFailure(myAppDialog);
-    break;
-  case Cancelled: // ended by the application via Cancel
-    B2BUA_LOG_DEBUG("onTerminated: Cancelled"); 
-    // no need to do anything, because we have initiated this cancel
-    break;
-  default:
-    B2BUA_LOG_WARNING("onTerminated: unhandled case %d", reason);
-    break;
-  }
+    MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+    switch(reason) {
+    case PeerEnded: // received a BYE or CANCEL from peer
+	B2BUA_LOG_DEBUG("onTerminated: PeerEnded");
+	if(msg != NULL) {
+	    if(msg->isRequest()) {
+		if(msg->header(h_RequestLine).getMethod() == CANCEL) {
+		    call->onCancel();
+		} else if(msg->header(h_RequestLine).getMethod() == BYE) {
+		    // MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+		    call->onHangup(myAppDialog);
+		} else {
+		    B2BUA_LOG_WARNING("unrecognised terminate method");
+		}
+	    } else {
+		B2BUA_LOG_WARNING("terminate::PeerEnded, but message is not request");
+	    }
+	} else {
+	    B2BUA_LOG_WARNING("terminate::PeerEnded, but no message");
+	}
+	break;
+    case Ended: // ended by the application
+	B2BUA_LOG_DEBUG("onTerminated: Ended");
+	//call->onFailure(myAppDialog);
+	break;
+    case GeneralFailure: // ended due to a failure
+	B2BUA_LOG_DEBUG("onTerminated: GeneralFailure");
+	call->onFailure(myAppDialog);
+	break;
+    case Cancelled: // ended by the application via Cancel
+	B2BUA_LOG_DEBUG("onTerminated: Cancelled"); 
+	// no need to do anything, because we have initiated this cancel
+	break;
+    default:
+	B2BUA_LOG_WARNING("onTerminated: unhandled case %d", reason);
+	break;
+    }
 }
 
 void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {
