@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Wed Dec 24 19:30:51 2008
+;; Created Mon Dec 29 17:26:48 2008
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -382,7 +382,7 @@
   "XmlContents.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  1920
+  1031
   '(nil nil)
   nil
   nil
