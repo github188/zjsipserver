@@ -10,15 +10,24 @@ DefaultAuthorizationManager::DefaultAuthorizationManager() {
 }
 
 
-void DefaultAuthorizationManager::getAuthorization() {
+void 
+DefaultAuthorizationManager::getAuthorization() {
   B2BUA_LOG_CRIT("DefaultAuthorizationManager::getAuthorization not implemented");
   assert(0);
 }
 
-CallHandle *DefaultAuthorizationManager::authorizeCall(const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPass, const resip::Data& srcIp, const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, const resip::Data& controlId, time_t startTime) {
+CallHandle *
+DefaultAuthorizationManager::authorizeCall(const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, 
+					   const resip::Data& authRealm, const resip::Data& authUser, 
+					   const resip::Data& authPass, const resip::Data& srcIp, 
+					   const resip::Data& contextId, const resip::Data& accountId, 
+					   const resip::Data& baseIp, const resip::Data& controlId, time_t startTime) 
+{
   B2BUA_LOG_CRIT("DefaultAuthorizationManager::authorizeCall not implemented");
-  assert(0);
-  return NULL;
+//  assert(0);
+  return new MegaCallHandle(sourceAddr, destinationAddr, authRealm, 
+			authUser, authPass, srcIp, contextId, 
+			accountId, baseIp, controlId, startTime);
 }
 
 /* ====================================================================

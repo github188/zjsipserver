@@ -42,20 +42,164 @@ public:
   virtual const bool isSrvQuery() = 0;
 };
 
+class MegaCallRoute : public CallRoute
+{
+public:
+    MegaCallRoute( const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+		   const resip::Data& authUser, const resip::Data& authPass, const resip::Data& srcIp, 
+		   const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, 
+		   const resip::Data& controlId, time_t startTime)
+	: sourceAddr(sourceAddr), 
+	  destinationAddr(destinationAddr), 
+	  authRealm(authRealm), 
+	  authUser(authUser), 
+	  authPassword(authPassword), 
+	  srcIp(srcIp), 
+	  contextId(contextId), 
+	  accountId(accountId), 
+	  baseIp(baseIp), 
+	  controlId(controlId),
+	  startTime_(startTime)
+	{}
+
+    virtual ~MegaCallRoute()
+	{}
+    virtual const resip::Data& getAppRef1() 
+	{
+	    return appRef1;
+	}
+    virtual const resip::Data& getAppRef2()
+	{
+	    return appRef2;
+	}
+    virtual const resip::Data& getAuthRealm()
+	{
+	    return authRealm;
+	}
+    virtual const resip::Data& getAuthUser()
+	{
+	    return authUser;
+	}
+    virtual const resip::Data& getAuthPass()
+	{
+	    return authPassword;
+	}
+    virtual const resip::NameAddr& getSourceAddr()
+	{
+	    return sourceAddr;
+	}
+    virtual const resip::NameAddr& getDestinationAddr()
+	{
+	    return destinationAddr;
+	}
+    virtual const resip::Uri& getOutboundProxy()
+	{
+	    return proxy;
+	}
+    virtual const bool isSrvQuery()
+	{
+	    return false;
+	}
+
+private:
+    resip::NameAddr sourceAddr;
+    resip::NameAddr destinationAddr;
+    resip::Data authRealm;
+    resip::Data authUser;
+    resip::Data authPassword;
+    resip::Data srcIp;
+    resip::Data contextId;
+    resip::Data accountId;
+    resip::Data baseIp;
+    resip::Data controlId;
+
+    resip::Data appRef1;
+    resip::Data appRef2;
+
+    resip::Uri proxy;
+
+    time_t startTime_;
+};
+
 class CallHandle {
 public:
-  virtual ~CallHandle();
-  virtual int getAuthResult() = 0; 
-  virtual const resip::Data& getRealm() = 0;	// Realm for client auth,
+    virtual ~CallHandle();
+    virtual int getAuthResult() = 0; 
+    virtual const resip::Data& getRealm() = 0;	// Realm for client auth,
 						// if we require further auth
-  virtual time_t getHangupTime() = 0;		// The time to hangup,
+    virtual time_t getHangupTime() = 0;		// The time to hangup,
 						// 0 for no limit
-  virtual bool mustHangup() = 0;
-  virtual void connect(time_t *connectTime) = 0; // The call connected
-  virtual void fail(time_t *finishTime) = 0;	// The attempt failed, or
+    virtual bool mustHangup() = 0;
+    virtual void connect(time_t *connectTime) = 0; // The call connected
+    virtual void fail(time_t *finishTime) = 0;	// The attempt failed, or
 						// the caller gave up
-  virtual void finish(time_t *finishTime) = 0;	// The call hungup
-  virtual std::list<CallRoute *>& getRoutes() = 0;
+    virtual void finish(time_t *finishTime) = 0;	// The call hungup
+    virtual std::list<CallRoute *>& getRoutes() = 0;
+};
+
+class MegaCallHandle : public CallHandle
+{
+public:
+    MegaCallHandle(const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+		   const resip::Data& authUser, const resip::Data& authPass, const resip::Data& srcIp, 
+		   const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, 
+		   const resip::Data& controlId, time_t startTime)
+	: realm_(authRealm)
+	{
+	    MegaCallRoute *mcr = new MegaCallRoute(sourceAddr, destinationAddr, authRealm, authUser, 
+						   authPass, srcIp, contextId, accountId, baseIp, 
+						   controlId, startTime);
+	    routelist_.push_front(mcr);
+	}
+
+    virtual ~MegaCallHandle() 
+	{
+	    while( !routelist_.empty() )
+	    {
+		CallRoute *item = routelist_.front();
+		delete item;
+		routelist_.pop_front();
+	    }
+	}
+
+    virtual int getAuthResult() 
+	{
+	    return 0;
+	} 
+
+    virtual const resip::Data& getRealm()  // Realm for client auth, if we require further auth
+	{
+	    return realm_;
+	}
+    virtual time_t getHangupTime()	   // The time to hangup, 0 for no limit
+	{
+	    return 0;
+	}
+    virtual bool mustHangup()
+	{
+	    return false; //no hangUp
+	}
+    virtual void connect(time_t *connectTime)  // The call connected
+	{
+	    if ( connectTime )
+		connectTime_ = *connectTime;
+	}
+    virtual void fail(time_t *finishTime)	// The attempt failed, or the caller gave up
+	{ }
+    virtual void finish(time_t *finishTime)	// The call hungup
+	{
+	    if ( finishTime )
+		finishTime_ = *finishTime;
+	}
+    virtual std::list<CallRoute *>& getRoutes()
+	{
+	    return routelist_;
+	}
+private:
+    time_t connectTime_;
+    time_t finishTime_;
+    resip::Data realm_;
+    std::list<CallRoute *> routelist_;
 };
 
 }

@@ -63,30 +63,48 @@ const char *B2BCall::basicClearingReasonName[] = {
   B2BCall::callController = callController;
 } */
 
-B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationManager& authorizationManager, MyAppDialog *aLegAppDialog, const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPassword, const resip::Data& srcIp, const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, const resip::Data& controlId) : cdrHandler(cdrHandler), dum(dum), authorizationManager(authorizationManager), sourceAddr(sourceAddr), destinationAddr(destinationAddr), authRealm(authRealm), authUser(authUser), authPassword(authPassword), srcIp(srcIp), contextId(contextId), accountId(accountId), baseIp(baseIp), controlId(controlId) {
-  callHandle = NULL;
-  fullClearingReason = Unset;
-  rejectOtherCode = 0;
-  failureStatusCode = -1;
-  this->aLegAppDialog = aLegAppDialog;
-  aLegAppDialog->setB2BCall(this);
-  bLegAppDialogSet = NULL;
-  bLegAppDialog = NULL;
-  //callState = CALL_NEW;
-  callState = NewCall;
-  time(&startTime);
-  connectTime = 0;
-  finishTime = 0;
-  //aLegSdp = NULL;
-  //bLegSdp = NULL;
-  try {
-    mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getCallId(), aLegAppDialog->getDialogId().getLocalTag(), Data(""));
-  } catch (...) {
-    B2BUA_LOG_ERR("failed to instantiate MediaManager");
-    throw new exception;
-  }
-  earlyAnswerSent = false;
-  failureReason = NULL;
+B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationManager& authorizationManager, 
+		 MyAppDialog *aLegAppDialog, const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, 
+		 const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPassword, 
+		 const resip::Data& srcIp, const resip::Data& contextId, const resip::Data& accountId, 
+		 const resip::Data& baseIp, const resip::Data& controlId) 
+    : cdrHandler(cdrHandler), 
+      dum(dum), 
+      authorizationManager(authorizationManager), 
+      sourceAddr(sourceAddr), 
+      destinationAddr(destinationAddr), 
+      authRealm(authRealm), 
+      authUser(authUser), 
+      authPassword(authPassword), 
+      srcIp(srcIp), 
+      contextId(contextId), 
+      accountId(accountId), 
+      baseIp(baseIp), 
+      controlId(controlId) 
+{
+    callHandle = NULL;
+    fullClearingReason = Unset;
+    rejectOtherCode = 0;
+    failureStatusCode = -1;
+    this->aLegAppDialog = aLegAppDialog;
+    aLegAppDialog->setB2BCall(this);
+    bLegAppDialogSet = NULL;
+    bLegAppDialog = NULL;
+    //callState = CALL_NEW;
+    callState = NewCall;
+    time(&startTime);
+    connectTime = 0;
+    finishTime = 0;
+    //aLegSdp = NULL;
+    //bLegSdp = NULL;
+    try {
+	mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getCallId(), aLegAppDialog->getDialogId().getLocalTag(), Data(""));
+    } catch (...) {
+	B2BUA_LOG_ERR("failed to instantiate MediaManager");
+	throw new exception;
+    }
+    earlyAnswerSent = false;
+    failureReason = NULL;
 //  calls.push_back(this);
 }
 
@@ -673,17 +691,20 @@ B2BCall::CallStatus B2BCall::getStatus() {
   }
 }
 
-void B2BCall::doNewCall() {
-  // Indicate trying
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  sis->provisional(100);
-  callHandle = authorizationManager.authorizeCall(sourceAddr, destinationAddr, authRealm, authUser, authPassword, srcIp, contextId, accountId, baseIp, controlId, startTime);
-  if(callHandle == NULL) {
-    B2BUA_LOG_WARNING("failed to get callHandle");
-    setCallState(CallStop);
-  } else {
-    setCallState(AuthorizationPending);
-  }
+void B2BCall::doNewCall() 
+{
+    // Indicate trying
+    ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
+    sis->provisional(100);
+    callHandle = authorizationManager.authorizeCall(sourceAddr, destinationAddr, authRealm, 
+						    authUser, authPassword, srcIp, contextId, 
+						    accountId, baseIp, controlId, startTime);
+    if(callHandle == NULL) {
+	B2BUA_LOG_WARNING("failed to get callHandle");
+	setCallState(CallStop);
+    } else {
+	setCallState(AuthorizationPending);
+    }
 }
 
 void B2BCall::doCallerCancel() {

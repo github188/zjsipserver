@@ -27,29 +27,62 @@ B2BUA::B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler)
   taskManager = new TaskManager();
 
   sipStack = new SipStack();
-  dialogUsageManager = new DialogUsageManager(*sipStack);
+  dum_ = new DialogUsageManager(*sipStack);
   uasMasterProfile = SharedPtr<MasterProfile>(new MasterProfile);
-  dialogUsageManager->setMasterProfile(uasMasterProfile);
+  dum_->setMasterProfile(uasMasterProfile);
   auto_ptr<AppDialogSetFactory> myAppDialogSetFactory(new MyAppDialogSetFactory);
-  dialogUsageManager->setAppDialogSetFactory(myAppDialogSetFactory);
+  dum_->setAppDialogSetFactory(myAppDialogSetFactory);
 
   // Set up authentication when we act as UAC
   auto_ptr<ClientAuthManager> clientAuth(new ClientAuthManager);
-  dialogUsageManager->setClientAuthManager(clientAuth);
+  dum_->setClientAuthManager(clientAuth);
 
-  dialogUsageManager->setDialogSetHandler(new MyDialogSetHandler());
+  dum_->setDialogSetHandler(new MyDialogSetHandler());
 
-  DialogUsageManagerRecurringTask *dialogUsageManagerTask = new DialogUsageManagerRecurringTask(*sipStack, *dialogUsageManager);
-  taskManager->addRecurringTask(dialogUsageManagerTask);
-  callManager = new B2BCallManager(*dialogUsageManager, authorizationManager, cdrHandler);
+  DialogUsageManagerRecurringTask *dum_Task = new DialogUsageManagerRecurringTask(*sipStack, *dum_);
+  taskManager->addRecurringTask(dum_Task);
+  callManager = new B2BCallManager(*dum_, authorizationManager, cdrHandler);
   taskManager->addRecurringTask(callManager);
 
-  MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dialogUsageManager, *callManager);
-  dialogUsageManager->setInviteSessionHandler(uas);
-
+  MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum_, *callManager);
+  dum_->setInviteSessionHandler(uas);
 }
 
-B2BUA::~B2BUA() {
+void
+B2BUA::init(resip::DialogUsageManager *dum) //zhangjun add
+{
+    AuthorizationManager *authorizationManager = new DefaultAuthorizationManager();
+    
+    taskManager = new TaskManager();
+
+//    sipStack = new SipStack();
+//    dum = new DialogUsageManager(*sipStack);
+//    uasMasterProfile = SharedPtr<MasterProfile>(new MasterProfile);
+//    dum->setMasterProfile(uasMasterProfile);
+
+    auto_ptr<AppDialogSetFactory> myAppDialogSetFactory(new MyAppDialogSetFactory);
+    dum->setAppDialogSetFactory(myAppDialogSetFactory);
+
+    // Set up authentication when we act as UAC
+    auto_ptr<ClientAuthManager> clientAuth(new ClientAuthManager);
+    dum->setClientAuthManager(clientAuth);//!!! handle response, look Dialog.cxx L601
+
+    dum->setDialogSetHandler(new MyDialogSetHandler());//!!!handle response, look DialogSet.cxx L603
+
+    //custom invitesessionhandler
+    MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum, *callManager);
+    dum->setInviteSessionHandler(uas);
+
+//    DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(*sipStack, *dum);
+//    taskManager->addRecurringTask(dumTask);
+
+    DailyCDRHandler cdrHandler("test.cdr");
+    callManager = new B2BCallManager(*dum, authorizationManager, cdrHandler);
+    taskManager->addRecurringTask(callManager);
+}
+
+B2BUA::~B2BUA() 
+{
 }
 
 void B2BUA::setAuthorizationManager(AuthorizationManager *authorizationManager) {

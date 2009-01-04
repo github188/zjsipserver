@@ -150,7 +150,7 @@ protected:
   time_t connectTime;
   time_t finishTime;
 
-  // CallHandle from CallController
+  // CallHandle from CallController, core unit!!!
   CallHandle *callHandle;
   std::list<CallRoute *>::iterator callRoute;
   resip::Data appRef1;

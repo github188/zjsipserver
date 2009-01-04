@@ -19,15 +19,16 @@ namespace b2bua
  * Derived classes might extend the way some activities are performed, and
  * must define ways to initialise the managers required by the application
  */
-class B2BUA {
+class B2BUA 
+{
 
 protected:
 
-  TaskManager *taskManager;
+    TaskManager *taskManager;
 
-  B2BCallManager *callManager;
+    B2BCallManager *callManager;
 
-  AuthorizationManager *authorizationManager;
+    AuthorizationManager *authorizationManager;
 //  AuthorizationManager *authorizationManager;
 //  AccountingManager *accountingManager;
   
@@ -37,25 +38,31 @@ protected:
   
 //  resip::ServerAuthManager *serverAuthManager;
 //  resip::InviteSessionHandler *inviteSessionHandler;
-  resip::SharedPtr<resip::MasterProfile> uasMasterProfile;
-  resip::DialogUsageManager *dialogUsageManager; 
-  resip::SipStack *sipStack;
+    resip::SharedPtr<resip::MasterProfile> uasMasterProfile;
+    resip::DialogUsageManager *dum_; //zhangjun rename
+    resip::SipStack *sipStack;
 
-  B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
-  virtual ~B2BUA();
-  void setAuthorizationManager(AuthorizationManager *authorizationManager);
+    void init(resip::DialogUsageManager *dum); //zhangjun add
+    
+    //Contructs
+    B2BUA()
+	{}
+
+    B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
+    virtual ~B2BUA();
+    void setAuthorizationManager(AuthorizationManager *authorizationManager);
 
 public:
-  // Run the B2BUA
-  // only returns when B2BUA stops
-  virtual void run();
+    // Run the B2BUA
+    // only returns when B2BUA stops
+    virtual void run();
 
-  // Send some stats about the system to syslog
-  virtual void logStats();
+    // Send some stats about the system to syslog
+    virtual void logStats();
 
-  // Indicate to the B2BUA that it should shutdown cleanly
-  // (stop all calls, wait for all managers to stop)
-  virtual void stop();
+    // Indicate to the B2BUA that it should shutdown cleanly
+    // (stop all calls, wait for all managers to stop)
+    virtual void stop();
 
 };
 

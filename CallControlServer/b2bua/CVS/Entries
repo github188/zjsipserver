@@ -2,16 +2,11 @@
 /AuthenticationManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /AuthenticationManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /AuthorizationManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/B2BCall.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /B2BCallManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /B2BCallManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/B2BUA.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/B2BUA.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /CDRHandler.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /CallHandle.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/CallHandle.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /DailyCDRHandler.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/DefaultAuthorizationManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /DefaultAuthorizationManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /DialogUsageManagerRecurringTask.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /DialogUsageManagerRecurringTask.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
@@ -38,5 +33,10 @@
 /TaskManager.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /TaskManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 D/obj.debug.Linux.i686////
-/B2BCall.cxx/1.2/Wed Dec 24 07:44:49 2008//
 /MyInviteSessionHandler.cxx/1.2/Wed Dec 24 07:44:15 2008//
+/B2BCall.cxx/1.3/Sun Jan  4 08:10:07 2009//
+/B2BCall.hxx/1.2/Sun Jan  4 08:12:15 2009//
+/B2BUA.cxx/1.2/Sun Jan  4 06:47:57 2009//
+/B2BUA.hxx/1.2/Sun Jan  4 06:40:18 2009//
+/CallHandle.hxx/1.2/Sun Jan  4 09:18:18 2009//
+/DefaultAuthorizationManager.cxx/1.2/Sun Jan  4 09:22:43 2009//

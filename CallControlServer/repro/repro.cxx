@@ -44,6 +44,7 @@
 #include "repro/megaeyes/MegaIsTrustedNode.hxx"
 #include "repro/megaeyes/MegaWebServer.hxx"
 #include "repro/megaeyes/MegaWebServerThread.hxx"
+#include "repro/megaeyes/B2buaThread.hxx"
 //zhangjun change end 
 
 
@@ -548,6 +549,10 @@ main(int argc, char** argv)
     //web access interface
     MegaWebServer mws( regData, 8080, resip::V4, realm, dum );
     MegaWebServerThread mwsThread(mws);
+
+    //b2bua 
+    b2bua::B2BUA b2b(dum);
+    B2buaThread b2bThread(b2b);
 //zhangjun add end
 
     /* Make it all go */
@@ -560,8 +565,9 @@ main(int argc, char** argv)
     }
     
     mwsThread.run();//zhangjun add
+    b2bThread.run();//zhangjun add
+    
 
-   
     while (!finished)
     {
 #ifdef WIN32
@@ -579,6 +585,7 @@ main(int argc, char** argv)
 	dumThread->shutdown();
     }
     mwsThread.shutdown();//zhangjun add
+    b2bThread.shutdown();//zhangjun add
 
     proxy.join();
     stackThread.join();
