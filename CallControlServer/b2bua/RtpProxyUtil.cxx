@@ -47,119 +47,120 @@ int RtpProxyUtil::rtpproxy_tout = DEFAULT_RTPPROXY_TOUT;
 
 map<int, RtpProxyUtil *> RtpProxyUtil::proxies;
 
-void RtpProxyUtil::setSocket(const char *socket) {
-  if((rtpproxy_sock = (char *)malloc(strlen(socket) + 1)) == NULL) {
-    B2BUA_LOG_ERR("setSocket: malloc failed");
-    throw;
-  }
-  strcpy(rtpproxy_sock, socket);
+void RtpProxyUtil::setSocket(const char *socket) 
+{
+    if((rtpproxy_sock = (char *)malloc(strlen(socket) + 1)) == NULL) {
+	B2BUA_LOG_ERR( <<"setSocket: malloc failed");
+	throw;
+    }
+    strcpy(rtpproxy_sock, socket);
 }
 
 void RtpProxyUtil::setTimeoutSocket(const char *socket) {
   if((timeout_sock = (char *)malloc(strlen(socket) + 1)) == NULL) {
-    B2BUA_LOG_ERR("setSocket: malloc failed");
+      B2BUA_LOG_ERR( <<"setSocket: malloc failed");
     throw;
   }
   strcpy(timeout_sock, socket);
 }
 
 void RtpProxyUtil::init() {
-  umode = 0;
+    umode = 0;
 //  rtpproxy_sock = DEFAULT_RTPPROXY_SOCK;
 //  timeout_sock = DEFAULT_RTPPROXY_TIMEOUT_SOCK;
-  rtpproxy_retr = DEFAULT_RTPPROXY_RETR;
-  rtpproxy_tout = DEFAULT_RTPPROXY_TOUT;
+    rtpproxy_retr = DEFAULT_RTPPROXY_RETR;
+    rtpproxy_tout = DEFAULT_RTPPROXY_TOUT;
 
-  int len;
-  struct sockaddr_un local;
+    int len;
+    struct sockaddr_un local;
 
-  int flags;
+    int flags;
 
-  if ((timeoutfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    B2BUA_LOG_ERR("socket: %m");
-    exit(1); // FIXME
-  }
+    if ((timeoutfd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+	B2BUA_LOG_ERR( <<"RtpProxyUtil::init socket: error");
+	exit(1); // FIXME
+    }
 
-  local.sun_family = AF_UNIX;
-  strcpy(local.sun_path, timeout_sock);
-  unlink(local.sun_path);
-  len = strlen(local.sun_path) + sizeof(local.sun_family);
-  if (bind(timeoutfd, (struct sockaddr *)&local, len) == -1) {
-    B2BUA_LOG_ERR("bind: %m");
-    exit(1); // FIXME
-  }
+    local.sun_family = AF_UNIX;
+    strcpy(local.sun_path, timeout_sock);
+    unlink(local.sun_path);
+    len = strlen(local.sun_path) + sizeof(local.sun_family);
+    if (bind(timeoutfd, (struct sockaddr *)&local, len) == -1) {
+	B2BUA_LOG_ERR( <<"RtpProxyUtil::init bind: error");
+	exit(1); // FIXME
+    }
 
-  if (listen(timeoutfd, 5) == -1) {
-    B2BUA_LOG_ERR("listen: %m");
-    exit(1); // FIXME
-  } 
+    if (listen(timeoutfd, 5) == -1) {
+	B2BUA_LOG_ERR( <<"RtpProxyUtil::init listen: error");
+	exit(1); // FIXME
+    } 
 
-  flags = fcntl(timeoutfd, F_GETFL);
-  flags |= O_NONBLOCK;
-  fcntl(timeoutfd, F_SETFL, flags);
+    flags = fcntl(timeoutfd, F_GETFL);
+    flags |= O_NONBLOCK;
+    fcntl(timeoutfd, F_SETFL, flags);
 
-  timeout_clientfd = -1;
+    timeout_clientfd = -1;
 
-  B2BUA_LOG_NOTICE("telling rtpproxy to flush calls");
-  // Check the version
-  struct iovec v[2] = {{NULL, 0}, {(char *)"x", 1}};
-  char *cp = sendCommandRetry(RTPPROXY_RETRY_COUNT, v, 2, "");
-  if(cp == NULL)
-    throw new exception;
+    B2BUA_LOG_NOTICE( <<"telling rtpproxy to flush calls");
+    // Check the version
+    struct iovec v[2] = {{NULL, 0}, {(char *)"x", 1}};
+    char *cp = sendCommandRetry(RTPPROXY_RETRY_COUNT, v, 2, "");
+    if(cp == NULL)
+	throw new exception;
 }
 
 void RtpProxyUtil::do_timeouts() {
-  // check for new connections with accept
-  // read any data with read
-  socklen_t t;
-  struct sockaddr_un remote;
-  int flags;
-  int n;
-  char buf[100];
-  int p1, p2;
+    // check for new connections with accept
+    // read any data with read
+    socklen_t t;
+    struct sockaddr_un remote;
+    int flags;
+    int n;
+    char buf[100];
+    int p1, p2;
 
-  if(timeout_clientfd == -1) {
-    t = sizeof(remote);
-    if((timeout_clientfd = accept(timeoutfd, (struct sockaddr *)&remote, &t)) == -1) {
-      if(errno == EAGAIN) {
-        // no connections coming in from rtpproxy
-        return;
-      }
-      B2BUA_LOG_ERR("accept: %m");
-      exit(1);
+    if(timeout_clientfd == -1) {
+	t = sizeof(remote);
+	if((timeout_clientfd = accept(timeoutfd, (struct sockaddr *)&remote, &t)) == -1) {
+	    if(errno == EAGAIN) {
+		// no connections coming in from rtpproxy
+		return;
+	    }
+	    B2BUA_LOG_ERR( <<"RtpProxyUtil::do_timeouts accept: error");
+	    exit(1);
+	}
+	B2BUA_LOG_DEBUG( <<"accepted a new connection from rtpproxy");
+	flags = fcntl(timeout_clientfd, F_GETFL);
+	flags |= O_NONBLOCK;
+	fcntl(timeout_clientfd, F_SETFL, flags);
     }
-    B2BUA_LOG_DEBUG("accepted a new connection from rtpproxy");
-    flags = fcntl(timeout_clientfd, F_GETFL);
-    flags |= O_NONBLOCK;
-    fcntl(timeout_clientfd, F_SETFL, flags);
-  }
   
-  n = recv(timeout_clientfd, buf, 100, 0);
-  if (n == -1) {
-    if (errno != EAGAIN) {
-      // FIXME
-      B2BUA_LOG_ERR("recv: %m");
-      close(timeout_clientfd);
-      timeout_clientfd = -1;
-    } 
-    return;
-  }
-  if(n== 0) {
-    // n = 0 means that socket closed remotely
-    timeout_clientfd = -1;
-    return;
-  }
-
-  buf[n] = 0;
-  if((n = sscanf(buf, "%d %d\n", &p1, &p2)) != 2) {
-    B2BUA_LOG_WARNING("invalid number of arguments from rtpproxy_timeout client [%s]", buf);
-  } else {
-    B2BUA_LOG_DEBUG("timeout on ports %d %d", p1, p2);
-    if(proxies.count(p1) == 1) {
-      RtpProxyUtil *proxy = proxies.find(p1)->second;
-      proxy->mediaTimeout();
+    n = recv(timeout_clientfd, buf, 100, 0);
+    if (n == -1) {
+	if (errno != EAGAIN) {
+	    // FIXME
+	    B2BUA_LOG_ERR( <<"RtpProxyUtil::do_timeouts recv: error");
+	    close(timeout_clientfd);
+	    timeout_clientfd = -1;
+	} 
+	return;
     }
-  }
+    if(n== 0) {
+	// n = 0 means that socket closed remotely
+	timeout_clientfd = -1;
+	return;
+    }
+
+    buf[n] = 0;
+    if((n = sscanf(buf, "%d %d\n", &p1, &p2)) != 2) {
+	B2BUA_LOG_WARNING( <<"RtpProxyUtil::do_timeouts invalid number of arguments from rtpproxy_timeout client ["<< buf <<"]" );
+    } else {
+	B2BUA_LOG_DEBUG( <<"timeout on ports "<< p1<< " "<< p2);
+	if(proxies.count(p1) == 1) {
+	    RtpProxyUtil *proxy = proxies.find(p1)->second;
+	    proxy->mediaTimeout();
+	}
+    }
 }
 
 
@@ -335,108 +336,108 @@ char *RtpProxyUtil::sendCommandRetry(int retries, struct iovec *v, int vcnt, cha
 
 char *RtpProxyUtil::sendCommand(struct iovec *v, int vcnt, char *my_cookie) {
 
-        struct sockaddr_un addr;
-        int fd, i, len;
-        char *cp;
-        static char buf[256];
-        struct pollfd fds[1];
+    struct sockaddr_un addr;
+    int fd, i, len;
+    char *cp;
+    static char buf[256];
+    struct pollfd fds[1];
 
-        len = 0;
-        cp = buf;
-        if (umode == 0) {
-                memset(&addr, 0, sizeof(addr));
-                addr.sun_family = AF_LOCAL;
-                strncpy(addr.sun_path, rtpproxy_sock,
-                    sizeof(addr.sun_path) - 1);
+    len = 0;
+    cp = buf;
+    if (umode == 0) {
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_LOCAL;
+	strncpy(addr.sun_path, rtpproxy_sock,
+		sizeof(addr.sun_path) - 1);
 #ifdef HAVE_SOCKADDR_SA_LEN
-                addr.sun_len = strlen(addr.sun_path);
+	addr.sun_len = strlen(addr.sun_path);
 #endif
 
-                fd = socket(AF_LOCAL, SOCK_STREAM, 0);
-                if (fd < 0) {
-			B2BUA_LOG_ERR("send_rtpp_command: can't create socket");
-                        return NULL;
-                }
-                if (connect(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-                        close(fd);
-			B2BUA_LOG_ERR("ERROR: send_rtpp_command: can't connect to RTP proxy: %s", addr.sun_path);
-			//perror("RtpProxyUtil");
-                        return NULL;
-                }
+	fd = socket(AF_LOCAL, SOCK_STREAM, 0);
+	if (fd < 0) {
+	    B2BUA_LOG_ERR( <<"send_rtpp_command: can't create socket");
+	    return NULL;
+	}
+	if (connect(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+	    close(fd);
+	    B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command: can't connect to RTP proxy: "<< addr.sun_path);
+	    //perror("RtpProxyUtil");
+	    return NULL;
+	}
 
-                do {
-                        len = writev(fd, v + 1, vcnt - 1);
-                } while (len == -1 && errno == EINTR);
-                if (len <= 0) {
-                        close(fd);
-			B2BUA_LOG_ERR("ERROR: send_rtpp_command: can't send command to a RTP proxy");
-                        return NULL;
-                }
-                do {
-                        len = read(fd, buf, sizeof(buf) - 1);
-                } while (len == -1 && errno == EINTR);
-                close(fd);
-                if (len <= 0) {
-			B2BUA_LOG_ERR("ERROR: send_rtpp_command: can't read reply from the RTP proxy, errno = %d", errno);
-                        return NULL;
-                }
-        } else {
-                fds[0].fd = controlfd;
-                fds[0].events = POLLIN;
-                fds[0].revents = 0;
-                /* Drain input buffer */
-                while ((poll(fds, 1, 0) == 1) &&
-                    ((fds[0].revents & POLLIN) != 0)) {
-                        recv(controlfd, buf, sizeof(buf) - 1, 0);
-                        fds[0].revents = 0;
-                }
-                v[0].iov_base = my_cookie;
-                v[0].iov_len = strlen((const char *)v[0].iov_base);
-                for (i = 0; i < rtpproxy_retr; i++) {
-                        do {
-                                len = writev(controlfd, v, vcnt);
-                        } while (len == -1 && (errno == EINTR || errno == ENOBUFS));
-                        if (len <= 0) {
-                                /* LOG(L_ERR, "ERROR: send_rtpp_command: "
-                                    "can't send command to a RTP proxy\n"); */
-				B2BUA_LOG_ERR("ERROR: send_rtpp_command: can't send command to a RTP proxy");
-                                return NULL;
-                        }
-                        while ((poll(fds, 1, rtpproxy_tout * 1000) == 1) &&
-                            (fds[0].revents & POLLIN) != 0) {
-                                do {
-                                        len = recv(controlfd, buf, sizeof(buf) - 1, 0);
-                                } while (len == -1 && errno == EINTR);
-                                if (len <= 0) {
-                                        /* LOG(L_ERR, "ERROR: send_rtpp_command: "
-                                            "can't read reply from a RTP proxy\n"); */
-					B2BUA_LOG_ERR("ERROR: send_rtpp_command:can't read reply from a RTP proxy");
-                                        return NULL;
-                                }
-                                if (len >= (v[0].iov_len - 1) &&
-                                    memcmp(buf, v[0].iov_base, (v[0].iov_len - 1)) == 0) {
-                                        len -= (v[0].iov_len - 1);
-                                        cp += (v[0].iov_len - 1);
-                                        if (len != 0) {
-                                                len--;
-                                                cp++;
-                                        }
-                                        goto out;
-                                }
-                                fds[0].revents = 0;
-                        }
-                }
-                if (i == rtpproxy_retr) {
-                        /* LOG(L_ERR, "ERROR: send_rtpp_command: "
-                            "timeout waiting reply from a RTP proxy\n"); */
-			B2BUA_LOG_ERR("ERROR: send_rtpp_command: timeout waiting reply from a RTP proxy");
-                        return NULL;
-                }
-        }
+	do {
+	    len = writev(fd, v + 1, vcnt - 1);
+	} while (len == -1 && errno == EINTR);
+	if (len <= 0) {
+	    close(fd);
+	    B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command: can't send command to a RTP proxy");
+	    return NULL;
+	}
+	do {
+	    len = read(fd, buf, sizeof(buf) - 1);
+	} while (len == -1 && errno == EINTR);
+	close(fd);
+	if (len <= 0) {
+	    B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command: can't read reply from the RTP proxy, errno = "<< errno);
+	    return NULL;
+	}
+    } else {
+	fds[0].fd = controlfd;
+	fds[0].events = POLLIN;
+	fds[0].revents = 0;
+	/* Drain input buffer */
+	while ((poll(fds, 1, 0) == 1) &&
+	       ((fds[0].revents & POLLIN) != 0)) {
+	    recv(controlfd, buf, sizeof(buf) - 1, 0);
+	    fds[0].revents = 0;
+	}
+	v[0].iov_base = my_cookie;
+	v[0].iov_len = strlen((const char *)v[0].iov_base);
+	for (i = 0; i < rtpproxy_retr; i++) {
+	    do {
+		len = writev(controlfd, v, vcnt);
+	    } while (len == -1 && (errno == EINTR || errno == ENOBUFS));
+	    if (len <= 0) {
+		/* LOG(L_ERR, "ERROR: send_rtpp_command: "
+		   "can't send command to a RTP proxy\n"); */
+		B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command: can't send command to a RTP proxy");
+		return NULL;
+	    }
+	    while ((poll(fds, 1, rtpproxy_tout * 1000) == 1) &&
+		   (fds[0].revents & POLLIN) != 0) {
+		do {
+		    len = recv(controlfd, buf, sizeof(buf) - 1, 0);
+		} while (len == -1 && errno == EINTR);
+		if (len <= 0) {
+		    /* LOG(L_ERR, "ERROR: send_rtpp_command: "
+		       "can't read reply from a RTP proxy\n"); */
+		    B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command:can't read reply from a RTP proxy");
+		    return NULL;
+		}
+		if (len >= (v[0].iov_len - 1) &&
+		    memcmp(buf, v[0].iov_base, (v[0].iov_len - 1)) == 0) {
+		    len -= (v[0].iov_len - 1);
+		    cp += (v[0].iov_len - 1);
+		    if (len != 0) {
+			len--;
+			cp++;
+		    }
+		    goto out;
+		}
+		fds[0].revents = 0;
+	    }
+	}
+	if (i == rtpproxy_retr) {
+	    /* LOG(L_ERR, "ERROR: send_rtpp_command: "
+	       "timeout waiting reply from a RTP proxy\n"); */
+	    B2BUA_LOG_ERR( <<"ERROR: send_rtpp_command: timeout waiting reply from a RTP proxy");
+	    return NULL;
+	}
+    }
 
 out:
-        cp[len] = '\0';
-        return cp;  
+    cp[len] = '\0';
+    return cp;  
 
 }
 

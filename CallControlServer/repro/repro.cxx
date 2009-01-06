@@ -127,7 +127,52 @@ addDomains(TransactionUser& tu, CommandLineParser& args, Store& store)
    return realm;
 }
 
+DialogUsageManager*
+getB2bDum( SipStack& stack )
+{
+    SharedPtr<MasterProfile> profile(new MasterProfile);
 
+    profile->addSupportedOptionTag(Token("outbound"));
+    profile->addSupportedOptionTag(Token("path"));
+    
+    DialogUsageManager* dum = NULL;
+    resip::MessageFilterRuleList ruleList;
+
+    dum = new DialogUsageManager(stack);
+//    addDomains(*dum, args, store); //do this in outside!!!
+
+    // Install rules so that the registrar only gets REGISTERs
+    resip::MessageFilterRule::MethodList methodList;
+
+    //!!!zhangjun change begin:增加媒体会话访问相关的处理指令,这些指令应该交给b2bua处理
+    //add method list
+    methodList.push_back(resip::INVITE);
+    methodList.push_back(resip::CANCEL);
+    methodList.push_back(resip::ACK);
+    methodList.push_back(resip::BYE);
+    methodList.push_back(resip::OPTIONS);
+    methodList.push_back(resip::UPDATE);
+    methodList.push_back(resip::PRACK);
+    methodList.push_back(resip::INFO); //info不能交给proxy处理，因为如果使用了b2bua的话，客户端和接入的对话，以及接入和前端的对话标识不一样
+
+    //add profile
+    //!!!INVITE CANCEL ACK BYE OPTIONS UPDATE PRACKis what profile support in default
+    profile->addSupportedMimeType( resip::INFO, resip::Mime("application", "global_eye_v10+xml") );
+    profile->addSupportedMethod( resip::INFO );
+
+    //resip::MessageFilterRule::HostpartList hostlist;
+    //hostlist.push_back("192.168.5.232");
+
+    resip::Data sername("");
+    ruleList.push_back ( MessageFilterRule(resip::MessageFilterRule::SchemeList(),
+					   dum,
+					   sername,
+					   methodList) 
+	);
+
+    dum->setMessageFilterRuleList(ruleList);
+    return dum;
+}
 
 int
 main(int argc, char** argv)
@@ -419,7 +464,6 @@ main(int argc, char** argv)
     //profile->clearSupportedMethods();
     //zhangjun change end
 
-    profile->addSupportedMethod(resip::REGISTER);
 #ifdef USE_SSL
     profile->addSupportedScheme(Symbols::Sips);
 #endif
@@ -458,18 +502,12 @@ main(int argc, char** argv)
 	// Install rules so that the registrar only gets REGISTERs
 	resip::MessageFilterRule::MethodList methodList;
 	methodList.push_back(resip::REGISTER);
+	profile->addSupportedMethod(resip::REGISTER);
 
 	//!!!zhangjun change begin:增加媒体会话访问相关的处理指令,这些指令应该交给b2bua处理
-	methodList.push_back(resip::INVITE);
-	methodList.push_back(resip::CANCEL);
-	methodList.push_back(resip::ACK);
-	methodList.push_back(resip::BYE);
-	methodList.push_back(resip::INFO); //info不能交给proxy处理，因为如果使用了b2bua的话，客户端和接入的对话，以及接入和前端的对话标识不一样
-	profile->addSupportedMimeType( resip::INFO, resip::Mime("application", "global_eye_v10+xml") );
-	profile->addSupportedMethod( resip::INFO );
 
 	//!!!zhangjun change :增加message和subscribe处理指令.如果是会话内的message请求应该交给b2bua处理，否则由dum处理
-	methodList.push_back(resip::MESSAGE);
+	methodList.push_back(resip::MESSAGE);//!!!not all MESSAGE is handled by dum. if user and sername is not match, handled by proxy, e.g. paraget
         profile->addSupportedMimeType( resip::MESSAGE, resip::Mime("application", "global_eye_v10+xml") );
         profile->addSupportedMethod( resip::MESSAGE );
 
@@ -551,7 +589,11 @@ main(int argc, char** argv)
     MegaWebServerThread mwsThread(mws);
 
     //b2bua 
-    b2bua::B2BUA b2b(dum);
+    DialogUsageManager *b2bdum = getB2bDum(stack);
+    addDomains(*b2bdum, args, store);    
+
+    b2bua::B2BUA b2b;
+    b2b.init(b2bdum);
     B2buaThread b2bThread(b2b);
 //zhangjun add end
 
@@ -595,7 +637,8 @@ main(int argc, char** argv)
 	dumThread->join();
 	delete dumThread;
     }
-    mwsThread.join();
+    mwsThread.join();//zhangjun add
+    b2bThread.join();//zhangjun add 
 
 #if defined(USE_SSL)
     if(certServer)
@@ -607,6 +650,11 @@ main(int argc, char** argv)
     if(dum) 
     {
 	delete dum;
+    }
+
+    if(b2bdum)
+    {
+	delete b2bdum;
     }
 
     delete db; db=0;

@@ -12,33 +12,34 @@ TaskManager::TaskManager() {
 }
 
 void TaskManager::start() {
-  while(true) {
-    int incompleteCount = 0;
-    list<RecurringTask *>::iterator iterator = recurringTasks.begin();
-    while(iterator != recurringTasks.end()) {
-      // FIXME - read return value, remove completed tasks
-      RecurringTask *t = *iterator;
-      iterator++;
-      TaskResult r = t->doTaskProcessing();
-      switch(r) {
-        case TaskComplete:
-          recurringTasks.remove(t);
-          break;
-        case TaskNotComplete:
-          incompleteCount++;
-          break;
-        default:
-          // ignore any other return value
-          break;
-      }
+    while(true) {
+	int incompleteCount = 0;
+	list<RecurringTask *>::iterator iterator = recurringTasks.begin();
+	while(iterator != recurringTasks.end()) {
+	    // FIXME - read return value, remove completed tasks
+	    RecurringTask *t = *iterator;
+	    iterator++;
+	    TaskResult r = t->doTaskProcessing();
+	    switch(r) {
+	    case TaskComplete:
+		recurringTasks.remove(t);
+		break;
+	    case TaskNotComplete:
+		incompleteCount++;
+		break;
+	    default:
+		// ignore any other return value
+		break;
+	    }
+	}
+	if(incompleteCount == 0) 
+	{
+	    // All tasks are done
+	    B2BUA_LOG_NOTICE( <<"all tasks complete");
+	    return;
+	}
+	// FIXME - do scheduled tasks (not yet implemented)
     }
-    if(incompleteCount == 0) {
-      // All tasks are done
-      B2BUA_LOG_NOTICE("all tasks complete");
-      return;
-    }
-    // FIXME - do scheduled tasks (not yet implemented)
-  }
 }
 
 void TaskManager::addRecurringTask(RecurringTask *t) {
@@ -47,7 +48,7 @@ void TaskManager::addRecurringTask(RecurringTask *t) {
 
 void TaskManager::scheduleTask(ScheduledTask *t, time_t& executionTime) {
   // FIXME - not yet implemented
-  B2BUA_LOG_CRIT("scheduleTask not implemented");
+    B2BUA_LOG_CRIT( <<"scheduleTask not implemented");
   assert(0);
 }
 

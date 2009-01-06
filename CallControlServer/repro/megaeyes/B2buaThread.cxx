@@ -1,5 +1,11 @@
 #include "repro/megaeyes/B2buaThread.hxx"
 
+using namespace resip;
+using namespace repro;
+using namespace std;
+
+#define RESIPROCATE_SUBSYSTEM Subsystem::REPRO
+
 B2buaThread::B2buaThread(b2bua::B2BUA& b2b)
     :mB2BUA(b2b)   
 {}

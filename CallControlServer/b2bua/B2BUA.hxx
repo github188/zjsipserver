@@ -42,17 +42,18 @@ protected:
     resip::DialogUsageManager *dum_; //zhangjun rename
     resip::SipStack *sipStack;
 
-    void init(resip::DialogUsageManager *dum); //zhangjun add
-    
+    B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
+    void setAuthorizationManager(AuthorizationManager *authorizationManager);
+
+public:
     //Contructs
     B2BUA()
 	{}
 
-    B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
     virtual ~B2BUA();
-    void setAuthorizationManager(AuthorizationManager *authorizationManager);
 
-public:
+    void init(resip::DialogUsageManager *dum); //zhangjun add
+
     // Run the B2BUA
     // only returns when B2BUA stops
     virtual void run();

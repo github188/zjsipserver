@@ -23,9 +23,10 @@ void DummyServerRegistrationHandler::onRemoveAll(ServerRegistrationHandle sr, co
   sr->accept(200);
 }
 
-void DummyServerRegistrationHandler::onAdd(ServerRegistrationHandle sr, const SipMessage& reg) {
-  B2BUA_LOG_INFO("client trying to register, username=%s", reg.header(h_From).uri().user().c_str());
-  sr->accept(200);
+void DummyServerRegistrationHandler::onAdd(ServerRegistrationHandle sr, const SipMessage& reg) 
+{
+    B2BUA_LOG_INFO( <<"client trying to register, username= " <<reg.header(h_From).uri().user().c_str() );
+    sr->accept(200);
 }
 
 void DummyServerRegistrationHandler::onQuery(ServerRegistrationHandle sr, const SipMessage& reg) {

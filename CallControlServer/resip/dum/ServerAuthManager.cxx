@@ -305,7 +305,7 @@ ServerAuthManager::Result
 ServerAuthManager::handle(SipMessage* sipMsg)
 {
    //InfoLog( << "trying to do auth" );
-    if ( sipMsg->isRequest() && sipMsg->header(h_RequestLine).method() == REGISTER ) //zhangjun change:只认证注册请求
+    if ( sipMsg->isRequest() && sipMsg->header(h_RequestLine).method() == REGISTER ) //zhangjun change:只认证注册请求!!!
 /* zhangjun change :comment this
    sipMsg->header(h_RequestLine).method() != ACK &&  
    sipMsg->header(h_RequestLine).method() != CANCEL)  // Do not challenge ACKs or CANCELs

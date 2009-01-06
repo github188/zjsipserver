@@ -33,14 +33,15 @@ void MyInviteSessionHandler::onMessageSuccess(resip::Handle<resip::InviteSession
 void MyInviteSessionHandler::onMessageFailure(resip::Handle<resip::InviteSession>, const resip::SipMessage&) {
 }
 
-void MyInviteSessionHandler::onFailure(ClientInviteSessionHandle cis, const SipMessage& msg) {
-  B2BUA_LOG_DEBUG("onFailure: %d, %s", msg.header(h_StatusLine).statusCode(), msg.header(h_StatusLine).reason().c_str());
-  B2BCall *call = getB2BCall(cis.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onFailure: unrecognised dialog");
-    return;
-  }
-  call->onRejected(msg.header(h_StatusLine).statusCode(), msg.header(h_StatusLine).reason());
+void MyInviteSessionHandler::onFailure(ClientInviteSessionHandle cis, const SipMessage& msg) 
+{
+    B2BUA_LOG_DEBUG( << "onFailure: " << msg.header(h_StatusLine).statusCode() << " , " << msg.header(h_StatusLine).reason().c_str());
+    B2BCall *call = getB2BCall(cis.get());
+    if(call == NULL) {
+	B2BUA_LOG_WARNING( << "onFailure: unrecognised dialog");
+	return;
+    }
+    call->onRejected(msg.header(h_StatusLine).statusCode(), msg.header(h_StatusLine).reason());
 }
 
 void MyInviteSessionHandler::onForkDestroyed(ClientInviteSessionHandle) {
@@ -53,25 +54,26 @@ void MyInviteSessionHandler::onInfoFailure(InviteSessionHandle, const SipMessage
 }
 
 void MyInviteSessionHandler::onProvisional(ClientInviteSessionHandle cis, const SipMessage& msg) {
-  B2BCall *call = getB2BCall(cis.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onProvisional: unrecognised dialog");
-    return;
-  }
-  int code = msg.header(h_StatusLine).statusCode();
-  switch(code) {
-  case 100:
-    //call->onTrying();
-    break;
-  case 180:
-    call->onRinging();
-    break;
-  case 183:
-    //call->onSessionProgress();
-    break;
-  default:
-    B2BUA_LOG_DEBUG("onProvisional: unknown provisional code (%d)", code);
-  } 
+    B2BCall *call = getB2BCall(cis.get());
+    if(call == NULL) 
+    {
+	B2BUA_LOG_WARNING( <<"onProvisional: unrecognised dialog");
+	return;
+    }
+    int code = msg.header(h_StatusLine).statusCode();
+    switch(code) {
+    case 100:
+	//call->onTrying();
+	break;
+    case 180:
+	call->onRinging();
+	break;
+    case 183:
+	//call->onSessionProgress();
+	break;
+    default:
+	B2BUA_LOG_DEBUG( <<"onProvisional: unknown provisional code " << "(" << code << ")" );
+    } 
 }
 
 void MyInviteSessionHandler::onConnected(ClientInviteSessionHandle, const SipMessage& msg) {
@@ -89,26 +91,27 @@ void MyInviteSessionHandler::onRedirected(ClientInviteSessionHandle, const SipMe
 }
 
 void MyInviteSessionHandler::onAnswer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {
-  MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-  B2BCall *call = getB2BCall(is.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onAnswer: unrecognised dialog");
-    return;
-  }
-  Tuple sourceTuple = msg.getSource();
-  in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
-  call->onAnswer(myAppDialog, sdp, msgSourceAddress);
+    MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+    B2BCall *call = getB2BCall(is.get());
+    if(call == NULL) 
+    {
+	B2BUA_LOG_WARNING( <<"onAnswer: unrecognised dialog");
+	return;
+    }
+    Tuple sourceTuple = msg.getSource();
+    in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
+    call->onAnswer(myAppDialog, sdp, msgSourceAddress);
 }
 
 void MyInviteSessionHandler::onEarlyMedia(ClientInviteSessionHandle cis, const SipMessage& msg, const SdpContents& sdp) {
-  B2BCall *call = getB2BCall(cis.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onEarlyMedia: unrecognised dialog");
-    return;
-  }
-  Tuple sourceTuple = msg.getSource();
-  in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
-  call->onEarlyMedia(sdp, msgSourceAddress);
+    B2BCall *call = getB2BCall(cis.get());
+    if(call == NULL) {
+	B2BUA_LOG_WARNING( <<"onEarlyMedia: unrecognised dialog");
+	return;
+    }
+    Tuple sourceTuple = msg.getSource();
+    in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
+    call->onEarlyMedia(sdp, msgSourceAddress);
 }
 
 void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle, const SipMessage& msg) {
@@ -117,7 +120,7 @@ void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle, const SipMessa
 
 void MyInviteSessionHandler::onOfferRejected(Handle<InviteSession>, const SipMessage *msg) {
   // FIXME
-  B2BUA_LOG_DEBUG("onOfferRejected: %d, %s", msg->header(h_StatusLine).statusCode(), msg->header(h_StatusLine).reason().c_str());
+    B2BUA_LOG_DEBUG( <<"onOfferRejected: " << msg->header(h_StatusLine).statusCode() <<" , " << msg->header(h_StatusLine).reason().c_str());
 }
 
 void MyInviteSessionHandler::onDialogModified(InviteSessionHandle, InviteSession::OfferAnswerType oat, const SipMessage& msg) {
@@ -143,96 +146,102 @@ void MyInviteSessionHandler::onRemoved(ClientRegistrationHandle) {
 
 int MyInviteSessionHandler::onRequestRetry(ClientRegistrationHandle, int retrySeconds, const SipMessage& response) {
 //  cerr << "onRequestRetry not implemented" << endl;
-  //FIXME
-  B2BUA_LOG_DEBUG("onRequestRetry not implemented");
-  return -1;
+    //FIXME
+    B2BUA_LOG_DEBUG( <<"onRequestRetry not implemented");
+    return -1;
 }
 
 // New inbound connection
 // We must create a B2BCall and insert the B2BCall into the linked list
-void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteSession::OfferAnswerType oat, const SipMessage& msg) {
-  //cerr << "onNewSession sis" << endl;
+void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteSession::OfferAnswerType oat, const SipMessage& msg) 
+{
+    //cerr << "onNewSession sis" << endl;
 
-  // Are we shutting down?  If so, reject the call with SIP code 503
-  if(callManager.isStopping()) {
-    B2BUA_LOG_DEBUG("rejecting inbound call as we are stopping");
-    sis->reject(503);
-    return;
-  }
-
-  // Check the headers
-  if(!msg.exists(h_From)) {
-    B2BUA_LOG_WARNING("inbound connection missing from header, rejecting dialog");
-    sis->reject(603);
-    return;
-  }
-  // FIXME - do above for all headers
-  if(msg.getReceivedTransport() == 0) {
-    // msg not received from the wire
-    // FIXME
-    B2BUA_LOG_WARNING("request not received from the wire");
-    sis->reject(603);
-  }
-  Tuple sourceTuple = msg.getSource();
-  Data sourceIp = Data(inet_ntoa(sourceTuple.toGenericIPAddress().v4Address.sin_addr));
-  Data contextId;
-  Data accountId;
-  Data baseIp;
-  Data controlId;
-  ExtensionHeader xContextId("X-MyB2BUA-Context-ID");
-  if(msg.exists(xContextId)) {
-    const StringCategories& contextIds = msg.header(xContextId);
-    contextId = Data((contextIds.begin())->value());
-  }
-  ExtensionHeader xAccountId("X-MyB2BUA-Account-ID");
-  if(msg.exists(xAccountId)) {
-    const StringCategories& accountIds = msg.header(xAccountId);
-    accountId = Data((accountIds.begin())->value());
-  }
-  ExtensionHeader xBaseIp("X-MyB2BUA-Base-IP");
-  if(msg.exists(xBaseIp)) {
-    const StringCategories& baseIps = msg.header(xBaseIp);
-    baseIp = Data((baseIps.begin())->value());
-  }
-  ExtensionHeader xControlId("X-MyB2BUA-Control-ID");
-  if(msg.exists(xControlId)) {
-    const StringCategories& controlIds = msg.header(xControlId);
-    controlId = Data((controlIds.begin())->value());
-  }
-  // Now inspect the authentication info
-  Data authRealm("");
-  Data authUser("");
-  Data authPassword(""); 
-  if(msg.exists(h_ProxyAuthorizations)) {
-    for(Auths::const_iterator it = msg.header(h_ProxyAuthorizations).begin(); it != msg.header(h_ProxyAuthorizations).end(); it++) {
-      if(dum.isMyDomain(it->param(p_realm))) {
-        authRealm = it->param(p_realm);
-        authUser = it->param(p_username);
-      }
+    // Are we shutting down?  If so, reject the call with SIP code 503
+    if(callManager.isStopping()) {
+	B2BUA_LOG_DEBUG( <<"rejecting inbound call as we are stopping");
+	sis->reject(503);
+	return;
     }
-  }
-  try {
-    callManager.onNewCall((MyAppDialog *)sis->getAppDialog().get(), msg.header(h_From), msg.header(h_RequestLine).uri(), authRealm, authUser, Data(""), sourceIp, contextId, accountId, baseIp, controlId);
-  } catch (...) {
-    B2BUA_LOG_ERR("failed to instantiate B2BCall");
-    sis->reject(500);   // Indicate temporary error condition
-  }
+
+    // Check the headers
+    if(!msg.exists(h_From)) {
+	B2BUA_LOG_WARNING( <<"inbound connection missing from header, rejecting dialog");
+	sis->reject(603);
+	return;
+    }
+    // FIXME - do above for all headers
+    if(msg.getReceivedTransport() == 0) {
+	// msg not received from the wire
+	// FIXME
+	B2BUA_LOG_WARNING( <<"request not received from the wire");
+	sis->reject(603);
+    }
+    Tuple sourceTuple = msg.getSource();
+    Data sourceIp = Data(inet_ntoa(sourceTuple.toGenericIPAddress().v4Address.sin_addr));
+    Data contextId;
+    Data accountId;
+    Data baseIp;
+    Data controlId;
+    ExtensionHeader xContextId("X-MyB2BUA-Context-ID");
+    if(msg.exists(xContextId)) {
+	const StringCategories& contextIds = msg.header(xContextId);
+	contextId = Data((contextIds.begin())->value());
+    }
+    ExtensionHeader xAccountId("X-MyB2BUA-Account-ID");
+    if(msg.exists(xAccountId)) {
+	const StringCategories& accountIds = msg.header(xAccountId);
+	accountId = Data((accountIds.begin())->value());
+    }
+    ExtensionHeader xBaseIp("X-MyB2BUA-Base-IP");
+    if(msg.exists(xBaseIp)) {
+	const StringCategories& baseIps = msg.header(xBaseIp);
+	baseIp = Data((baseIps.begin())->value());
+    }
+    ExtensionHeader xControlId("X-MyB2BUA-Control-ID");
+    if(msg.exists(xControlId)) {
+	const StringCategories& controlIds = msg.header(xControlId);
+	controlId = Data((controlIds.begin())->value());
+    }
+    // Now inspect the authentication info
+    Data authRealm("");
+    Data authUser("");
+    Data authPassword(""); 
+    if(msg.exists(h_ProxyAuthorizations)) {
+	for(Auths::const_iterator it = msg.header(h_ProxyAuthorizations).begin(); it != msg.header(h_ProxyAuthorizations).end(); it++) {
+	    if(dum.isMyDomain(it->param(p_realm))) {
+		authRealm = it->param(p_realm);
+		authUser = it->param(p_username);
+	    }
+	}
+    }
+    try 
+    {
+	callManager.onNewCall((MyAppDialog *)sis->getAppDialog().get(), msg.header(h_From), msg.header(h_RequestLine).uri(), 
+			      authRealm, authUser, Data(""), sourceIp, contextId, accountId, baseIp, controlId);
+    } 
+    catch (...) 
+    {
+	B2BUA_LOG_ERR( <<"failed to instantiate B2BCall");
+	sis->reject(500);   // Indicate temporary error condition
+    }
 }
 
 void MyInviteSessionHandler::onNewSession(ClientInviteSessionHandle cis, InviteSession::OfferAnswerType oat, const SipMessage& msg) {
 }
 
-void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg) {
-    B2BUA_LOG_DEBUG("onTerminated, reason = %d", reason);
+void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg) 
+{
+    B2BUA_LOG_DEBUG( <<"onTerminated, reason = " << reason );
     B2BCall *call = getB2BCall(is.get());
     if(call == NULL) {
-	B2BUA_LOG_WARNING("onTerminated: unrecognised dialog");
+	B2BUA_LOG_WARNING( <<"onTerminated: unrecognised dialog");
 	return;
     }
     MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
     switch(reason) {
     case PeerEnded: // received a BYE or CANCEL from peer
-	B2BUA_LOG_DEBUG("onTerminated: PeerEnded");
+	B2BUA_LOG_DEBUG( <<"onTerminated: PeerEnded");
 	if(msg != NULL) {
 	    if(msg->isRequest()) {
 		if(msg->header(h_RequestLine).getMethod() == CANCEL) {
@@ -241,44 +250,45 @@ void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionH
 		    // MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
 		    call->onHangup(myAppDialog);
 		} else {
-		    B2BUA_LOG_WARNING("unrecognised terminate method");
+		    B2BUA_LOG_WARNING( <<"unrecognised terminate method");
 		}
 	    } else {
-		B2BUA_LOG_WARNING("terminate::PeerEnded, but message is not request");
+		B2BUA_LOG_WARNING( <<"terminate::PeerEnded, but message is not request");
 	    }
 	} else {
-	    B2BUA_LOG_WARNING("terminate::PeerEnded, but no message");
+	    B2BUA_LOG_WARNING( <<"terminate::PeerEnded, but no message");
 	}
 	break;
     case Ended: // ended by the application
-	B2BUA_LOG_DEBUG("onTerminated: Ended");
+	B2BUA_LOG_DEBUG( <<"onTerminated: Ended");
 	//call->onFailure(myAppDialog);
 	break;
     case GeneralFailure: // ended due to a failure
-	B2BUA_LOG_DEBUG("onTerminated: GeneralFailure");
+	B2BUA_LOG_DEBUG( <<"onTerminated: GeneralFailure");
 	call->onFailure(myAppDialog);
 	break;
     case Cancelled: // ended by the application via Cancel
-	B2BUA_LOG_DEBUG("onTerminated: Cancelled"); 
+	B2BUA_LOG_DEBUG( <<"onTerminated: Cancelled"); 
 	// no need to do anything, because we have initiated this cancel
 	break;
     default:
-	B2BUA_LOG_WARNING("onTerminated: unhandled case %d", reason);
+	B2BUA_LOG_WARNING( <<"onTerminated: unhandled case " << reason);
 	break;
     }
 }
 
 void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {
-  B2BCall *call = getB2BCall(is.get());
-  if(call == NULL) {
-    B2BUA_LOG_WARNING("onOffer: unrecognised dialog");
-    return;
-  }
-  B2BUA_LOG_DEBUG("onOffer received");
-  MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-  Tuple sourceTuple = msg.getSource();
-  in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
-  call->onOffer(myAppDialog, sdp, msgSourceAddress);  
+    B2BCall *call = getB2BCall(is.get());
+    if(call == NULL) 
+    {
+	B2BUA_LOG_WARNING( <<"onOffer: unrecognised dialog");
+	return;
+    }
+    B2BUA_LOG_DEBUG( <<"onOffer received");
+    MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+    Tuple sourceTuple = msg.getSource();
+    in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
+    call->onOffer(myAppDialog, sdp, msgSourceAddress);  
 }
 
 /**

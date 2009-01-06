@@ -196,6 +196,12 @@ DUM_DEPENDS := $(ROOT)/resip/dum/obj.$(TARGET_NAME)/libdum.$(LIBSUFFIX)
 $(DUM_DEPENDS): 
 	cd $(ROOT)/resip/dum; $(MAKE)
 
+B2BUA_LIBDIRS := $(ROOT)/b2bua/obj.$(TARGET_NAME)
+B2BUA_LIBNAME := b2bua
+B2BUA_DEPENDS := $(ROOT)/b2bua/obj.$(TARGET_NAME)/libb2bua.$(LIBSUFFIX)
+$(B2BUA_DEPENDS):
+	cd $(ROOT)/b2bua; $(MAKE)
+
 REPRO_INCLUDEDIRS := $(ROOT)
 REPRO_LIBDIRS := $(ROOT)/repro/obj.$(TARGET_NAME) 
 REPRO_LIBNAME := repro

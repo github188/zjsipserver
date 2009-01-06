@@ -41,16 +41,18 @@ void DailyCDRHandler::updateTime() {
 }
 
 void DailyCDRHandler::initFile(struct tm* tm) {
-  if(cdrStream.is_open()) {
-    cdrStream.close();
-  }
-  char buf[200];
-  sprintf(buf, "%s-%04d-%02d-%02d.csv", mBasename.c_str(), tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-  cdrStream.open(buf, std::ios::out | std::ios::app);
-  if(!cdrStream.is_open()) {
-    B2BUA_LOG_ERR("Failed to open CDR file");
-    throw;
-  }
+    if(cdrStream.is_open()) 
+    {
+	cdrStream.close();
+    }
+    char buf[200];
+    sprintf(buf, "%s-%04d-%02d-%02d.csv", mBasename.c_str(), tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    cdrStream.open(buf, std::ios::out | std::ios::app);
+    if(!cdrStream.is_open()) 
+    {
+	B2BUA_LOG_ERR( <<"Failed to open CDR file");
+	throw;
+    }
 }
 
 

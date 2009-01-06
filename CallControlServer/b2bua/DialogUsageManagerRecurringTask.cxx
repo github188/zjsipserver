@@ -10,46 +10,39 @@ using namespace b2bua;
 using namespace resip;
 using namespace std;
 
-DialogUsageManagerRecurringTask::DialogUsageManagerRecurringTask(resip::SipStack& sipStack, resip::DialogUsageManager& dum) : sipStack(sipStack), dum(dum) {
-  stopping = false;
+#if 0
+DialogUsageManagerRecurringTask::DialogUsageManagerRecurringTask(resip::SipStack& sipStack, resip::DialogUsageManager& dum) 
+    : sipStack(sipStack), dum(dum) 
+{
+    stopping = false;
+}
+#endif
+
+DialogUsageManagerRecurringTask::DialogUsageManagerRecurringTask( resip::DialogUsageManager *dum )
+    : mDum(dum),stopping(false)
+{}
+
+TaskManager::TaskResult DialogUsageManagerRecurringTask::doTaskProcessing() 
+{
+    while(mDum->process()); 
+
+    // FIXME If sipStack and dum are finished, then we should return TaskDone
+    if(!stopping)
+	return TaskManager::TaskNotComplete;
+
+    time_t t;
+    time(&t);
+    if(t > stopTime)
+	return TaskManager::TaskComplete;
+    else
+	return TaskManager::TaskNotComplete;
 }
 
-TaskManager::TaskResult DialogUsageManagerRecurringTask::doTaskProcessing() {
-  FdSet fdset;
-  sipStack.buildFdSet(fdset);
-  // FIXME - allow time for other tasks
-  int err = fdset.selectMilliSeconds(resipMin((int)sipStack.getTimeTillNextProcessMS(), 50));
-  if(err == -1) {
-    if(errno != EINTR) {
-      B2BUA_LOG_ERR("fdset.select returned error code %d", err);
-      assert(0);  // FIXME
-    }
-  }
-  // Process all SIP stack activity
-  sipStack.process(fdset);
-  // Process all DUM activity
-  //try {
-    while(dum.process()); 
-  //} catch(...) {
-  //  B2BUA_LOG_ERR("Exception in dum.process(), continuing anyway");
-  //}
-
-  // FIXME If sipStack and dum are finished, then we should return TaskDone
-  if(!stopping)
-    return TaskManager::TaskNotComplete;
-
-  time_t t;
-  time(&t);
-  if(t > stopTime)
-    return TaskManager::TaskIndefinite;
-  else
-    return TaskManager::TaskNotComplete;
-}
-
-void DialogUsageManagerRecurringTask::stop() {
-  stopping = true;
-  time(&stopTime);
-  stopTime += STOP_TIMEOUT;
+void DialogUsageManagerRecurringTask::stop() 
+{
+    stopping = true;
+    time(&stopTime);
+    stopTime += STOP_TIMEOUT;
 }
 
 /* ====================================================================

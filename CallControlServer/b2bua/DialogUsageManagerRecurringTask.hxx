@@ -15,18 +15,20 @@ namespace b2bua
 class DialogUsageManagerRecurringTask : public TaskManager::RecurringTask {
 
 protected:
-  resip::SipStack& sipStack;
-  resip::DialogUsageManager& dum;
-  bool stopping;
-  time_t stopTime;
+    //resip::SipStack& sipStack;
+    //resip::DialogUsageManager& dum;
+
+    resip::DialogUsageManager *mDum;
+    bool stopping;
+    time_t stopTime;
 
 public:
-  DialogUsageManagerRecurringTask(resip::SipStack& sipStack, resip::DialogUsageManager& dum);
-  TaskManager::TaskResult doTaskProcessing();
+    DialogUsageManagerRecurringTask(resip::SipStack& sipStack, resip::DialogUsageManager& dum);
+    DialogUsageManagerRecurringTask(resip::DialogUsageManager* dum);
+    TaskManager::TaskResult doTaskProcessing();
 
-  // let's the task know the application would like to stop soon
-  void stop();
-
+    // let's the task know the application would like to stop soon
+    void stop();
 };
 
 }

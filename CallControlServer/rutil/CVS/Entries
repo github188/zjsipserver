@@ -60,8 +60,6 @@
 /SharedPtr.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /Socket.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /Socket.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/Subsystem.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/Subsystem.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /SysLogBuf.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /SysLogBuf.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /SysLogStream.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
@@ -92,3 +90,5 @@ D/ssl////
 D/stun////
 D/test////
 D/wince////
+/Subsystem.cxx/1.2/Mon Jan  5 05:23:55 2009//
+/Subsystem.hxx/1.2/Mon Jan  5 05:36:46 2009//

@@ -50,7 +50,7 @@ dum: resiprocate
 b2bua: resiprocate
 	cd b2bua; $(MAKE)
 
-repro: dum
+repro: dum b2bua
 	cd repro; $(MAKE)
 
 tests: resiprocate 

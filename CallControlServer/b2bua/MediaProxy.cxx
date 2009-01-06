@@ -27,118 +27,145 @@ MediaProxy::~MediaProxy() {
     delete newSdp;
 }
 
-int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress) {
-  bool callerAsymmetric = true;
-  bool calleeAsymmetric = true;
-  if(originalSdp != NULL)
-    delete originalSdp;
-  originalSdp = (SdpContents *)sdp.clone();
-  if(newSdp != NULL)
-    delete newSdp;
-  newSdp = (SdpContents *)sdp.clone();
+int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
+    bool callerAsymmetric = true;
+    bool calleeAsymmetric = true;
+    if(originalSdp != NULL)
+	delete originalSdp;
+    originalSdp = (SdpContents *)sdp.clone();
+    if(newSdp != NULL)
+	delete newSdp;
+    newSdp = (SdpContents *)sdp.clone();
 
-  // Process the Origin
-  if(originalSdp->session().origin().getAddressType() != SdpContents::IP4) {
-    // FIXME - implement IPv6
-    B2BUA_LOG_WARNING("processing SDP origin, only IP4 is supported"); 
-    return MM_SDP_BAD;
-  }
-  // FIXME - set username also
-  newSdp->session().origin().setAddress(MediaManager::proxyAddress);
-
-  // Process the default connection
-  if(originalSdp->session().connection().getAddressType() != SdpContents::IP4) {
-    // FIXME - implement IPv6
-    B2BUA_LOG_WARNING("processing SDP connection, only IP4 is supported");
-    return MM_SDP_BAD;
-  }
-  newSdp->session().connection().setAddress(MediaManager::proxyAddress);
-
-  newSdp->session().clearMedium();
-  list<SdpContents::Session::Medium>::iterator i = originalSdp->session().media().begin();
-  while(i != originalSdp->session().media().end()) {
-    if(allowProtocol((*i).protocol())) {
-      if(newSdp->session().media().size() > 0) {
-	// FIXME
-        B2BUA_LOG_WARNING("only one medium definition supported");
+    // Process the Origin
+    if(originalSdp->session().origin().getAddressType() != SdpContents::IP4) 
+    {
+	// FIXME - implement IPv6
+	B2BUA_LOG_WARNING( <<"processing SDP origin, only IP4 is supported"); 
 	return MM_SDP_BAD;
-      }
-      struct MediaProxy::EndPoint endpoint;
-      endpoint.address = originalSdp->session().connection().getAddress();
-      // Should we adjust the address because of NAT?
-      if(mNatHelper) {
-        in_addr_t sdpConnectionAddr = inet_addr(originalSdp->session().connection().getAddress().c_str());
-        // Is the endpoint a private address?
-        bool addressIsPrivate = isAddressPrivate(sdpConnectionAddr);
-        if(addressIsPrivate)
-          B2BUA_LOG_WARNING("IP address in SDP is private: %s", originalSdp->session().connection().getAddress().c_str());
-
-        // Does the endpoint address not match the msg source address?
-        bool matchesMsgSource = false;
-        if(sdpConnectionAddr == msgSourceAddress)
-          matchesMsgSource = true;
-
-        if(addressIsPrivate && !matchesMsgSource) {
-          // use the msg source address instead of the address in the SDP
-          struct in_addr sa;
-          sa.s_addr = msgSourceAddress;
-          endpoint.address = Data(inet_ntoa(sa));
-          callerAsymmetric = false;
-          B2BUA_LOG_WARNING("rewriting NAT address, was %s, using %s", originalSdp->session().connection().getAddress().c_str(), endpoint.address.c_str());
-        } 
-      }
-      // Check for a connection spec
-      if((*i).getMediumConnections().size() > 1) {
-        // FIXME - connection for each medium
-        B2BUA_LOG_WARNING("multiple medium specific connections not supported");
-	return MM_SDP_BAD;
-      }
-      if((*i).getMediumConnections().size() == 1) {
-        const SdpContents::Session::Connection& mc = (*i).getMediumConnections().front();
-	// FIXME - check address type, etc, or implement operator==
-        if(!(mc.getAddress() == originalSdp->session().connection().getAddress())) {
-          B2BUA_LOG_WARNING("medium specific connection doesn't match global connection");
-	  return MM_SDP_BAD;
-        }
-        
-      }
-      // Get the old port, insert new port
-      endpoint.originalPort = (*i).port();
-      SdpContents::Session::Medium m(*i);
-      // FIXME - only needed until more detailed handling of medium specific
-      // connections is implemented:
-      //m.getMediumConnections().clear();
-      m.setConnection(newSdp->session().connection());
-      if(mediaManager.aLegProxy == this) {
-        // this must be A leg
-        if(mediaManager.rtpProxyUtil == NULL) {
-	  mediaManager.rtpProxyUtil = new RtpProxyUtil();
-          mediaManager.rtpProxyUtil->setTimeoutListener(&mediaManager);
-        }
- 	endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCaller(mediaManager.callId.c_str(), endpoint.address.c_str(), endpoint.originalPort, mediaManager.fromTag.c_str(), callerAsymmetric);
-        if(endpoint.proxyPort == 0)
-          throw new exception;
-      } else {
-	// this must be B leg
-	endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCallee(endpoint.address.c_str(), endpoint.originalPort, mediaManager.toTag.c_str(), calleeAsymmetric);
-        if(endpoint.proxyPort == 0)
-          throw new exception;
-      }
-      m.setPort(endpoint.proxyPort);
-      //newMedia.push_back(m);
-      newSdp->session().addMedium(m);
-      endpoints.push_back(endpoint);
-    } else {
-      B2BUA_LOG_WARNING("media protocol %s not recognised, removed from SDP", (*i).protocol().c_str());
     }
-    i++;
-  }
-  if(endpoints.size() == 0) {
-    B2BUA_LOG_WARNING("no acceptable media protocol found, try RTP/AVP or UDP");
-    return MM_SDP_BAD;
-  }
+    // FIXME - set username also
+    newSdp->session().origin().setAddress(MediaManager::proxyAddress); //change sdp's c=
 
-  return MM_SDP_OK;
+    // Process the default connection
+    if(originalSdp->session().connection().getAddressType() != SdpContents::IP4) 
+    {
+	// FIXME - implement IPv6
+	B2BUA_LOG_WARNING( <<"processing SDP connection, only IP4 is supported");
+	return MM_SDP_BAD;
+    }
+    
+    newSdp->session().connection().setAddress(MediaManager::proxyAddress); //change sdp's c=
+
+    newSdp->session().clearMedium();
+    list<SdpContents::Session::Medium>::iterator i = originalSdp->session().media().begin();
+    //!!!get media filed "m=" from originsdp, put it into newSdp after changing
+    while(i != originalSdp->session().media().end()) 
+    {
+	if ( allowProtocol((*i).protocol()) ) 
+	{
+	    if(newSdp->session().media().size() > 0) 
+	    {
+		// FIXME
+		B2BUA_LOG_WARNING( <<"only one medium definition supported");
+		return MM_SDP_BAD;
+	    }
+
+	    struct MediaProxy::EndPoint endpoint;
+	    endpoint.address = originalSdp->session().connection().getAddress();
+	    // Should we adjust the address because of NAT?
+	    if(mNatHelper) 
+	    {
+		in_addr_t sdpConnectionAddr = inet_addr(originalSdp->session().connection().getAddress().c_str());
+		// Is the endpoint a private address?
+		bool addressIsPrivate = isAddressPrivate(sdpConnectionAddr);
+		if(addressIsPrivate)
+		{
+		    B2BUA_LOG_WARNING( <<"IP address in SDP is private: " << originalSdp->session().connection().getAddress().c_str() );
+		}
+		// Does the endpoint address not match the msg source address?
+		bool matchesMsgSource = false;
+		if(sdpConnectionAddr == msgSourceAddress)
+		{
+		    matchesMsgSource = true;
+		}
+
+		if(addressIsPrivate && !matchesMsgSource) 
+		{
+		    // use the msg source address instead of the address in the SDP
+		    struct in_addr sa;
+		    sa.s_addr = msgSourceAddress;
+		    endpoint.address = Data( inet_ntoa(sa) );
+		    callerAsymmetric = false;
+		    B2BUA_LOG_WARNING( <<"rewriting NAT address, was "<< originalSdp->session().connection().getAddress().c_str()
+				       << "using "<< endpoint.address.c_str() );
+		} 
+	    }
+	    // Check for a connection spec
+	    if( (*i).getMediumConnections().size() > 1 ) 
+	    {
+		// FIXME - connection for each medium
+		B2BUA_LOG_WARNING( <<"multiple medium specific connections not supported");
+		return MM_SDP_BAD;
+	    }
+
+	    if( (*i).getMediumConnections().size() == 1 ) 
+	    {
+		const SdpContents::Session::Connection& mc = (*i).getMediumConnections().front();
+		// FIXME - check address type, etc, or implement operator==
+		if( !(mc.getAddress() == originalSdp->session().connection().getAddress()) ) 
+		{
+		    B2BUA_LOG_WARNING( <<"medium specific connection doesn't match global connection");
+		    return MM_SDP_BAD;
+		}
+	    }
+	    // Get the old port, insert new port
+	    endpoint.originalPort = (*i).port();
+	    SdpContents::Session::Medium m(*i);
+	    // FIXME - only needed until more detailed handling of medium specific
+	    // connections is implemented:
+	    //m.getMediumConnections().clear();
+	    m.setConnection(newSdp->session().connection());
+	    if(mediaManager.aLegProxy == this) 
+	    {
+		// this must be A leg
+		if(mediaManager.rtpProxyUtil == NULL) 
+		{
+		    mediaManager.rtpProxyUtil = new RtpProxyUtil();
+		    mediaManager.rtpProxyUtil->setTimeoutListener(&mediaManager);
+		}
+		//!!!access vtdu,get vtdu media recv port, the port is used recv rtcp from client
+		endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCaller(mediaManager.callId.c_str(), endpoint.address.c_str(), 
+									    endpoint.originalPort, mediaManager.fromTag.c_str(), callerAsymmetric);
+		if(endpoint.proxyPort == 0)
+		    throw new exception;
+	    } 
+	    else 
+	    {
+		// this must be B leg. !!!access vtdu,get vtdu media recv port, the port is used recv rtp from terminal
+		endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCallee(endpoint.address.c_str(), endpoint.originalPort, 
+									    mediaManager.toTag.c_str(), calleeAsymmetric);
+		if(endpoint.proxyPort == 0)
+		    throw new exception;
+	    }
+	    m.setPort(endpoint.proxyPort);
+	    //newMedia.push_back(m);
+	    newSdp->session().addMedium(m);
+	    endpoints.push_back(endpoint);
+	}
+	else 
+	{
+	    B2BUA_LOG_WARNING( <<"media protocol "<< (*i).protocol().c_str() <<" not recognised, removed from SDP" );
+	}
+	i++;
+    }
+    if(endpoints.size() == 0) {
+	B2BUA_LOG_WARNING( <<"no acceptable media protocol found, try RTP/AVP or UDP");
+	return MM_SDP_BAD;
+    }
+
+    return MM_SDP_OK;
 
 }
 
@@ -157,26 +184,27 @@ bool MediaProxy::allowProtocol(const resip::Data& protocol) {
 // 172.16.0.0/12 - 172.31.255.255
 // 192.168.0.0/16 - 192.168.255.255
 bool MediaProxy::isAddressPrivate(const in_addr_t& subj_addr) {
-  //in_addr_t subj_addr = inet_addr(address.c_str());
-  if(subj_addr == INADDR_NONE) {
-    B2BUA_LOG_WARNING("subject address is invalid: INADDR_NONE");
-    return false;
-  }
+    //in_addr_t subj_addr = inet_addr(address.c_str());
+    if(subj_addr == INADDR_NONE) 
+    {
+	B2BUA_LOG_WARNING( <<"subject address is invalid: INADDR_NONE");
+	return false;
+    }
  
-  uint32_t subj_addr1 = ntohl(subj_addr);
-  uint32_t priv1 = (10 << 24);
-  uint32_t nm1 = 0xff000000;
-  uint32_t priv2 = (172 << 24) + (16 << 16);
-  uint32_t nm2 = 0xfff00000;
-  uint32_t priv3 = (192 << 24) + (168 << 16);
-  uint32_t nm3 = 0xffff0000;
+    uint32_t subj_addr1 = ntohl(subj_addr);
+    uint32_t priv1 = (10 << 24);
+    uint32_t nm1 = 0xff000000;
+    uint32_t priv2 = (172 << 24) + (16 << 16);
+    uint32_t nm2 = 0xfff00000;
+    uint32_t priv3 = (192 << 24) + (168 << 16);
+    uint32_t nm3 = 0xffff0000;
 
-  if(((subj_addr1 & nm1) == priv1) ||
-     ((subj_addr1 & nm2) == priv2) ||
-     ((subj_addr1 & nm3) == priv3))
-    return true;
+    if(((subj_addr1 & nm1) == priv1) ||
+       ((subj_addr1 & nm2) == priv2) ||
+       ((subj_addr1 & nm3) == priv3))
+	return true;
  
-  return false;
+    return false;
 }
  
 /* ====================================================================

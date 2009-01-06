@@ -20,32 +20,33 @@ using namespace std;
 
 B2BUA::B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler) {
 
-  if(authorizationManager == NULL) {
-    authorizationManager = new DefaultAuthorizationManager();
-  }
+    if(authorizationManager == NULL) {
+	authorizationManager = new DefaultAuthorizationManager();
+    }
 
-  taskManager = new TaskManager();
+    taskManager = new TaskManager();
 
-  sipStack = new SipStack();
-  dum_ = new DialogUsageManager(*sipStack);
-  uasMasterProfile = SharedPtr<MasterProfile>(new MasterProfile);
-  dum_->setMasterProfile(uasMasterProfile);
-  auto_ptr<AppDialogSetFactory> myAppDialogSetFactory(new MyAppDialogSetFactory);
-  dum_->setAppDialogSetFactory(myAppDialogSetFactory);
+    sipStack = new SipStack();
+    dum_ = new DialogUsageManager(*sipStack);
+    uasMasterProfile = SharedPtr<MasterProfile>(new MasterProfile);
+    dum_->setMasterProfile(uasMasterProfile);
+    auto_ptr<AppDialogSetFactory> myAppDialogSetFactory(new MyAppDialogSetFactory);
+    dum_->setAppDialogSetFactory(myAppDialogSetFactory);
 
-  // Set up authentication when we act as UAC
-  auto_ptr<ClientAuthManager> clientAuth(new ClientAuthManager);
-  dum_->setClientAuthManager(clientAuth);
+    // Set up authentication when we act as UAC
+    auto_ptr<ClientAuthManager> clientAuth(new ClientAuthManager);
+    dum_->setClientAuthManager(clientAuth);
 
-  dum_->setDialogSetHandler(new MyDialogSetHandler());
+    dum_->setDialogSetHandler(new MyDialogSetHandler());
 
-  DialogUsageManagerRecurringTask *dum_Task = new DialogUsageManagerRecurringTask(*sipStack, *dum_);
-  taskManager->addRecurringTask(dum_Task);
-  callManager = new B2BCallManager(*dum_, authorizationManager, cdrHandler);
-  taskManager->addRecurringTask(callManager);
+//  DialogUsageManagerRecurringTask *dum_Task = new DialogUsageManagerRecurringTask(*sipStack, *dum_);
+//  taskManager->addRecurringTask(dum_Task);
 
-  MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum_, *callManager);
-  dum_->setInviteSessionHandler(uas);
+    callManager = new B2BCallManager(*dum_, authorizationManager, cdrHandler);
+    taskManager->addRecurringTask(callManager);
+
+    MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum_, *callManager);
+    dum_->setInviteSessionHandler(uas);
 }
 
 void
@@ -74,7 +75,8 @@ B2BUA::init(resip::DialogUsageManager *dum) //zhangjun add
     dum->setInviteSessionHandler(uas);
 
 //    DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(*sipStack, *dum);
-//    taskManager->addRecurringTask(dumTask);
+    DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(dum);
+    taskManager->addRecurringTask(dumTask);
 
     DailyCDRHandler cdrHandler("test.cdr");
     callManager = new B2BCallManager(*dum, authorizationManager, cdrHandler);
@@ -99,10 +101,10 @@ void B2BUA::logStats() {
 }
 
 void B2BUA::stop() {
-  //B2BUA_LOG_CRIT("B2BUA::stop not implemented!");
-  //assert(0);
-  B2BUA_LOG_NOTICE("B2BUA beginning shutdown process");
-  taskManager->stop();
+    //B2BUA_LOG_CRIT( <<"B2BUA::stop not implemented!");
+    //assert(0);
+    B2BUA_LOG_NOTICE( <<"B2BUA beginning shutdown process");
+    taskManager->stop();
 }
 
 /* ====================================================================

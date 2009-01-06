@@ -22,35 +22,36 @@ void B2BCallManager::setAuthorizationManager(AuthorizationManager *authorization
 }
 
 TaskManager::TaskResult B2BCallManager::doTaskProcessing() {
-  time_t now;
+    time_t now;
 
-  if(mustStopCalls) {
-    B2BUA_LOG_NOTICE("notifying calls to stop");
-    list<B2BCall *>::iterator call = calls.begin();
-    while(call != calls.end()) {
-      (*call)->onStopping();
-      call++;
+    if(mustStopCalls) 
+    {
+	B2BUA_LOG_NOTICE( <<"notifying calls to stop");
+	list<B2BCall *>::iterator call = calls.begin();
+	while(call != calls.end()) {
+	    (*call)->onStopping();
+	    call++;
+	}
+	mustStopCalls = false;
     }
-    mustStopCalls = false;
-  }
 
-  time(&now);
-  list<B2BCall *>::iterator i = calls.begin();
-  while(i != calls.end()) {
-    (*i)->checkProgress(now, stopping);
-    if((*i)->isComplete()) {
-      B2BCall *call = *i;
-      i++;
-      calls.remove(call);
-      delete call;
-    } else
-      i++;
-  }
-  if(stopping && calls.begin() == calls.end()) {
-    B2BUA_LOG_NOTICE("no (more) calls in progress");
-    return TaskManager::TaskComplete;
-  }
-  return TaskManager::TaskNotComplete;
+    time(&now);
+    list<B2BCall *>::iterator i = calls.begin();
+    while(i != calls.end()) {
+	(*i)->checkProgress(now, stopping);
+	if((*i)->isComplete()) {
+	    B2BCall *call = *i;
+	    i++;
+	    calls.remove(call);
+	    delete call;
+	} else
+	    i++;
+    }
+    if(stopping && calls.begin() == calls.end()) {
+	B2BUA_LOG_NOTICE( <<"no (more) calls in progress");
+	return TaskManager::TaskComplete;
+    }
+    return TaskManager::TaskNotComplete;
 }
 
 void B2BCallManager::stop() {
@@ -71,29 +72,30 @@ void B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& s
 }
 
 void B2BCallManager::logStats() {
-  int preDial = 0, dialing = 0, connected = 0, finishing = 0, unknown = 0;
-  list<B2BCall *>::iterator call = calls.begin();
-  while(call != calls.end()) {
-    switch((*call)->getStatus()) {
-    case B2BCall::PreDial:
-      preDial++;
-      break;
-    case B2BCall::Dialing:
-      dialing++;
-      break;
-    case B2BCall::Connected:
-      connected++;
-      break;
-    case B2BCall::Finishing:
-      finishing++;
-      break;
-    default:
-      unknown++;
-      break;
+    int preDial = 0, dialing = 0, connected = 0, finishing = 0, unknown = 0;
+    list<B2BCall *>::iterator call = calls.begin();
+    while(call != calls.end()) {
+	switch((*call)->getStatus()) {
+	case B2BCall::PreDial:
+	    preDial++;
+	    break;
+	case B2BCall::Dialing:
+	    dialing++;
+	    break;
+	case B2BCall::Connected:
+	    connected++;
+	    break;
+	case B2BCall::Finishing:
+	    finishing++;
+	    break;
+	default:
+	    unknown++;
+	    break;
+	}
+	call++;
     }
-    call++;
-  }
-  B2BUA_LOG_NOTICE("call info: preDial = %d, dialing = %d, connected = %d, finishing = %d, unknown = %d, total = %d", preDial, dialing, connected, finishing, unknown, (preDial + dialing + connected + finishing + unknown));
+    B2BUA_LOG_NOTICE( <<"call info: preDial = "<< preDial<<" dialing = "<<dialing <<" connected = "<< connected<<" finishing = "
+		      << finishing<<" unknown = "<< unknown<<" total = " << (preDial + dialing + connected + finishing + unknown) );
 }
 
 /* ====================================================================

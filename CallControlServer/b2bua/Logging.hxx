@@ -16,6 +16,7 @@
 
 
 // syslog implementation 
+#if 0
 
 #include <syslog.h>
 
@@ -28,6 +29,20 @@
 #define B2BUA_LOG_ERR(fmt, ...) syslog(LOG_ERR, "b2bua:%s:%d: " #fmt, __FILE__, __LINE__, ## __VA_ARGS__)
 #define B2BUA_LOG_CRIT(fmt, ...) syslog(LOG_CRIT, "b2bua:%s:%d: " #fmt, __FILE__, __LINE__, ## __VA_ARGS__)
 
+#else
+
+#include "rutil/Logger.hxx"
+
+#define RESIPROCATE_SUBSYSTEM resip::Subsystem::B2BUA
+
+#define B2BUA_LOG_DEBUG   DebugLog
+#define B2BUA_LOG_INFO    InfoLog
+#define B2BUA_LOG_NOTICE  InfoLog
+#define B2BUA_LOG_WARNING WarningLog
+#define B2BUA_LOG_ERR     ErrLog
+#define B2BUA_LOG_CRIT    CritLog
+
+#endif
 
 #endif
 

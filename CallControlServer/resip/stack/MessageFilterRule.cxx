@@ -97,15 +97,15 @@ MessageFilterRule::matches(const SipMessage &msg) const
                return false;
             }
             break;
+         case MESSAGE:
+	     //zhangjun add begin:判断请求的名字和本地名字是否相符, only for MESSAGE method. DUM handle alarm MESSAGE, PROXY handle paraget/set MESSAGE
+	     if ( !mName.empty() && !(mName==msg.header(h_RequestLine).uri().user()) )
+		 return false;
+	     //zhangjun add end
          default:
          break;
       }
    }
-
-   //zhangjun add begin:判断请求的名字和本地名字是否相符
-   if ( !mName.empty() && !(mName==msg.header(h_RequestLine).uri().user()) )
-       return false;
-   //zhangjun add end
 
    return true;
 }

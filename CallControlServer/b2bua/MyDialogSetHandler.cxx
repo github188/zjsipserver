@@ -15,14 +15,15 @@ MyDialogSetHandler::~MyDialogSetHandler() {
 void MyDialogSetHandler::onTrying(resip::AppDialogSetHandle ah, const resip::SipMessage& msg) {
 }
 
-void MyDialogSetHandler::onNonDialogCreatingProvisional(resip::AppDialogSetHandle ah, const resip::SipMessage& msg) {
-  B2BUA_LOG_DEBUG("received 180 without contact header");
-  MyAppDialogSet *ads = dynamic_cast<MyAppDialogSet *>(ah.get());
-  if(ads) {
-    B2BUA_LOG_DEBUG("dialog found");
-    if(ads->b2BCall)
-      ads->b2BCall->doDialReceived180();
-  }
+void MyDialogSetHandler::onNonDialogCreatingProvisional(resip::AppDialogSetHandle ah, const resip::SipMessage& msg) 
+{
+    B2BUA_LOG_DEBUG( <<"received 180 without contact header");
+    MyAppDialogSet *ads = dynamic_cast<MyAppDialogSet *>(ah.get());
+    if(ads) {
+	B2BUA_LOG_DEBUG( <<"dialog found");
+	if(ads->b2BCall)
+	    ads->b2BCall->doDialReceived180();
+    }
 }
 
 /* ====================================================================
