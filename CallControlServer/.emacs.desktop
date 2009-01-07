@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Tue Jan  6 17:08:33 2009
+;; Created Tue Jan  6 18:31:09 2009
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
 (setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("endpoints" "medium" "m\\." "endpoint" "mc" "readytodial(" "auth" "new\\s-+DialogUsageManager" "DialogUsageManager*" "donewcall" "B2BUA_LOG.*\".*\"" "log.*\".*\"" "addSupportedMethod" "DUM" "b2b" "PACKAGES"))
+(setq regexp-search-ring '("hash(" "endpoints" "medium" "m\\." "endpoint" "mc" "readytodial(" "auth" "new\\s-+DialogUsageManager" "DialogUsageManager*" "donewcall" "B2BUA_LOG.*\".*\"" "log.*\".*\"" "addSupportedMethod" "DUM" "b2b"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -499,17 +499,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.cxx"
-  "MessageFilterRule.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1597
-  '(2766 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/repro.cxx"
   "repro.cxx"
   'c++-mode
@@ -620,35 +609,24 @@
   nil)
 
 (desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/stack/MessageFilterRule.cxx"
+  "MessageFilterRule.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  2244
+  '(2766 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/repro/megaeyes/MegaSipEntity.hxx"
   "MegaSipEntity.hxx"
   'c++-mode
   '(abbrev-mode)
-  169
+  250
   '(nil nil)
   nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/usr/include/c++/3.4.6/ext/hash_map"
-  "hash_map"
-  'c++-mode
-  '(abbrev-mode)
-  9911
-  '(nil nil)
-  t
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/usr/include/c++/3.4.6/ext/hashtable.h"
-  "hashtable.h"
-  'c++-mode
-  '(abbrev-mode)
-  11958
-  '(nil nil)
-  t
   nil
   nil)
 
