@@ -257,7 +257,7 @@ void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionH
 	    {
 		if(msg->header(h_RequestLine).getMethod() == CANCEL) 
 		{
-		    call->onCancel();
+		    call->onCancel(myAppDialog);
 		} 
 		else if(msg->header(h_RequestLine).getMethod() == BYE) 
 		{

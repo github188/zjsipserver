@@ -13,20 +13,32 @@ using namespace std;
 
 bool MediaProxy::mNatHelper = true; //zhangjun change from false to true
 
-void MediaProxy::setNatHelper(bool natHelper) {
-  mNatHelper = natHelper;
+void MediaProxy::setNatHelper(bool natHelper) 
+{
+    mNatHelper = natHelper;
 }
 
-MediaProxy::MediaProxy(MediaManager& mediaManager) : mediaManager(mediaManager) {
-  originalSdp = NULL;
-  newSdp = NULL;
+MediaProxy::MediaProxy(MediaManager& mediaManager) 
+    : mediaManager(mediaManager) 
+{
+    originalSdp = NULL;
+    newSdp = NULL;
 }
 
-MediaProxy::~MediaProxy() {
-  if(originalSdp != NULL)
-    delete originalSdp;
-  if(newSdp != NULL) 
-    delete newSdp;
+MediaProxy::MediaProxy( MediaManager& mediaManager, const resip::Data& callid )
+    : mediaManager(mediaManager),
+      iD_(callid)
+{
+    originalSdp = NULL;
+    newSdp = NULL;
+}
+
+MediaProxy::~MediaProxy() 
+{
+    if(originalSdp != NULL)
+	delete originalSdp;
+    if(newSdp != NULL) 
+	delete newSdp;
 }
 
 //!!!Transport have 2 types, 1 is c2t:client to terminal, 2 is c2v2t:client to vtdu to terminal
@@ -199,20 +211,23 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 
 resip::SdpContents& MediaProxy::getSdp() 
 {
-  return *newSdp;
+    return *newSdp;
 }
 
-bool MediaProxy::allowProtocol(const resip::Data& protocol) {
-  if(protocol == Data("RTP/AVP") || protocol == Data("UDP") || protocol == Data("udp") || protocol == Data("udptl")) {
-    return true;
-  }
-  return false;
+bool MediaProxy::allowProtocol(const resip::Data& protocol) 
+{
+    if(protocol == Data("RTP/AVP") || protocol == Data("UDP") || protocol == Data("udp") || protocol == Data("udptl")) 
+    {
+	return true;
+    }
+    return false;
 }
 
 // 10.0.0.0/8 - 10.255.255.255
 // 172.16.0.0/12 - 172.31.255.255
 // 192.168.0.0/16 - 192.168.255.255
-bool MediaProxy::isAddressPrivate(const in_addr_t& subj_addr) {
+bool MediaProxy::isAddressPrivate(const in_addr_t& subj_addr) 
+{
     //in_addr_t subj_addr = inet_addr(address.c_str());
     if(subj_addr == INADDR_NONE) 
     {

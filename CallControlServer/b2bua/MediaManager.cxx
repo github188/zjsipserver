@@ -1,5 +1,6 @@
 
 #include "rutil/Data.hxx"
+#include "resip/stack/Helper.hxx"
 
 #include "MediaManager.hxx"
 
@@ -35,6 +36,20 @@ MediaManager::MediaManager(B2BCall& b2BCall,
     rtpProxyUtil = NULL;
 };
 
+MediaManager::MediaManager(B2BCall& b2BCall,
+                           const Data& fromTag,
+                           const Data& toTag)
+    : b2BCall(b2BCall),
+      fromTag(fromTag),
+      toTag(toTag)
+{
+    callId = resip::Helper::computeCallId();//get a unique callid
+    aLegProxy = NULL;
+    bLegProxy = NULL;
+    rtpProxyUtil = NULL;
+};
+
+
 MediaManager::~MediaManager() {
     if(aLegProxy != NULL)
 	delete aLegProxy;
@@ -44,25 +59,31 @@ MediaManager::~MediaManager() {
 	delete rtpProxyUtil;
 };
 
-void MediaManager::setFromTag(const Data& fromTag) 
+void 
+MediaManager::setFromTag(const Data& fromTag) 
 {
     this->fromTag = fromTag;
 };
 
-void MediaManager::setToTag(const Data& toTag) 
+void 
+MediaManager::setToTag(const Data& toTag) 
 {
     this->toTag = toTag;
 };
 
-int MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+int 
+MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
     aLegSdp = sdp;
     if(aLegProxy == NULL)
-	aLegProxy = new MediaProxy(*this);
+    {
+	aLegProxy = new MediaProxy(*this,callid);
+    }
     return aLegProxy->updateSdp(aLegSdp, msgSourceAddress);
 };
 
-SdpContents& MediaManager::getALegSdp() 
+SdpContents& 
+MediaManager::getALegSdp() 
 {
     if(aLegProxy == NULL) 
     {
@@ -71,15 +92,19 @@ SdpContents& MediaManager::getALegSdp()
     return aLegProxy->getSdp();
 };
 
-int MediaManager::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+int 
+MediaManager::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
     bLegSdp = sdp;
     if(bLegProxy == NULL)
-	bLegProxy = new MediaProxy(*this);
+    {
+	bLegProxy = new MediaProxy(*this,callid);
+    }
     return bLegProxy->updateSdp(bLegSdp, msgSourceAddress);
 };
 
-SdpContents& MediaManager::getBLegSdp() 
+SdpContents& 
+MediaManager::getBLegSdp() 
 {
     if(bLegProxy == NULL)
 	throw new exception;

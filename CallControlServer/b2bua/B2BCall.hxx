@@ -22,6 +22,7 @@ class MyDialogSetHandler;
 #include "MediaManager.hxx"
 #include "MyAppDialog.hxx"
 
+#include <map>
 
 namespace b2bua
 {
@@ -31,7 +32,8 @@ class B2BCall
 
 protected:
 
-    typedef enum B2BCallState {
+    typedef enum B2BCallState 
+    {
 	NewCall = 0,				// just started
 	CallerCancel,				// CANCEL received from A leg
 	AuthorizationPending,
@@ -83,7 +85,8 @@ protected:
   
     static resip::Data callStateNames[];
 
-    typedef enum BasicClearingReason {
+    typedef enum BasicClearingReason 
+    {
 	NoAnswer = 0,	// caller gave up/timeout
 	Busy,		// callee indicated busy
 	Congestion,		// callee indicated congestion
@@ -93,7 +96,8 @@ protected:
 
     static const char *basicClearingReasonName[];
     
-    typedef enum FullClearingReason {
+    typedef enum FullClearingReason 
+    {
 	Unset,
 
 	// No attempted
@@ -160,8 +164,11 @@ protected:
     // If we are waiting for something, this is the timeout
     time_t timeout;
     
-    std::vector<MyAppDialog *> aLegAppDialogs;//!!!
-    MyAppDialog *aLegAppDialog; //should have multi!!!
+    //std::vector<MyAppDialog *> aLegAppDialogs;//!!!
+    std::map<resip::Data, MyAppDialog*> aLegAppDialogs;//!!!
+    MyAppDialog *aFirstLegAppDialog;
+    //MyAppDialog *aLegAppDialog; //should have multi!!!
+    
     MyAppDialog *bLegAppDialog;
     MyAppDialogSet *bLegAppDialogSet;
     //resip::SdpContents *aLegSdp;		// most recent offer from A leg
@@ -175,6 +182,10 @@ protected:
 
     // Returns true if successful, false if new state is not
     // permitted
+
+    resip::Data iD_; //!!!unique identify
+
+protected:
     bool setCallState(B2BCallState newCallState);
     bool isCallStatePermitted(B2BCallState newCallState);
     const resip::Data& getCallStateName(B2BCallState s);
@@ -213,6 +224,10 @@ protected:
     void doCallStopMediaProxySuccess();
     void doCallStopMediaProxyFail();
     void doCallStopFinal();
+
+    //zhangjun extented do function
+    void doHangup(MyAppDialog *myAppDialog);
+
     
     // sets the clearing reason codes if necessary
     void setClearingReason(FullClearingReason reason, int code);
@@ -261,7 +276,7 @@ public:
     void onRinging();
     //void onSessionProgress();
     void onEarlyMedia(MyAppDialog *myAppDialog, const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);
-    void onCancel();
+    void onCancel(MyAppDialog *myAppDialog);//zhangjun change
     void onFailure(MyAppDialog *myAppDialog);
     void onRejected(int statusCode, const resip::Data& reason);
     void onOffer(MyAppDialog *myAppDialog, const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);

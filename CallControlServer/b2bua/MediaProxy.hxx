@@ -49,9 +49,13 @@ private:
 					// offer in the SDP
     resip::SdpContents *originalSdp;	// the original SDP
     resip::SdpContents *newSdp;		// the modified SDP
-    
-public:
+
+    resip::Data iD_;
+
+private:
     MediaProxy( MediaManager& mediaManager );
+
+public:
     MediaProxy( MediaManager& mediaManager, const resip::Data& callid );
     virtual ~MediaProxy();
 
@@ -67,7 +71,6 @@ public:
 							// is permitted/handled
 							// by this proxy
 							// implementation
-    
     bool isAddressPrivate(const in_addr_t& subj_addr);
     
 };

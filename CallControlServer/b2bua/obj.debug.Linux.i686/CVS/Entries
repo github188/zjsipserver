@@ -2,7 +2,6 @@
 /AuthenticationManager.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
 /CallHandle.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
 /DummyRegistrationPersistenceManager.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
-/MediaManager.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
 /MyAppDialog.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
 /RtpProxyRecurringTask.d/1.1.1.1/Mon Dec 15 01:38:58 2008//
 /B2BCall.d/1.2/Tue Jan  6 02:47:29 2009//
@@ -17,4 +16,5 @@
 /MyInviteSessionHandler.d/1.2/Mon Jan  5 06:46:43 2009//
 /RtpProxyUtil.d/1.2/Mon Jan  5 06:46:43 2009//
 /TaskManager.d/1.2/Mon Jan  5 06:46:43 2009//
+/MediaManager.d/1.2/Thu Jan  8 07:58:45 2009//
 D

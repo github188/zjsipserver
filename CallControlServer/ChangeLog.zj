@@ -65,4 +65,34 @@
 
 11. B2BUA
     2009-01-05: 将b2bua的记录日志方式改成统一的resip使用的方式.
-    
+    2009-01-07: 调整MediaProxy.cxx的updateSdp函数的内容,支持我们的流程
+    2009-01-07: MediaManager::setALegSdp函数传入callid, 包括B2BCall::setALegSdp也一样.这样做的目的是使每个mediaproxy都使用callid做标识
+		为B2BCall的onEarlyMedia函数增加一个MyAppDialog的参数		
+		让MediaManager在构造时自己产生callid而不是由B2BCall传给他一个
+		
+    2009-01-08: 修改完B2BCall的appdialog管理,实现了c offer t answer c 的模式,但是还需要实现 c nooffer t offer c answer t 模式
+		
+    11.1  重要的修改:要妥为管理各个dialog的新建实践,这会涉及到修改B2BCall原有的状态机,比如doNewCall的修改. 
+	  这个B2BCall的建立者会调用doNewCall,但是之后的参加者就不会了,而是调用其他函数.
+
+	  后来者会先查询有没有和自己请求的视频匹配的B2BCall,如果没有就新建,如果有就加入
+
+	  根据什么关键字来查找B2BCall呢?我的方案是(按照电信规范): destinationAddr(Uri里面含有前端标识和视频或音频通道号),
+	  再加上sdp里的medium的name()这个name用来表示媒体是video还是audio
+
+	  当查询B2BCall时,先根据关键字从B2BCallManager里找出所有符合条件的B2BCall,然后如果里面有c2v2t类型的,那么就加入这个B2BCall.
+	  如果没有,那么就新建一个B2BCall
+
+	  现在说一下加入的逻辑过程:当发现有一个c2v2t类型的B2BCall时,调用其的add函数加入进去,如果这时B2BCall还未处于CallActive状态即还没有建立好,那么就返回失败,
+	  如果已经处于CallActive状态,那么同步执行向分发发起请求并得到新的sdp,然后返回给请求者的操作.即在请求者的onOffer或者onrequireOffer里就给他sdp.
+	  特别的说明就是加入者不会执行B2BCall的doNewCall();doAuthorizationPending();doAuthorizationSuccess();doMediaProxySuccess();doReadyToDial();doCallAccepted();
+	  这些函数.
+
+	  或者加入者被放到B2BCall的一个临时容器里,每次循环执行doCallActive时处理这些加入者(仍然比较复杂).
+
+    11.2  要改动B2BCall的onOffer和OnAnswer函数,因为这两个函数都假定了offer是由a端发来的,answer是由b端发来的,其实这是不成立的,a端可能不发offer而发answer
+	  b端可能不发answer而发offer
+
+    11.3  	          	  	  
+
+    		    

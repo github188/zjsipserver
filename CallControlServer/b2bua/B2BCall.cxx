@@ -88,8 +88,12 @@ B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationM
     fullClearingReason = Unset;
     rejectOtherCode = 0;
     failureStatusCode = -1;
-    this->aLegAppDialog = aLegAppDialog;
+
+    //this->aLegAppDialog = aLegAppDialog;
+    this->aFirstLegAppDialog = aLegAppDialog;
+    this->aLegAppDialogs[aLegAppDialog->getDialogId().getCallId()] = aLegAppDialog;
     aLegAppDialog->setB2BCall(this);
+    
     bLegAppDialogSet = NULL;
     bLegAppDialog = NULL;
     //callState = CALL_NEW;
@@ -99,9 +103,13 @@ B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationM
     finishTime = 0;
     //aLegSdp = NULL;
     //bLegSdp = NULL;
-    try {
-	mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getCallId(), aLegAppDialog->getDialogId().getLocalTag(), Data(""));
-    } catch (...) {
+    try 
+    {
+	//mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getCallId(), aLegAppDialog->getDialogId().getLocalTag(), Data(""));
+	mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getLocalTag(), Data(""));
+    } 
+    catch (...) 
+    {
 	B2BUA_LOG_ERR( << "failed to instantiate MediaManager");
 	throw new exception;
     }
@@ -118,8 +126,11 @@ B2BCall::~B2BCall()
 	delete mediaManager;
     if(failureReason != NULL)
 	delete failureReason;
-    if(aLegAppDialog != NULL)
-	aLegAppDialog->setB2BCall(NULL);
+    
+    //if(aLegAppDialog != NULL)
+    //	aLegAppDialog->setB2BCall(NULL);
+    //do foreach aLegAppDialogs, everyone exec setB2BCall(NULL); !!!NTD
+
     if(bLegAppDialogSet != NULL)
 	bLegAppDialogSet->setB2BCall(NULL);
     if(bLegAppDialog != NULL)
@@ -551,25 +562,30 @@ void B2BCall::setALegSdp(const resip::Data& callid, const SdpContents& sdp, cons
 
 void B2BCall::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
-  //try {
+    //try {
     mediaManager->setBLegSdp(callid, sdp, msgSourceAddress);
-  //} catch (...) {
-   // B2BUA_LOG_WARNING, "failed to accept SDP from B leg");
+    //} catch (...) {
+    // B2BUA_LOG_WARNING, "failed to accept SDP from B leg");
     //callState = CALL_STOP;
-  //}
+    //}
 }
 
 void B2BCall::setBLegAppDialog(MyAppDialog *myAppDialog) 
 {
-  bLegAppDialog = myAppDialog; 
-  //mediaManager->setToTag(bLegAppDialog->getDialogId().getLocalTag());
+    bLegAppDialog = myAppDialog; 
+    //mediaManager->setToTag(bLegAppDialog->getDialogId().getLocalTag());
 }
 
-void B2BCall::releaseAppDialog(MyAppDialog *myAppDialog) 
+void B2BCall::releaseAppDialog(MyAppDialog *myAppDialog) //MyAppDialog's deconstruct invoke it
 {
-    if(myAppDialog == aLegAppDialog) 
+    //if(myAppDialog == aLegAppDialog) 
+    //{
+    //	aLegAppDialog = NULL;
+    //  }
+
+    if ( aLegAppDialogs.find(myAppDialog->getDialogId().getCallId()) != aLegAppDialogs.end() )
     {
-	aLegAppDialog = NULL;
+	aLegAppDialogs.erase( myAppDialog->getDialogId().getCallId() );
     }
     else if(myAppDialog == bLegAppDialog) 
     {
@@ -742,10 +758,11 @@ B2BCall::CallStatus B2BCall::getStatus()
     }
 }
 
-void B2BCall::doNewCall() 
+void B2BCall::doNewCall() //only first caller will invoke this function!!!
 {
     // Indicate trying
-    ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
+    //ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
     sis->provisional(100);
     callHandle = authorizationManager.authorizeCall(sourceAddr, destinationAddr, authRealm, 
 						    authUser, authPassword, srcIp, contextId, 
@@ -795,7 +812,7 @@ void B2BCall::doAuthorizationSuccess()
 	appRef2 = Data("");
 	setClearingReason(InvalidDestination, -1);
 	B2BUA_LOG_NOTICE( <<"no routes returned");
-	ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get()); 
+	ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get()); 
 	sis->reject(500);  // Server internal error
 	setCallState(CallStop);
 	return;
@@ -809,9 +826,11 @@ void B2BCall::doAuthorizationSuccess()
 void B2BCall::doAuthorizationFail() 
 {
     setClearingReason(AuthError, -1);
-    if(aLegAppDialog != NULL) {
-	ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-	switch(callHandle->getAuthResult()) {
+    if(aFirstLegAppDialog != NULL) 
+    {
+	ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+	switch(callHandle->getAuthResult()) 
+	{
 	case CC_AUTH_REQUIRED:
 	    sis->reject(401);  // Unauthorized/credentials required
 	    break;
@@ -888,51 +907,56 @@ void B2BCall::doReadyToDial()
 }
 
 // A route failed (timeout, ICMP, invalid domain, etc), try the next route
-void B2BCall::doDialFailed() {
-  if(bLegAppDialogSet != NULL) {
-    bLegAppDialogSet->end();
-    bLegAppDialogSet->setB2BCall(NULL);
-  }
-  bLegAppDialogSet = NULL;
-  bLegAppDialog = NULL;
-  failureStatusCode = -1;
-  //setClearingReason(AuthError, -1);
-  setCallState(SelectAlternateRoute); 
-  doSelectAlternateRoute();
-}
-
-// A route rejected the call, try the next route
-void B2BCall::doDialRejected() {
-  switch(failureStatusCode) {
-  case -1:
-    //setClearingReason(AuthError, -1);
-    setCallState(SelectAlternateRoute);
-    doSelectAlternateRoute();
-    break;
-  //case 480: // Temporarily not available
-  case 486: // Busy
-  //case 600: // Busy everywhere
-  //case 603: // Decline
-    // We will consider all of the above to be `BUSY'
-    setClearingReason(RejectBusy, failureStatusCode);
-    setCallState(DialAborted);
-    doDialAborted();
-    break;
-  default:
-    //setClearingReason(RejectOther, failureStatusCode);
+void B2BCall::doDialFailed() 
+{
     if(bLegAppDialogSet != NULL) {
-      bLegAppDialogSet->end();
-      bLegAppDialogSet->setB2BCall(NULL);
+	bLegAppDialogSet->end();
+	bLegAppDialogSet->setB2BCall(NULL);
     }
     bLegAppDialogSet = NULL;
     bLegAppDialog = NULL;
+    failureStatusCode = -1;
+    //setClearingReason(AuthError, -1);
+    setCallState(SelectAlternateRoute); 
+    doSelectAlternateRoute();
+}
+
+// A route rejected the call, try the next route
+void B2BCall::doDialRejected() 
+{
+    switch(failureStatusCode) 
+    {
+    case -1:
+	//setClearingReason(AuthError, -1);
     setCallState(SelectAlternateRoute);
     doSelectAlternateRoute();
     break;
-  }
+    //case 480: // Temporarily not available
+    case 486: // Busy
+	//case 600: // Busy everywhere
+	//case 603: // Decline
+    // We will consider all of the above to be `BUSY'
+	setClearingReason(RejectBusy, failureStatusCode);
+	setCallState(DialAborted);
+	doDialAborted();
+	break;
+    default:
+	//setClearingReason(RejectOther, failureStatusCode);
+	if(bLegAppDialogSet != NULL) 
+	{
+	    bLegAppDialogSet->end();
+	bLegAppDialogSet->setB2BCall(NULL);
+	}
+	bLegAppDialogSet = NULL;
+	bLegAppDialog = NULL;
+	setCallState(SelectAlternateRoute);
+	doSelectAlternateRoute();
+	break;
+    }
 }
 
-void B2BCall::doSelectAlternateRoute() {
+void B2BCall::doSelectAlternateRoute() 
+{
     callRoute++;
     if(callRoute == callHandle->getRoutes().end()) 
     {
@@ -947,17 +971,21 @@ void B2BCall::doSelectAlternateRoute() {
     doReadyToDial();
 }
 
-void B2BCall::doDialAborted() {
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  if(failureStatusCode == -1) {
-    setClearingReason(AuthError, failureStatusCode); // FIXME
-    sis->reject(503);
-  } else {
-    setClearingReason(RejectOther, failureStatusCode);
-    sis->reject(failureStatusCode);
-  }
-  setCallState(CallStop);
-  doCallStop();
+void B2BCall::doDialAborted() 
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    if(failureStatusCode == -1) 
+    {
+	setClearingReason(AuthError, failureStatusCode); // FIXME
+	sis->reject(503);
+    } 
+    else 
+    {
+	setClearingReason(RejectOther, failureStatusCode);
+	sis->reject(failureStatusCode);
+    }
+    setCallState(CallStop);
+    doCallStop();
 }
 
 
@@ -965,11 +993,13 @@ void B2BCall::doDialAborted() {
   setCallState(DialInProgress);
 } */
 
-void B2BCall::doDialReceived180() {
-  if(setCallState(DialInProgress)) {
-    ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-    sis->provisional(180);
-  }
+void B2BCall::doDialReceived180() 
+{
+    if(setCallState(DialInProgress)) 
+    {
+	ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+	sis->provisional(180);
+    }
 }
 
 /* void B2BCall::doCallDial183() {
@@ -977,13 +1007,14 @@ void B2BCall::doDialReceived180() {
   setCallState(DialInProgress);
 } */
 
-void B2BCall::doDialReceivedEarlyAnswer() {
+void B2BCall::doDialReceivedEarlyAnswer() 
+{
     if(earlyAnswerSent == true) 
     {
 	setCallState(DialInProgress);
 	return;
     }
-    ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
     //sis->provideAnswer(*bLegSdp);
     try
     {
@@ -1002,183 +1033,218 @@ void B2BCall::doDialReceivedEarlyAnswer() {
     doDialEarlyMediaProxySuccess();
 }
 
-void B2BCall::doDialEarlyMediaProxySuccess() {
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  sis->provisional(183);
-  earlyAnswerSent = true;
-  setCallState(DialInProgress);
+void B2BCall::doDialEarlyMediaProxySuccess() 
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    sis->provisional(183);
+    earlyAnswerSent = true;
+    setCallState(DialInProgress);
 }
 
-void B2BCall::doDialEarlyMediaProxyFail() {
-  setClearingReason(AuthError, -1);
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  sis->reject(500);  // FIXME - error code
-  setCallState(CallStop);
+void B2BCall::doDialEarlyMediaProxyFail() 
+{
+    setClearingReason(AuthError, -1);
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    sis->reject(500);  // FIXME - error code
+    setCallState(CallStop);
 }
 
-void B2BCall::doCallAccepted() {
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get()); 
-  if(!earlyAnswerSent) {
-    try {
-      SdpContents& sdp = mediaManager->getBLegSdp();
-      sis->provideAnswer(sdp); // FIXME - for re-INVITE
-    } catch(...) {
-      //setClearingReason(Error, -1);
-      setClearingReason(AnsweredError, -1);
-      setCallState(CallAcceptedMediaProxyFail);
-      return;
+void B2BCall::doCallAccepted() 
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get()); 
+    if(!earlyAnswerSent) 
+    {
+	try 
+	{
+	    SdpContents& sdp = mediaManager->getBLegSdp();
+	    sis->provideAnswer(sdp); // FIXME - for re-INVITE
+	} 
+	catch(...) 
+	{
+	    //setClearingReason(Error, -1);
+	    setClearingReason(AnsweredError, -1);
+	    setCallState(CallAcceptedMediaProxyFail);
+	    return;
+	}
     }
-  }
-  setCallState(CallAcceptedMediaProxySuccess);
-  doCallAcceptedMediaProxySuccess();
+    setCallState(CallAcceptedMediaProxySuccess);
+    doCallAcceptedMediaProxySuccess();
 }
 
-void B2BCall::doCallAcceptedMediaProxySuccess() {
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  sis->accept();
-  time(&connectTime);
-  callHandle->connect(&connectTime);
-  setCallState(CallActive);
+void B2BCall::doCallAcceptedMediaProxySuccess() 
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    sis->accept();
+    time(&connectTime);
+    callHandle->connect(&connectTime);
+    setCallState(CallActive);
 }
 
-void B2BCall::doCallAcceptedMediaProxyFail() {
-  setClearingReason(AnsweredError, -1);
-  ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  sis->reject(500); // FIXME - error codes
-  setCallState(CallStop);
-}
-
-void B2BCall::doCallActive() {
-  if(callHandle->mustHangup()) {
-      B2BUA_LOG_DEBUG( <<"ending a call due to mustHangup()");
-    setClearingReason(AnsweredLimit, -1);
-    setCallState(LocalHangup);
-  }
-}
-
-void B2BCall::doHangup() {
-  setCallState(CallStop);
-}
-
-void B2BCall::doCallStop() {
-//  setClearingReason(AnsweredUnknown, -1);
-  time(&finishTime);
-  if(callHandle != NULL) {
-    if(connectTime != 0)
-      callHandle->finish(&finishTime);
-    else
-      callHandle->fail(&finishTime);
-  }
-  if(aLegAppDialog != NULL) {
-    ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-    sis->end();
-  } 
-  if(bLegAppDialogSet != NULL) {
-    bLegAppDialogSet->end();
-  }
-  writeCDR();
-  setCallState(CallStopFinal);
-}
-
-void B2BCall::doCallStopMediaProxySuccess() {
-  setCallState(CallStopFinal);
-}
-
-void B2BCall::doCallStopMediaProxyFail() {
-  setCallState(CallStopFinal);
-}
-
-void B2BCall::doCallStopFinal() {
-  // do nothing, the call should be deleted shortly
-  if(callHandle != NULL) {
-    delete callHandle;
-    callHandle = NULL;
-  }
-}
-
-void B2BCall::setClearingReason(FullClearingReason reason, int code) {
-  // has a reason already been specified?  If so, leave it alone
-  if(fullClearingReason != Unset) 
-    return; 
-
-  fullClearingReason = reason;
-  if(fullClearingReason == RejectOther)
-    rejectOtherCode = code;
-  switch(fullClearingReason) {
-  case InvalidDestination:
-  case AuthError:
-    basicClearingReason = Error;
-    break;
-  case NoAnswerCancel:
-  case NoAnswerTimeout:
-    basicClearingReason = NoAnswer;
-    break;
-  case NoAnswerError:
-    basicClearingReason = Error;
-    break;
-  case RejectBusy:
-    basicClearingReason = Busy;
-    break;
-  case RejectOther:
-    switch(rejectOtherCode) {
-    /* case 503:  // ambiguous, could also indicate out of funds with a carrier
-      basicClearingReason = Congestion;
-      break; */
-    default:
-      basicClearingReason = Error;
-      break;
-    };
-    break;
-  case AnsweredALegHangup:
-  case AnsweredBLegHangup:
-  case AnsweredLimit:
-  case AnsweredShutdown:
-  case AnsweredError:
-  case AnsweredUnknown:
-    basicClearingReason = Answered;
-    break;
-  default:
-    basicClearingReason = Error;
-    break;
-  };
-}
-
-void B2BCall::setClearingReasonMediaFail() {
-  if(connectTime == 0)
-    setClearingReason(NoAnswerError, -1);
-  else
+void B2BCall::doCallAcceptedMediaProxyFail() 
+{
     setClearingReason(AnsweredError, -1);
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    sis->reject(500); // FIXME - error codes
+    setCallState(CallStop);
 }
 
-void B2BCall::writeCDR() {
-  std::ostringstream cdrStream;
-  cdrStream << sourceAddr << ",";
-  cdrStream << destinationAddr << ",";
-  cdrStream << contextId << ",";
-  cdrStream << '"' << basicClearingReasonName[basicClearingReason] << '"' << ",";
-  cdrStream << fullClearingReason << ",";
-  cdrStream << rejectOtherCode << ",";
-  cdrStream << startTime << ",";
-  if(connectTime == 0)
+void B2BCall::doCallActive() 
+{
+    if(callHandle->mustHangup()) 
+    {
+	B2BUA_LOG_DEBUG( <<"ending a call due to mustHangup()");
+	setClearingReason(AnsweredLimit, -1);
+	setCallState(LocalHangup);
+    }
+}
+
+void B2BCall::doHangup(MyAppDialog *myAppDialog) //handle 1 aleg say goodbye
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
+    sis->end();
+}
+
+void B2BCall::doHangup() 
+{
+    setCallState(CallStop);
+}
+
+void B2BCall::doCallStop() //it will invoked is only bleg or last aleg cancel or say goodbye or rejected by bleg 
+{
+//  setClearingReason(AnsweredUnknown, -1);
+    time(&finishTime);
+    if(callHandle != NULL) 
+    {
+	if(connectTime != 0)
+	    callHandle->finish(&finishTime);
+	else
+	    callHandle->fail(&finishTime);
+    }
+    
+//    if(aLegAppDialog != NULL) 
+    std::map<resip::Data, MyAppDialog*>::iterator i = aLegAppDialogs.begin();
+    for ( ; i!=aLegAppDialogs.end(); ++i )
+    {
+	ServerInviteSession *sis = (ServerInviteSession *)((i->second)->getInviteSession().get());
+	sis->end();
+    } 
+
+    if(bLegAppDialogSet != NULL) 
+    {
+	bLegAppDialogSet->end();
+    }
+    writeCDR();
+    setCallState(CallStopFinal);
+}
+
+void B2BCall::doCallStopMediaProxySuccess() 
+{
+    setCallState(CallStopFinal);
+}
+
+void B2BCall::doCallStopMediaProxyFail() 
+{
+    setCallState(CallStopFinal);
+}
+
+void B2BCall::doCallStopFinal() 
+{
+    // do nothing, the call should be deleted shortly
+    if(callHandle != NULL) 
+    {
+	delete callHandle;
+	callHandle = NULL;
+    }
+}
+
+void B2BCall::setClearingReason(FullClearingReason reason, int code) 
+{
+    // has a reason already been specified?  If so, leave it alone
+    if(fullClearingReason != Unset) 
+	return; 
+
+    fullClearingReason = reason;
+    if(fullClearingReason == RejectOther)
+	rejectOtherCode = code;
+    switch(fullClearingReason) {
+    case InvalidDestination:
+    case AuthError:
+	basicClearingReason = Error;
+	break;
+    case NoAnswerCancel:
+    case NoAnswerTimeout:
+	basicClearingReason = NoAnswer;
+	break;
+    case NoAnswerError:
+	basicClearingReason = Error;
+	break;
+    case RejectBusy:
+	basicClearingReason = Busy;
+	break;
+    case RejectOther:
+	switch(rejectOtherCode) 
+	{
+	    /* case 503:  // ambiguous, could also indicate out of funds with a carrier
+	       basicClearingReason = Congestion;
+	       break; */
+	default:
+	    basicClearingReason = Error;
+	    break;
+	};
+	break;
+    case AnsweredALegHangup:
+    case AnsweredBLegHangup:
+    case AnsweredLimit:
+    case AnsweredShutdown:
+    case AnsweredError:
+    case AnsweredUnknown:
+	basicClearingReason = Answered;
+	break;
+    default:
+	basicClearingReason = Error;
+	break;
+    };
+}
+
+void B2BCall::setClearingReasonMediaFail() 
+{
+    if(connectTime == 0)
+	setClearingReason(NoAnswerError, -1);
+    else
+	setClearingReason(AnsweredError, -1);
+}
+
+void B2BCall::writeCDR() 
+{
+    std::ostringstream cdrStream;
+    cdrStream << sourceAddr << ",";
+    cdrStream << destinationAddr << ",";
+    cdrStream << contextId << ",";
+    cdrStream << '"' << basicClearingReasonName[basicClearingReason] << '"' << ",";
+    cdrStream << fullClearingReason << ",";
+    cdrStream << rejectOtherCode << ",";
+    cdrStream << startTime << ",";
+    if(connectTime == 0)
+	cdrStream << ",";
+    else
+	cdrStream << connectTime << ",";
+    cdrStream << finishTime << ",";
+    cdrStream << finishTime - startTime << ",";
+    if(connectTime != 0)
+	cdrStream << finishTime - connectTime;
     cdrStream << ",";
-  else
-    cdrStream << connectTime << ",";
-  cdrStream << finishTime << ",";
-  cdrStream << finishTime - startTime << ",";
-  if(connectTime != 0)
-    cdrStream << finishTime - connectTime;
-  cdrStream << ",";
-  cdrStream << appRef1 << "," << appRef2 << ",";
-  cdrHandler.handleRecord(cdrStream.str());
+    cdrStream << appRef1 << "," << appRef2 << ",";
+    cdrHandler.handleRecord(cdrStream.str());
 }
 
 /* void B2BCall::onTrying() {
   setCallState(DialReceived100);
 } */
 
-void B2BCall::onRinging() {
-  //callState = CALL_DIAL_180;
-  setCallState(DialReceived180);
+void B2BCall::onRinging() 
+{
+    //callState = CALL_DIAL_180;
+    setCallState(DialReceived180);
 }
 
 //void B2BCall::onSessionProgress() {
@@ -1207,41 +1273,55 @@ void B2BCall::onEarlyMedia(MyAppDialog *myAppDialog, const SdpContents& sdp, con
     //sis->provisional(183);
 }
 
-void B2BCall::onCancel() {
-  //callState = CALL_CANCEL;
-  setCallState(CallerCancel);
+void B2BCall::onCancel( MyAppDialog *myAppDialog ) 
+{
+    //callState = CALL_CANCEL;
+    assert( myAppDialog!=bLegAppDialog );
+    if ( 1 == aLegAppDialogs.size() )
+    {
+	setCallState(CallerCancel);
+    }
+    else
+    {
+	ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
+	sis->end();
+    }
 }
 
 // Dial Failure due to ICMP, Timeout, protocol error or other reason
-void B2BCall::onFailure(MyAppDialog *myAppDialog) {
-  
+void B2BCall::onFailure(MyAppDialog *myAppDialog) 
+{
+    
   // If we are about to try another route, bLegAppDialogSet will be NULL
-  if(bLegAppDialogSet == NULL) 
-    return;
-
-  // No need to do anything if it's already been rejected
-  if(callState == DialRejected)
-    return;
-
-  if(setCallState(DialFailed)) {
-  }
+    if(bLegAppDialogSet == NULL) 
+	return;
+    
+    // No need to do anything if it's already been rejected
+    if(callState == DialRejected)
+	return;
+    
+    if(setCallState(DialFailed)) 
+    {
+    }
 }
 
 // Dial failure due to rejection by remote party
-void B2BCall::onRejected(int statusCode, const Data& reason) {
-  if(setCallState(DialRejected)) {
-    failureStatusCode = statusCode;
-    failureReason = new Data(reason);
-  }
+void B2BCall::onRejected(int statusCode, const Data& reason) 
+{
+    if(setCallState(DialRejected)) 
+    {
+	failureStatusCode = statusCode;
+	failureReason = new Data(reason);
+    }
 }
 
-
+//now, below function only support c offer t answer c , don't support c nooffer t offer c answer t
 void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
-    InviteSession *otherInviteSession = NULL;	// used to relay SDP to
-						// other party
+    InviteSession *otherInviteSession = NULL;	// used to relay SDP to other party
     SdpContents *otherSdp = NULL;
-    if(myAppDialog == aLegAppDialog) 
+
+    if(myAppDialog == aFirstLegAppDialog) 
     {
 	B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
 	try 
@@ -1256,13 +1336,14 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	    setCallState(CallStop);
 	    return;
 	}
-	if(bLegAppDialog != NULL) 
+
+	if ( (bLegAppDialog != NULL) && (1==aLegAppDialogs.size()) ) //this indicate that transtype is C2T
 	{
 	    otherInviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
 	}
     } 
-    else if(myAppDialog == bLegAppDialog) 
+    else if(myAppDialog == bLegAppDialog)
     {
 	B2BUA_LOG_DEBUG( << "received SDP offer from B leg");
 	try 
@@ -1278,16 +1359,34 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	    return;
 	}
 	
-	if(aLegAppDialog != NULL) 
+	if ( !aLegAppDialogs.empty() ) 
 	{
-	    otherInviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
+	    //otherInviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
+	    //should get all aleg invitesessions, send reOffer
 	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
 	}
     } 
-    else 
+    else //other aleg appdialog
     {
-	B2BUA_LOG_ERR( <<"onOffer: unrecognised myAppDialog");
-	throw new exception;
+	//B2BUA_LOG_ERR( <<"onOffer: unrecognised myAppDialog");
+	//throw new exception;
+	if(callState == CallActive)
+	{
+	    B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
+	    try 
+	    {
+		setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
+
+		ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get()); 
+		SdpContents& sdp = mediaManager->getALegSdp();
+		sis->provideAnswer(sdp); 
+		sis->accept(); //other aleg should provide answer right now.
+	    }
+	    catch (...) 
+	    {
+		return;
+	    }
+	}
     }
 
     if(callState == CallActive) 
@@ -1295,16 +1394,12 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	// Must be a re-INVITE, relay to other party
 	// FIXME - change state
 	B2BUA_LOG_DEBUG( <<"processing a re-INVITE");
-	if(otherInviteSession != NULL)
+	if( ( otherInviteSession != NULL) && (otherSdp != NULL) )
 	{
-	    otherInviteSession->provideOffer(*otherSdp);
-	}
-	else 
-	{
-	    B2BUA_LOG_ERR( <<"onOffer: otherInviteSession == NULL");
-	    throw new exception; // FIXME
+	    otherInviteSession->provideOffer(*otherSdp);//resend a offer provided by peer 
 	}
     }
+
     if(otherSdp != NULL)
 	delete otherSdp;
 }
@@ -1312,7 +1407,8 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
     mediaManager->setToTag(bLegAppDialog->getDialogId().getLocalTag());
-    if(callState != CallActive) 
+
+    if(callState != CallActive) //answer by bleg
     {
 	B2BUA_LOG_DEBUG( <<"received answer");
 	// Answer to original INVITE
@@ -1337,21 +1433,28 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	// Answer to re-INVITE
 	InviteSession *inviteSession = NULL;
 	SdpContents *otherSdp = NULL;
-	if(myAppDialog == aLegAppDialog) 
+
+//	if(myAppDialog == aLegAppDialog) 
+	if(myAppDialog == bLegAppDialog)
+	{
+	    B2BUA_LOG_DEBUG( <<"answer received from B leg");
+	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+
+//	    inviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
+	    //should get all alegs
+	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
+	}
+	else
 	{
 	    B2BUA_LOG_DEBUG( <<"answer received from A leg");
 	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
 	    inviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
 	}
-	else
-	{
-	    B2BUA_LOG_DEBUG( <<"answer received from B leg");
-	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
-	    inviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
-	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
-	}
-	inviteSession->provideAnswer(*otherSdp);
+
+	if ( inviteSession != NULL )
+	    inviteSession->provideAnswer(*otherSdp);
+
 	if(otherSdp != NULL)
 	    delete otherSdp;
     }
@@ -1368,19 +1471,30 @@ void B2BCall::onMediaTimeout()
     setCallState(CallStop); 
 }
 
-void B2BCall::onHangup(MyAppDialog *myAppDialog) {
-    if(myAppDialog == aLegAppDialog) 
+void B2BCall::onHangup(MyAppDialog *myAppDialog) 
+{
+//    if(myAppDialog == aLegAppDialog) 
+    if(myAppDialog == bLegAppDialog) 
     {
-	B2BUA_LOG_DEBUG( <<"call hung up by a leg");
-	setClearingReason(AnsweredALegHangup, -1);
-	setCallState(CallerHangup);
-	time(&finishTime);
-    } else if(myAppDialog == bLegAppDialog) {
-	B2BUA_LOG_DEBUG( <<"call hung up by b leg");
+	B2BUA_LOG_DEBUG( <<"call hung up by bleg");
 	setClearingReason(AnsweredBLegHangup, -1);
 	setCallState(CalleeHangup);
 	time(&finishTime);
-    } else {
+    }
+    else if ( 1 == aLegAppDialogs.size() )//only 1 aleg
+    {
+	B2BUA_LOG_DEBUG( <<"call hung up by last aleg");
+	setClearingReason(AnsweredALegHangup, -1);
+	setCallState(CallerHangup);
+	time(&finishTime);
+    } 
+    else if ( aLegAppDialogs.find( myAppDialog->getDialogId().getCallId() ) != aLegAppDialogs.end() )
+    {
+	B2BUA_LOG_DEBUG( <<"call hung up by 1 aleg");
+	doHangup(myAppDialog);
+    }
+    else 
+    {
 	// possible termination of B leg after route fail
 	B2BUA_LOG_WARNING( <<"B2BCall::onHangup(): unrecognised MyAppDialog");
     }
@@ -1388,25 +1502,27 @@ void B2BCall::onHangup(MyAppDialog *myAppDialog) {
     //setCallState(CallStop);
 }
 
-void B2BCall::onStopping() {
-  // FIXME - should any states be handled differently?
-  switch(callState) {
-  case CallerCancel:
-  case AuthorizationFail:
-  case MediaProxyFail:
-  case DialEarlyMediaProxyFail:
-  case CallAcceptedMediaProxyFail:
-  case CallerHangup:
-  case CalleeHangup:
-  case LocalHangup:
-  case CallStop:
-  case CallStopMediaProxySuccess:
-  case CallStopMediaProxyFail:
-  case CallStopFinal:
-    return;
-  default:
-    onHangup(NULL);
-  }
+void B2BCall::onStopping() 
+{
+    // FIXME - should any states be handled differently?
+    switch(callState) 
+    {
+    case CallerCancel:
+    case AuthorizationFail:
+    case MediaProxyFail:
+    case DialEarlyMediaProxyFail:
+    case CallAcceptedMediaProxyFail:
+    case CallerHangup:
+    case CalleeHangup:
+    case LocalHangup:
+    case CallStop:
+    case CallStopMediaProxySuccess:
+    case CallStopMediaProxyFail:
+    case CallStopFinal:
+	return;
+    default:
+	onHangup(NULL);
+    }
 }
 
 /* ====================================================================

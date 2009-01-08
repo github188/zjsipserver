@@ -57,7 +57,11 @@ private:
     
     MediaProxy *aLegProxy;			// Proxies on behalf of A leg
     MediaProxy *bLegProxy;			// Proxies on behalf of B leg
-    
+ 
+private:
+    MediaManager(B2BCall& b2BCall);
+    MediaManager(B2BCall& b2BCall, const resip::Data& callId, const resip::Data& fromTag, const resip::Data& toTag);   
+
 public:
     friend class MediaProxy;
     
@@ -65,8 +69,7 @@ public:
     static void setProxyAddress(const resip::Data& proxyAddress);
     
     // Instantiate a MediaManager
-    MediaManager(B2BCall& b2BCall);
-    MediaManager(B2BCall& b2BCall, const resip::Data& callId, const resip::Data& fromTag, const resip::Data& toTag);
+    MediaManager(B2BCall& b2BCall, const resip::Data& fromTag, const resip::Data& toTag);//self gene callid
     virtual ~MediaManager();
 
     // Set the From tag
