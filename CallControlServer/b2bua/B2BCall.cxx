@@ -876,7 +876,7 @@ void B2BCall::doMediaProxyFail()
   setCallState(CallStop);
 }
 
-void B2BCall::doReadyToDial() 
+void B2BCall::doReadyToDial() //c offer t 
 {
     // Media Proxy is ready, now we can create the B-leg and send an INVITE
     try 
@@ -890,7 +890,7 @@ void B2BCall::doReadyToDial()
 	bLegAppDialogSet = new MyAppDialogSet(dum, this, outboundUserProfile);
 
 	SharedPtr<SipMessage> msgB;
-	SdpContents *initialOffer = (SdpContents *)mediaManager->getALegSdp().clone();
+	SdpContents *initialOffer = (SdpContents *)mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() ).clone();
 	msgB = dum.makeInviteSession((*callRoute)->getDestinationAddr(), outboundUserProfile, initialOffer, bLegAppDialogSet);
 	delete initialOffer;
 	dum.send(msgB);
@@ -1321,7 +1321,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
     InviteSession *otherInviteSession = NULL;	// used to relay SDP to other party
     SdpContents *otherSdp = NULL;
 
-    if(myAppDialog == aFirstLegAppDialog) 
+    if( myAppDialog == aFirstLegAppDialog ) 
     {
 	B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
 	try 
@@ -1340,7 +1340,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	if ( (bLegAppDialog != NULL) && (1==aLegAppDialogs.size()) ) //this indicate that transtype is C2T
 	{
 	    otherInviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
-	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
+	    otherSdp = (SdpContents *)mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() ).clone();
 	}
     } 
     else if(myAppDialog == bLegAppDialog)
@@ -1378,7 +1378,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 		setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
 
 		ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get()); 
-		SdpContents& sdp = mediaManager->getALegSdp();
+		SdpContents& sdp = mediaManager->getALegSdp( myAppDialog->getDialogId().getCallId() );
 		sis->provideAnswer(sdp); 
 		sis->accept(); //other aleg should provide answer right now.
 	    }
@@ -1447,9 +1447,9 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	else
 	{
 	    B2BUA_LOG_DEBUG( <<"answer received from A leg");
-	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
-	    inviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
-	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
+	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );//!!!存疑:a的应答不应该再访问分发，而是修改sdp后直接发给前端
+	    inviteSession = (InviteSession *)( bLegAppDialog->getInviteSession().get() );
+	    otherSdp = (SdpContents *)mediaManager->getALegSdp( myAppDialog->getDialogId().getCallId() ).clone();
 	}
 
 	if ( inviteSession != NULL )

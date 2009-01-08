@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Thu Jan  8 17:49:17 2009
+;; Created Thu Jan  8 20:09:43 2009
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
 (setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("docallstop" "callstop" "erase" "earse" "release" "callstop" "onca" "doh" "onh" "oncan" "docaller" "oncan" "docan" "dohangup" "onh" "onca"))
+(setq regexp-search-ring '("iter" "blegsdp" "alegsdp" "legsdp" "alegsdp" "doreadytodial" "\\[" "docallstop" "callstop" "erase" "earse" "release" "onca" "doh" "onh" "oncan"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -565,50 +565,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.hxx"
-  "MediaProxy.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1306
-  '(1260 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.hxx"
-  "MediaManager.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1832
-  '(1505 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.cxx"
-  "MediaProxy.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1033
-  '(258 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.cxx"
-  "MediaManager.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1860
-  '(1649 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BUA.cxx"
   "B2BUA.cxx"
   'c++-mode
@@ -642,12 +598,34 @@
   nil)
 
 (desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.hxx"
+  "MediaProxy.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1315
+  '(1260 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.hxx"
   "B2BCall.hxx"
   'c++-mode
   '(abbrev-mode nil)
-  4211
+  4377
   '(5580 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.hxx"
+  "MediaManager.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1411
+  '(1572 nil)
   nil
   nil
   nil)
@@ -657,8 +635,30 @@
   "B2BCall.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  34244
-  '(34315 nil)
+  26017
+  '(33552 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.cxx"
+  "MediaManager.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  704
+  '(2162 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.cxx"
+  "MediaProxy.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  5405
+  '(5368 nil)
   nil
   nil
   nil)
@@ -668,7 +668,7 @@
   "ChangeLog.zj"
   'text-mode
   '(nil)
-  4219
+  3307
   '(1070 nil)
   nil
   nil

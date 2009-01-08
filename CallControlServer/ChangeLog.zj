@@ -71,7 +71,8 @@
 		让MediaManager在构造时自己产生callid而不是由B2BCall传给他一个
 		
     2009-01-08: 修改完B2BCall的appdialog管理,实现了c offer t answer c 的模式,但是还需要实现 c nooffer t offer c answer t 模式
-		
+		修改完MediaManager对A端的MediaProxy的管理,支持多个A端MediaProxy		
+
     11.1  重要的修改:要妥为管理各个dialog的新建实践,这会涉及到修改B2BCall原有的状态机,比如doNewCall的修改. 
 	  这个B2BCall的建立者会调用doNewCall,但是之后的参加者就不会了,而是调用其他函数.
 

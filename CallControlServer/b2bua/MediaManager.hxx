@@ -48,14 +48,15 @@ private:
     resip::Data callId;				// from A Leg
     resip::Data fromTag;				// `from' tag for A leg party
     resip::Data toTag;				// `to' tag for B leg party
-    resip::SdpContents aLegSdp;
-    resip::SdpContents newALegSdp;
-    resip::SdpContents bLegSdp;
-    resip::SdpContents newBLegSdp;
+    //resip::SdpContents aLegSdp;
+    //resip::SdpContents newALegSdp;
+    //resip::SdpContents bLegSdp;
+    //resip::SdpContents newBLegSdp;
     
     RtpProxyUtil *rtpProxyUtil;			// Access to rtpproxy
     
-    MediaProxy *aLegProxy;			// Proxies on behalf of A leg
+    std::map<resip::Data, MediaProxy *> aLegProxys;//!!!
+    //MediaProxy *aLegProxy;			// Proxies on behalf of A leg
     MediaProxy *bLegProxy;			// Proxies on behalf of B leg
  
 private:
@@ -83,7 +84,7 @@ public:
 		    const in_addr_t& msgSourceAddress );
     
     // generate an offer (to send to B leg)
-    resip::SdpContents& getALegSdp();
+    resip::SdpContents& getALegSdp( const resip::Data& callid );
     
     // inspect and save an answer (B leg)
     int setBLegSdp( const resip::Data& callid,

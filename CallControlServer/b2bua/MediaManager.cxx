@@ -15,9 +15,10 @@ void MediaManager::setProxyAddress(const Data& proxyAddress)
     MediaManager::proxyAddress = proxyAddress;
 };
 
-MediaManager::MediaManager(B2BCall& b2BCall) : b2BCall(b2BCall) 
+MediaManager::MediaManager(B2BCall& b2BCall) 
+    : b2BCall(b2BCall) 
 {
-    aLegProxy = NULL;
+    //aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
 };
@@ -31,7 +32,7 @@ MediaManager::MediaManager(B2BCall& b2BCall,
       fromTag(fromTag), 
       toTag(toTag) 
 {
-    aLegProxy = NULL;
+//    aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
 };
@@ -44,19 +45,35 @@ MediaManager::MediaManager(B2BCall& b2BCall,
       toTag(toTag)
 {
     callId = resip::Helper::computeCallId();//get a unique callid
-    aLegProxy = NULL;
+    //aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
 };
 
 
-MediaManager::~MediaManager() {
-    if(aLegProxy != NULL)
-	delete aLegProxy;
+MediaManager::~MediaManager() 
+{
+//    if(aLegProxy != NULL)
+//    {
+//	delete aLegProxy;
+//    }
+
+    std::map<resip::Data, MediaProxy *>::iterator i = aLegProxys.begin();
+    for(; i!=aLegProxys.end(); ++i)
+    {
+	MediaProxy *alegmp = i->second;
+	delete alegmp;
+    }
+
     if(bLegProxy != NULL)
+    {
 	delete bLegProxy;
+    }
+
     if(rtpProxyUtil != NULL)
+    {
 	delete rtpProxyUtil;
+    }
 };
 
 void 
@@ -74,33 +91,35 @@ MediaManager::setToTag(const Data& toTag)
 int 
 MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
-    aLegSdp = sdp;
-    if(aLegProxy == NULL)
-    {
-	aLegProxy = new MediaProxy(*this,callid);
-    }
-    return aLegProxy->updateSdp(aLegSdp, msgSourceAddress);
+    MediaProxy *alegmp = new MediaProxy(*this,callid);
+    aLegProxys[callid] = alegmp;
+
+    return alegmp->updateSdp(sdp, msgSourceAddress);
 };
 
 SdpContents& 
-MediaManager::getALegSdp() 
+MediaManager::getALegSdp( const resip::Data& callid ) 
 {
-    if(aLegProxy == NULL) 
+//    if(aLegProxy == NULL) 
+//    {
+//	throw new exception;
+//    }
+    if ( aLegProxys.find(callid) == aLegProxys.end() )
     {
 	throw new exception;
     }
-    return aLegProxy->getSdp();
+
+    return (aLegProxys[callid])->getSdp();
 };
 
 int 
 MediaManager::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
-    bLegSdp = sdp;
     if(bLegProxy == NULL)
     {
 	bLegProxy = new MediaProxy(*this,callid);
     }
-    return bLegProxy->updateSdp(bLegSdp, msgSourceAddress);
+    return bLegProxy->updateSdp(sdp, msgSourceAddress);
 };
 
 SdpContents& 
@@ -108,6 +127,7 @@ MediaManager::getBLegSdp()
 {
     if(bLegProxy == NULL)
 	throw new exception;
+
     return bLegProxy->getSdp();
 };
 

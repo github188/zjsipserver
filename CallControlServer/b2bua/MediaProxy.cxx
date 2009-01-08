@@ -42,7 +42,7 @@ MediaProxy::~MediaProxy()
 }
 
 //!!!Transport have 2 types, 1 is c2t:client to terminal, 2 is c2v2t:client to vtdu to terminal
-int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress ) 
 {
     bool callerAsymmetric = true;
     bool calleeAsymmetric = true;
@@ -163,7 +163,17 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 		// connections is implemented:
 		//m.getMediumConnections().clear();
 		medium.setConnection(newSdp->session().connection());
-		if(mediaManager.aLegProxy == this) 
+
+//		if(mediaManager.aLegProxy == this) 
+		if(mediaManager.bLegProxy == this)
+		{
+		    // this must be B leg. !!!access vtdu,get vtdu media recv port, the port is used recv rtp from terminal
+		    endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCallee(endpoint.address.c_str(), endpoint.originalPort, 
+										mediaManager.toTag.c_str(), calleeAsymmetric);
+		    if(endpoint.proxyPort == 0)
+			throw new exception;
+		}
+		else 
 		{
 		    // this must be A leg
 		    if(mediaManager.rtpProxyUtil == NULL) 
@@ -177,14 +187,7 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 		    if(endpoint.proxyPort == 0)
 			throw new exception;
 		} 
-		else 
-		{
-		    // this must be B leg. !!!access vtdu,get vtdu media recv port, the port is used recv rtp from terminal
-		    endpoint.proxyPort = mediaManager.rtpProxyUtil->setupCallee(endpoint.address.c_str(), endpoint.originalPort, 
-										mediaManager.toTag.c_str(), calleeAsymmetric);
-		    if(endpoint.proxyPort == 0)
-			throw new exception;
-		}
+
 		medium.setPort(endpoint.proxyPort);
 		//newMedia.push_back(m);
 		newSdp->session().addMedium(medium);
