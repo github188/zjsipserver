@@ -90,7 +90,8 @@ void MyInviteSessionHandler::onConnected(InviteSessionHandle, const SipMessage& 
 void MyInviteSessionHandler::onRedirected(ClientInviteSessionHandle, const SipMessage& msg) {
 }
 
-void MyInviteSessionHandler::onAnswer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {
+void MyInviteSessionHandler::onAnswer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) 
+{
     MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
     B2BCall *call = getB2BCall(is.get());
     if(call == NULL) 
@@ -103,15 +104,18 @@ void MyInviteSessionHandler::onAnswer(InviteSessionHandle is, const SipMessage& 
     call->onAnswer(myAppDialog, sdp, msgSourceAddress);
 }
 
-void MyInviteSessionHandler::onEarlyMedia(ClientInviteSessionHandle cis, const SipMessage& msg, const SdpContents& sdp) {
+void MyInviteSessionHandler::onEarlyMedia(ClientInviteSessionHandle cis, const SipMessage& msg, const SdpContents& sdp) 
+{
+    MyAppDialog *myAppDialog = (MyAppDialog *)cis->getAppDialog().get();
     B2BCall *call = getB2BCall(cis.get());
-    if(call == NULL) {
+    if(call == NULL) 
+    {
 	B2BUA_LOG_WARNING( <<"onEarlyMedia: unrecognised dialog");
 	return;
     }
     Tuple sourceTuple = msg.getSource();
     in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
-    call->onEarlyMedia(sdp, msgSourceAddress);
+    call->onEarlyMedia( myAppDialog, sdp, msgSourceAddress );
 }
 
 void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle, const SipMessage& msg) {
@@ -234,28 +238,44 @@ void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionH
 {
     B2BUA_LOG_DEBUG( <<"onTerminated, reason = " << reason );
     B2BCall *call = getB2BCall(is.get());
-    if(call == NULL) {
+    if(call == NULL) 
+    {
 	B2BUA_LOG_WARNING( <<"onTerminated: unrecognised dialog");
 	return;
     }
     MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-    switch(reason) {
+    
+    switch(reason) 
+    {
+    case RemoteBye:
+    case RemoteCancel:
     case PeerEnded: // received a BYE or CANCEL from peer
 	B2BUA_LOG_DEBUG( <<"onTerminated: PeerEnded");
-	if(msg != NULL) {
-	    if(msg->isRequest()) {
-		if(msg->header(h_RequestLine).getMethod() == CANCEL) {
+	if(msg != NULL) 
+	{
+	    if(msg->isRequest()) 
+	    {
+		if(msg->header(h_RequestLine).getMethod() == CANCEL) 
+		{
 		    call->onCancel();
-		} else if(msg->header(h_RequestLine).getMethod() == BYE) {
+		} 
+		else if(msg->header(h_RequestLine).getMethod() == BYE) 
+		{
 		    // MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
 		    call->onHangup(myAppDialog);
-		} else {
+		} 
+		else
+		{
 		    B2BUA_LOG_WARNING( <<"unrecognised terminate method");
 		}
-	    } else {
+	    } 
+	    else 
+	    {
 		B2BUA_LOG_WARNING( <<"terminate::PeerEnded, but message is not request");
 	    }
-	} else {
+	} 
+	else 
+	{
 	    B2BUA_LOG_WARNING( <<"terminate::PeerEnded, but no message");
 	}
 	break;

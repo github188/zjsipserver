@@ -36,55 +36,61 @@ namespace b2bua
 
 class B2BCall;
 
-class MediaManager : public RtpProxyUtil::TimeoutListener {
+class MediaManager : public RtpProxyUtil::TimeoutListener 
+{
 
 private:
 
-  static resip::Data proxyAddress;
-
-  B2BCall& b2BCall;
-
-  resip::Data callId;				// from A Leg
-  resip::Data fromTag;				// `from' tag for A leg party
-  resip::Data toTag;				// `to' tag for B leg party
-  resip::SdpContents aLegSdp;
-  resip::SdpContents newALegSdp;
-  resip::SdpContents bLegSdp;
-  resip::SdpContents newBLegSdp;
- 
-  RtpProxyUtil *rtpProxyUtil;			// Access to rtpproxy
-
-  MediaProxy *aLegProxy;			// Proxies on behalf of A leg
-  MediaProxy *bLegProxy;			// Proxies on behalf of B leg
-
+    static resip::Data proxyAddress;
+    
+    B2BCall& b2BCall; // a unique callid, no belong to Alegs and Bleg
+    
+    resip::Data callId;				// from A Leg
+    resip::Data fromTag;				// `from' tag for A leg party
+    resip::Data toTag;				// `to' tag for B leg party
+    resip::SdpContents aLegSdp;
+    resip::SdpContents newALegSdp;
+    resip::SdpContents bLegSdp;
+    resip::SdpContents newBLegSdp;
+    
+    RtpProxyUtil *rtpProxyUtil;			// Access to rtpproxy
+    
+    MediaProxy *aLegProxy;			// Proxies on behalf of A leg
+    MediaProxy *bLegProxy;			// Proxies on behalf of B leg
+    
 public:
-  friend class MediaProxy;
-
+    friend class MediaProxy;
+    
   // Set the proxyAddress
-  static void setProxyAddress(const resip::Data& proxyAddress);
+    static void setProxyAddress(const resip::Data& proxyAddress);
+    
+    // Instantiate a MediaManager
+    MediaManager(B2BCall& b2BCall);
+    MediaManager(B2BCall& b2BCall, const resip::Data& callId, const resip::Data& fromTag, const resip::Data& toTag);
+    virtual ~MediaManager();
 
-  // Instantiate a MediaManager
-  MediaManager(B2BCall& b2BCall);
-  MediaManager(B2BCall& b2BCall, const resip::Data& callId, const resip::Data& fromTag, const resip::Data& toTag);
-  virtual ~MediaManager();
-
-  // Set the From tag
-  void setFromTag(const resip::Data& fromTag);
-  // Set the To tag
-  void setToTag(const resip::Data& toTag);
-
-  // inspect and save an offer (A leg)
-  int setALegSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);
-  // generate an offer (to send to B leg)
-  resip::SdpContents& getALegSdp();
-  
-  // inspect and save an answer (B leg)
-  int setBLegSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);
-  // generate an answer (to send to A leg)
-  resip::SdpContents& getBLegSdp();
-
-  void onMediaTimeout();
-
+    // Set the From tag
+    void setFromTag(const resip::Data& fromTag);
+    // Set the To tag
+    void setToTag(const resip::Data& toTag);
+    
+    // inspect and save an offer (A leg)
+    int setALegSdp( const resip::Data& callid,
+		    const resip::SdpContents& sdp, 
+		    const in_addr_t& msgSourceAddress );
+    
+    // generate an offer (to send to B leg)
+    resip::SdpContents& getALegSdp();
+    
+    // inspect and save an answer (B leg)
+    int setBLegSdp( const resip::Data& callid,
+		    const resip::SdpContents& sdp, 
+		    const in_addr_t& msgSourceAddress);
+    // generate an answer (to send to A leg)
+    resip::SdpContents& getBLegSdp();
+    
+    void onMediaTimeout();
+    
 };
 
 }

@@ -61,7 +61,7 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
     //juage transport Type, need check maxconnnum and nat
     //first check nat 
 
-    bool isNatThrouth = false;
+    bool isNatTraversal = false;
     struct MediaProxy::EndPoint endpoint;
     endpoint.address = originalSdp->session().connection().getAddress();
     // Should we adjust the address because of NAT?
@@ -89,7 +89,7 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 	    sa.s_addr = msgSourceAddress;
 	    endpoint.address = Data( inet_ntoa(sa) );
 	    callerAsymmetric = false;
-	    isNatThrouth = true;
+	    isNatTraversal = true;
 	    //if is nat, use proxy
 	    // FIXME - set username also
 	    newSdp->session().origin().setAddress(MediaManager::proxyAddress);     //change sdp's c=
@@ -110,7 +110,7 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 	B2BUA_LOG_INFO( << "Succed Max ConnNum, need use vtdu!");
     }
     
-    if ( isNatThrouth || UPTOMAXCONN )
+    if ( isNatTraversal || UPTOMAXCONN )
     {
 	newSdp->session().clearMedium();
 	list<SdpContents::Session::Medium>::iterator i = originalSdp->session().media().begin();
@@ -184,12 +184,13 @@ int MediaProxy::updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSou
 	    }
 	    i++;
 	}//end while
-    }
 
-    if(endpoints.size() == 0) 
-    {
-	B2BUA_LOG_WARNING( <<"no acceptable media protocol found, try RTP/AVP or UDP");
-	return MM_SDP_BAD;
+	if(endpoints.size() == 0) 
+	{
+	    B2BUA_LOG_WARNING( <<"no acceptable media protocol found, try RTP/AVP or UDP");
+	    return MM_SDP_BAD;
+	}
+
     }
 
     return MM_SDP_OK;

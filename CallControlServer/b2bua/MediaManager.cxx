@@ -9,68 +9,86 @@ using namespace std;
 
 Data MediaManager::proxyAddress;
 
-void MediaManager::setProxyAddress(const Data& proxyAddress) {
-  MediaManager::proxyAddress = proxyAddress;
+void MediaManager::setProxyAddress(const Data& proxyAddress) 
+{
+    MediaManager::proxyAddress = proxyAddress;
 };
 
-MediaManager::MediaManager(B2BCall& b2BCall) : b2BCall(b2BCall) {
-  aLegProxy = NULL;
-  bLegProxy = NULL;
-  rtpProxyUtil = NULL;
+MediaManager::MediaManager(B2BCall& b2BCall) : b2BCall(b2BCall) 
+{
+    aLegProxy = NULL;
+    bLegProxy = NULL;
+    rtpProxyUtil = NULL;
 };
 
-MediaManager::MediaManager(B2BCall& b2BCall, const Data& callId, const Data& fromTag, const Data& toTag) : b2BCall(b2BCall), callId(callId), fromTag(fromTag), toTag(toTag) {
-  aLegProxy = NULL;
-  bLegProxy = NULL;
-  rtpProxyUtil = NULL;
+MediaManager::MediaManager(B2BCall& b2BCall, 
+			   const Data& callId, 
+			   const Data& fromTag, 
+			   const Data& toTag) 
+    : b2BCall(b2BCall), 
+      callId(callId), 
+      fromTag(fromTag), 
+      toTag(toTag) 
+{
+    aLegProxy = NULL;
+    bLegProxy = NULL;
+    rtpProxyUtil = NULL;
 };
 
 MediaManager::~MediaManager() {
-  if(aLegProxy != NULL)
-    delete aLegProxy;
-  if(bLegProxy != NULL)
-    delete bLegProxy;
-  if(rtpProxyUtil != NULL)
-    delete rtpProxyUtil;
+    if(aLegProxy != NULL)
+	delete aLegProxy;
+    if(bLegProxy != NULL)
+	delete bLegProxy;
+    if(rtpProxyUtil != NULL)
+	delete rtpProxyUtil;
 };
 
-void MediaManager::setFromTag(const Data& fromTag) {
-  this->fromTag = fromTag;
+void MediaManager::setFromTag(const Data& fromTag) 
+{
+    this->fromTag = fromTag;
 };
 
-void MediaManager::setToTag(const Data& toTag) {
-  this->toTag = toTag;
+void MediaManager::setToTag(const Data& toTag) 
+{
+    this->toTag = toTag;
 };
 
-int MediaManager::setALegSdp(const SdpContents& sdp, const in_addr_t& msgSourceAddress) {
-  aLegSdp = sdp;
-  if(aLegProxy == NULL)
-    aLegProxy = new MediaProxy(*this);
-  return aLegProxy->updateSdp(aLegSdp, msgSourceAddress);
+int MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
+    aLegSdp = sdp;
+    if(aLegProxy == NULL)
+	aLegProxy = new MediaProxy(*this);
+    return aLegProxy->updateSdp(aLegSdp, msgSourceAddress);
 };
 
-SdpContents& MediaManager::getALegSdp() {
-  if(aLegProxy == NULL) {
-    throw new exception;
-  }
-  return aLegProxy->getSdp();
+SdpContents& MediaManager::getALegSdp() 
+{
+    if(aLegProxy == NULL) 
+    {
+	throw new exception;
+    }
+    return aLegProxy->getSdp();
 };
 
-int MediaManager::setBLegSdp(const SdpContents& sdp, const in_addr_t& msgSourceAddress) {
-  bLegSdp = sdp;
-  if(bLegProxy == NULL)
-    bLegProxy = new MediaProxy(*this);
-  return bLegProxy->updateSdp(bLegSdp, msgSourceAddress);
+int MediaManager::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
+    bLegSdp = sdp;
+    if(bLegProxy == NULL)
+	bLegProxy = new MediaProxy(*this);
+    return bLegProxy->updateSdp(bLegSdp, msgSourceAddress);
 };
 
-SdpContents& MediaManager::getBLegSdp() {
-  if(bLegProxy == NULL)
-    throw new exception;
-  return bLegProxy->getSdp();
+SdpContents& MediaManager::getBLegSdp() 
+{
+    if(bLegProxy == NULL)
+	throw new exception;
+    return bLegProxy->getSdp();
 };
 
-void MediaManager::onMediaTimeout() {
-  b2BCall.onMediaTimeout();
+void MediaManager::onMediaTimeout() 
+{
+    b2BCall.onMediaTimeout();
 };
 
 /* ====================================================================

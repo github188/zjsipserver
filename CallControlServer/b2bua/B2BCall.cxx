@@ -538,10 +538,10 @@ const Data& B2BCall::getCallStateName(B2BCallState s)
   return callStateNames[s];
 };
 
-void B2BCall::setALegSdp(const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+void B2BCall::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
   // try {
-    mediaManager->setALegSdp(sdp, msgSourceAddress);
+    mediaManager->setALegSdp(callid, sdp, msgSourceAddress);
   //} catch (...) {
     // FIXME - call state
    // B2BUA_LOG_WARNING, "failed to accept SDP from A leg");
@@ -549,10 +549,10 @@ void B2BCall::setALegSdp(const SdpContents& sdp, const in_addr_t& msgSourceAddre
   //}
 }
 
-void B2BCall::setBLegSdp(const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+void B2BCall::setBLegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
   //try {
-    mediaManager->setBLegSdp(sdp, msgSourceAddress);
+    mediaManager->setBLegSdp(callid, sdp, msgSourceAddress);
   //} catch (...) {
    // B2BUA_LOG_WARNING, "failed to accept SDP from B leg");
     //callState = CALL_STOP;
@@ -1186,21 +1186,25 @@ void B2BCall::onRinging() {
   //setCallState(DialReceived183);
 //}
 
-void B2BCall::onEarlyMedia(const SdpContents& sdp, const in_addr_t& msgSourceAddress) {
-  setCallState(DialReceivedEarlyAnswer);
-  try {
-    setBLegSdp(sdp, msgSourceAddress); 
-  } catch (...) {
-    // FIXME
-    setCallState(DialEarlyMediaProxyFail);
-    B2BUA_LOG_WARNING( <<"onEarlyMedia: exception while calling setBLegSdp");
-    setClearingReason(NoAnswerError, -1);
-    //setCallState(CallStop);
-    return;
-  }
-  //ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
-  //sis->provideOffer(sdp);
-  //sis->provisional(183);
+void B2BCall::onEarlyMedia(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
+    setCallState(DialReceivedEarlyAnswer);
+    try 
+    {
+	setBLegSdp(myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress); 
+    }
+    catch (...) 
+    {
+	// FIXME
+	setCallState(DialEarlyMediaProxyFail);
+	B2BUA_LOG_WARNING( <<"onEarlyMedia: exception while calling setBLegSdp");
+	setClearingReason(NoAnswerError, -1);
+	//setCallState(CallStop);
+	return;
+    }
+    //ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
+    //sis->provideOffer(sdp);
+    //sis->provisional(183);
 }
 
 void B2BCall::onCancel() {
@@ -1232,51 +1236,71 @@ void B2BCall::onRejected(int statusCode, const Data& reason) {
 }
 
 
-void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) {
+void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
     InviteSession *otherInviteSession = NULL;	// used to relay SDP to
 						// other party
     SdpContents *otherSdp = NULL;
-    if(myAppDialog == aLegAppDialog) {
+    if(myAppDialog == aLegAppDialog) 
+    {
 	B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
-	try {
-	    setALegSdp(sdp, msgSourceAddress);
-	} catch (...) {
+	try 
+	{
+	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
+	}
+	catch (...) 
+	{
 	    // FIXME - 
 	    setClearingReasonMediaFail();
 	    B2BUA_LOG_WARNING( <<"onOffer: exception while calling setALegSdp");
 	    setCallState(CallStop);
 	    return;
 	}
-	if(bLegAppDialog != NULL) {
+	if(bLegAppDialog != NULL) 
+	{
 	    otherInviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
 	}
-    } else if(myAppDialog == bLegAppDialog) {
+    } 
+    else if(myAppDialog == bLegAppDialog) 
+    {
 	B2BUA_LOG_DEBUG( << "received SDP offer from B leg");
-	try {
-	    setBLegSdp(sdp, msgSourceAddress);
-	} catch (...) {
+	try 
+	{
+	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+	} 
+	catch (...) 
+	{
 	    // FIXME
 	    setClearingReasonMediaFail();
 	    B2BUA_LOG_WARNING( <<"onOffer: exception while calling setBLegSdp");
 	    setCallState(CallStop);
 	    return;
 	}
-	if(aLegAppDialog != NULL) {
+	
+	if(aLegAppDialog != NULL) 
+	{
 	    otherInviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
 	}
-    } else {
+    } 
+    else 
+    {
 	B2BUA_LOG_ERR( <<"onOffer: unrecognised myAppDialog");
 	throw new exception;
     }
-    if(callState == CallActive) {
+
+    if(callState == CallActive) 
+    {
 	// Must be a re-INVITE, relay to other party
 	// FIXME - change state
 	B2BUA_LOG_DEBUG( <<"processing a re-INVITE");
 	if(otherInviteSession != NULL)
+	{
 	    otherInviteSession->provideOffer(*otherSdp);
-	else {
+	}
+	else 
+	{
 	    B2BUA_LOG_ERR( <<"onOffer: otherInviteSession == NULL");
 	    throw new exception; // FIXME
 	}
@@ -1285,7 +1309,8 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	delete otherSdp;
 }
 
-void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) {
+void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
+{
     mediaManager->setToTag(bLegAppDialog->getDialogId().getLocalTag());
     if(callState != CallActive) 
     {
@@ -1294,27 +1319,35 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	//callState = CALL_ANSWERED;
 	setCallState(CallAccepted);
 	time(&connectTime);
-	try {
-	    setBLegSdp(sdp, msgSourceAddress);
-	} catch (...) {
+	try 
+	{
+	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+	} 
+	catch (...) 
+	{
 	    // FIXME - stop the call
 	    setClearingReasonMediaFail();
 	    B2BUA_LOG_WARNING( <<"onAnswer: exception while processing SDP");
 	    setCallState(CallStop);
 	    return;
 	}
-    } else {
+    } 
+    else 
+    {
 	// Answer to re-INVITE
 	InviteSession *inviteSession = NULL;
 	SdpContents *otherSdp = NULL;
-	if(myAppDialog == aLegAppDialog) {
+	if(myAppDialog == aLegAppDialog) 
+	{
 	    B2BUA_LOG_DEBUG( <<"answer received from A leg");
-	    setALegSdp(sdp, msgSourceAddress);
+	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
 	    inviteSession = (InviteSession *)(bLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp().clone();
-	} else {
+	}
+	else
+	{
 	    B2BUA_LOG_DEBUG( <<"answer received from B leg");
-	    setBLegSdp(sdp, msgSourceAddress);
+	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
 	    inviteSession = (InviteSession *)(aLegAppDialog->getInviteSession().get());
 	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
 	}

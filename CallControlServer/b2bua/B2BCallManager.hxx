@@ -45,7 +45,12 @@ public:
   void stop();
   bool isStopping();
 
-  void onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPassword, const resip::Data& srcIp, const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, const resip::Data& controlId);
+  void onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
+		 const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+		 const resip::Data& authUser, const resip::Data& authPassword, 
+		 const resip::Data& srcIp, const resip::Data& contextId, 
+		 const resip::Data& accountId, const resip::Data& baseIp, 
+		 const resip::Data& controlId);
 
   void logStats();
 

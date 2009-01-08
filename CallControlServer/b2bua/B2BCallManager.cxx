@@ -9,9 +9,15 @@ using namespace b2bua;
 using namespace resip;
 using namespace std;
 
-B2BCallManager::B2BCallManager(resip::DialogUsageManager& dum, AuthorizationManager *authorizationManager, CDRHandler& cdrHandler) : dum(dum), authorizationManager(authorizationManager), cdrHandler(cdrHandler) {
-  stopping = false;
-  mustStopCalls = false;
+B2BCallManager::B2BCallManager(resip::DialogUsageManager& dum, 
+			       AuthorizationManager *authorizationManager, 
+			       CDRHandler& cdrHandler) 
+    : dum(dum), 
+      authorizationManager(authorizationManager), 
+      cdrHandler(cdrHandler) 
+{
+    stopping = false;
+    mustStopCalls = false;
 }
 
 B2BCallManager::~B2BCallManager() {
@@ -63,12 +69,20 @@ bool B2BCallManager::isStopping() {
   return stopping;
 }
 
-void B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPassword, const resip::Data& srcIp, const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, const resip::Data& controlId) {
+void B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
+			       const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+			       const resip::Data& authUser, const resip::Data& authPassword, 
+			       const resip::Data& srcIp, const resip::Data& contextId, 
+			       const resip::Data& accountId, const resip::Data& baseIp, 
+			       const resip::Data& controlId) 
+{
 
-  B2BCall *call = new B2BCall(cdrHandler, dum, *authorizationManager, aLegDialog, sourceAddr, destinationAddr, authRealm, authUser, authPassword, srcIp, contextId, accountId, baseIp, controlId);
+    B2BCall *call = new B2BCall(cdrHandler, dum, *authorizationManager, 
+				aLegDialog, sourceAddr, destinationAddr, 
+				authRealm, authUser, authPassword, srcIp, 
+				contextId, accountId, baseIp, controlId);
 
-  calls.push_back(call);
-
+    calls.push_back(call);
 }
 
 void B2BCallManager::logStats() {

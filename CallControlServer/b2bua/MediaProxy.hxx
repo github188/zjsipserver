@@ -30,42 +30,46 @@ namespace b2bua
   Alternatively, we could use our own unique identifier system.
 */
 
-class MediaProxy {
+class MediaProxy 
+{
 
 protected:
-  struct EndPoint {
-    resip::Data address;		// the address we should forward to
-    unsigned int originalPort;		// the port on the dest address
-    unsigned int proxyPort;		// the port we listen with
-  };
-
-  static bool mNatHelper;
-
+    struct EndPoint 
+    {
+	resip::Data address;		// the address we should forward to
+	unsigned int originalPort;		// the port on the dest address
+	unsigned int proxyPort;		// the port we listen with
+    };
+    
+    static bool mNatHelper;
+    
 private:
-  MediaManager& mediaManager;		// the MediaManager who controls us
-  std::list<EndPoint> endpoints;	// the endpoints for each media
+    MediaManager& mediaManager;		// the MediaManager who controls us
+    std::list<EndPoint> endpoints;	// the endpoints for each media
 					// offer in the SDP
-  resip::SdpContents *originalSdp;	// the original SDP
-  resip::SdpContents *newSdp;		// the modified SDP
-
+    resip::SdpContents *originalSdp;	// the original SDP
+    resip::SdpContents *newSdp;		// the modified SDP
+    
 public:
-  static void setNatHelper(bool natHelper);
-  MediaProxy(MediaManager& mediaManager);
-  virtual ~MediaProxy();
-  int updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);		// update the SDP,
-							// as a result of a
-							// new offer
-  resip::SdpContents& getSdp();				// get the SDP
-							// that should be sent
-							// to the other party
-							// we correspond with
-  bool allowProtocol(const resip::Data& protocol);	// discover if protocol
+    MediaProxy( MediaManager& mediaManager );
+    MediaProxy( MediaManager& mediaManager, const resip::Data& callid );
+    virtual ~MediaProxy();
+
+    static void setNatHelper(bool natHelper);
+    int updateSdp(const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress);		// update the SDP,
+    // as a result of a
+    // new offer
+    resip::SdpContents& getSdp();				// get the SDP
+    // that should be sent
+    // to the other party
+    // we correspond with
+    bool allowProtocol(const resip::Data& protocol);	// discover if protocol
 							// is permitted/handled
 							// by this proxy
 							// implementation
-
-  bool isAddressPrivate(const in_addr_t& subj_addr);
-
+    
+    bool isAddressPrivate(const in_addr_t& subj_addr);
+    
 };
 
 }
