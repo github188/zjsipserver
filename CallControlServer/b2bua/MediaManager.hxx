@@ -94,6 +94,9 @@ public:
     resip::SdpContents& getBLegSdp();
     
     void onMediaTimeout();
+
+public:
+    int nTransType_;
     
 };
 

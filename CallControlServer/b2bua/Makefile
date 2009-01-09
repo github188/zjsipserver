@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.1.1.1 2008/11/25 10:47:54 zhangjun Exp $
+# $Id: Makefile,v 1.2 2009/01/09 09:27:29 zhangjun Exp $
 
 BUILD = ../build
 include $(BUILD)/Makefile.pre
 
-PACKAGES += DUM RESIP RUTIL OPENSSL ARES PTHREAD
+PACKAGES += DUM REPRO RESIP RUTIL OPENSSL ARES PTHREAD
 
 CXXFLAGS += -I..
 CODE_SUBDIRS = 
@@ -28,7 +28,8 @@ SRC = \
 	MyInviteSessionHandler.cxx \
 	RtpProxyRecurringTask.cxx \
 	RtpProxyUtil.cxx \
-	TaskManager.cxx
+	TaskManager.cxx \
+	megaeyes/MegaSipEntity.cxx 
 
 include $(BUILD)/Makefile.post
 

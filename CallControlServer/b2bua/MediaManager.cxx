@@ -21,6 +21,7 @@ MediaManager::MediaManager(B2BCall& b2BCall)
     //aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
+    nTransType_ = 0;
 };
 
 MediaManager::MediaManager(B2BCall& b2BCall, 
@@ -35,6 +36,7 @@ MediaManager::MediaManager(B2BCall& b2BCall,
 //    aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
+    nTransType_ = 0;
 };
 
 MediaManager::MediaManager(B2BCall& b2BCall,
@@ -48,6 +50,7 @@ MediaManager::MediaManager(B2BCall& b2BCall,
     //aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
+    nTransType_ = 0;
 };
 
 

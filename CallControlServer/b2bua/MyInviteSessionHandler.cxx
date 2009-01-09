@@ -15,6 +15,15 @@ using namespace b2bua;
 using namespace resip;
 using namespace std;
 
+//invoke sequsence
+//c offer t answer c: 
+//  A端(服务端)调用序列: onNewSession -> onOffer(get invite offer) -> provideAnswer-> accept(send answerWith200) ->onConnected ->onConnectedConfirmed(recv ack) 
+//  B端(客户端)调用序列: makeInviteSession(InviteWithOffer) ->sendAck()先送ack再后续处理-> onNewSession ->onAnswer(get answer) -> onConnectedAspect
+
+//c noOffer t offer c answer t:
+//  A端(服务端)调用序列: onNewSession -> onOfferRequired -> provideOffer ->accept(send offerWith200) -> onAnswer(get Ack answer) -> onConnected
+//  B端(客户端)调用序列: makeInviteSession(NoOffer) -> onNewSession -> onOffer(get 200 offer) -> onConnectedAspect ->provideAnswer(send ack answer)
+
 MyInviteSessionHandler::MyInviteSessionHandler(DialogUsageManager& dum, B2BCallManager& callManager) : dum(dum), callManager(callManager) {
 }
 
@@ -116,10 +125,6 @@ void MyInviteSessionHandler::onEarlyMedia(ClientInviteSessionHandle cis, const S
     Tuple sourceTuple = msg.getSource();
     in_addr_t msgSourceAddress = sourceTuple.toGenericIPAddress().v4Address.sin_addr.s_addr;
     call->onEarlyMedia( myAppDialog, sdp, msgSourceAddress );
-}
-
-void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle, const SipMessage& msg) {
-  // FIXME
 }
 
 void MyInviteSessionHandler::onOfferRejected(Handle<InviteSession>, const SipMessage *msg) {
@@ -295,6 +300,12 @@ void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionH
 	B2BUA_LOG_WARNING( <<"onTerminated: unhandled case " << reason);
 	break;
     }
+}
+
+void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle is, const SipMessage& msg) 
+{
+    // FIXME
+    //这里确实应该什么都不做,由B2BCall的状态机驱动向前端发起noOffer请求!!!
 }
 
 void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {

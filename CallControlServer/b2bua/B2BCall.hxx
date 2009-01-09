@@ -30,8 +30,8 @@ namespace b2bua
 class B2BCall 
 {
 
-protected:
-
+//protected:
+public:    
     typedef enum B2BCallState 
     {
 	NewCall = 0,				// just started
@@ -227,7 +227,8 @@ protected:
 
     //zhangjun extented do function
     void doHangup(MyAppDialog *myAppDialog);
-
+    void doCallOffered();
+    void doCallAnswered();
     
     // sets the clearing reason codes if necessary
     void setClearingReason(FullClearingReason reason, int code);

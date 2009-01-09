@@ -5,6 +5,8 @@
 #include "Logging.hxx"
 #include "MediaProxy.hxx"
 
+#include "b2bua/megaeyes/MegaSipEntity.hxx"
+
 using namespace b2bua;
 using namespace resip;
 using namespace std;
@@ -111,8 +113,20 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 			       << "using "<< endpoint.address.c_str() );
 	} 
     }
-    
-    if ( UPTOMAXCONN ) //!!!up to max conn number need fixme
+
+    //uri= 1000000111_1@192.168.0.1 ,but term id = 1000000111@192.168.0.1 NTD!!!
+    entity::Terminal *term = NULL;
+    if ( entity::Terminals.find(mediaManager.b2BCall.destinationAddr)!= entity::Terminals.end() )
+    {
+	term = entity::Terminals[mediaManager.b2BCall.destinationAddr];//assume destinationAddr(URI) is terminal's identify 
+    }
+    else
+    {
+	return 405;//error
+    }
+
+    mediaManager.nTransType_ = term->getTransType();
+    if ( entity::Terminal::C2V2T == mediaManager.nTransType_ ) //!!!up to max conn number need fixme
     {
 	callerAsymmetric = false;
 

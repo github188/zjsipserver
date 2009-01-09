@@ -16,6 +16,16 @@ using namespace std;
 // CallController *B2BCall::callController = NULL;
 // list<B2BCall *> B2BCall::calls;
 
+//B2BCall Invoke Sequsence
+//c offer t answer c:
+//  onNewSession -> onOffer(recv c offer) -> doNewCall -> doAuthorizationPending ->doAuthorizationSuccess ->doMediaProxySuccess ->doReadyToDial(send offer to t) ->
+//  onAnswer(recv t answer) -> doCallAccepted -> doCallAcceptedMediaProxySuccess(send answer to c) -> doCallActive
+
+//c noOffer t offer c answer t:
+//  onNewSession  -> doNewCall -> doAuthorizationPending ->doAuthorizationSuccess ->doMediaProxySuccess ->doReadyToDial(send noOffer to t) ->
+//  onOffer(recv t offer) -> doCallOffered(send offer to c) -> onAnswer(recv c answer) -> doCallAnswered(send answer to t) -> doCallActive
+
+
 Data B2BCall::callStateNames[] = 
 {
     Data("NewCall"),
@@ -106,7 +116,7 @@ B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationM
     try 
     {
 	//mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getCallId(), aLegAppDialog->getDialogId().getLocalTag(), Data(""));
-	mediaManager = new MediaManager(*this, aLegAppDialog->getDialogId().getLocalTag(), Data(""));
+	mediaManager = new MediaManager( *this, aLegAppDialog->getDialogId().getLocalTag(), Data("") );
     } 
     catch (...) 
     {
@@ -879,17 +889,22 @@ void B2BCall::doMediaProxyFail()
 void B2BCall::doReadyToDial() //c offer t 
 {
     // Media Proxy is ready, now we can create the B-leg and send an INVITE
-    try 
-    {
-	//SharedPtr<UserProfile> outboundUserProfile(new UserProfile);
-	SharedPtr<UserProfile> outboundUserProfile(dum.getMasterUserProfile());
-	outboundUserProfile->setDefaultFrom((*callRoute)->getSourceAddr());
-	outboundUserProfile->setDigestCredential((*callRoute)->getAuthRealm(), (*callRoute)->getAuthUser(), (*callRoute)->getAuthPass());
-	if((*callRoute)->getOutboundProxy() != Uri())
-	    outboundUserProfile->setOutboundProxy((*callRoute)->getOutboundProxy());
-	bLegAppDialogSet = new MyAppDialogSet(dum, this, outboundUserProfile);
+    //SharedPtr<UserProfile> outboundUserProfile(new UserProfile);
+    SharedPtr<UserProfile> outboundUserProfile(dum.getMasterUserProfile());
+    outboundUserProfile->setDefaultFrom((*callRoute)->getSourceAddr());
+    outboundUserProfile->setDigestCredential((*callRoute)->getAuthRealm(), (*callRoute)->getAuthUser(), (*callRoute)->getAuthPass());
 
-	SharedPtr<SipMessage> msgB;
+    if((*callRoute)->getOutboundProxy() != Uri())
+    {
+	outboundUserProfile->setOutboundProxy((*callRoute)->getOutboundProxy());
+    }
+    bLegAppDialogSet = new MyAppDialogSet(dum, this, outboundUserProfile);
+
+    SharedPtr<SipMessage> msgB;
+
+    try 
+    {   //client provide offer
+	B2BUA_LOG_INFO( <<"Client Provide Offer, Send to Terminal" );
 	SdpContents *initialOffer = (SdpContents *)mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() ).clone();
 	msgB = dum.makeInviteSession((*callRoute)->getDestinationAddr(), outboundUserProfile, initialOffer, bLegAppDialogSet);
 	delete initialOffer;
@@ -898,11 +913,12 @@ void B2BCall::doReadyToDial() //c offer t
 	setCallState(DialInProgress);
     } 
     catch (...) 
-    {
-	B2BUA_LOG_WARNING( <<"failed to create new InviteSession");
-	setClearingReason(AuthError, -1);
-	setCallState(DialFailed);
-	return;
+    {   //client dont provide offer
+	B2BUA_LOG_INFO( <<"Client Don't Provide Offer, Send to Terminal" );
+	msgB = dum.makeInviteSession((*callRoute)->getDestinationAddr(), outboundUserProfile, NULL, bLegAppDialogSet);
+        dum.send(msgB);
+
+        setCallState(DialInProgress);
     } 
 }
 
@@ -1047,6 +1063,35 @@ void B2BCall::doDialEarlyMediaProxyFail()
     ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
     sis->reject(500);  // FIXME - error code
     setCallState(CallStop);
+}
+
+void B2BCall::doCallOffered() //t offer c: send offer to aleg
+{
+    ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
+    try
+    {
+	SdpContents& sdp = mediaManager->getBLegSdp();
+	sis->provideOffer(sdp); 
+	sis->accept();
+    }
+    catch(...)
+    {
+	//setClearingReason(Error, -1);
+	setClearingReason(AnsweredError, -1);
+	setCallState(CallAcceptedMediaProxyFail);
+	return;
+    }
+}
+
+void B2BCall::doCallAnswered() //t offer c: c answer, send answer to bleg
+{
+    InviteSession *is = (InviteSession *)(bLegAppDialog->getInviteSession().get());
+    SdpContents& sdp = mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() );
+    is->provideAnswer(sdp);
+
+    time(&connectTime);
+    callHandle->connect(&connectTime);
+    setCallState(CallActive);
 }
 
 void B2BCall::doCallAccepted() 
@@ -1321,7 +1366,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
     InviteSession *otherInviteSession = NULL;	// used to relay SDP to other party
     SdpContents *otherSdp = NULL;
 
-    if( myAppDialog == aFirstLegAppDialog ) 
+    if( myAppDialog == aFirstLegAppDialog ) //c offer t
     {
 	B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
 	try 
@@ -1343,12 +1388,14 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() ).clone();
 	}
     } 
-    else if(myAppDialog == bLegAppDialog)
+    else if(myAppDialog == bLegAppDialog) //t offer c
     {
 	B2BUA_LOG_DEBUG( << "received SDP offer from B leg");
 	try 
 	{
 	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+	    doCallOffered();//send 200 with offer to a
+            //send ack to b. NTD, now state is DialInProgress
 	} 
 	catch (...) 
 	{
@@ -1410,22 +1457,30 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 
     if(callState != CallActive) //answer by bleg
     {
-	B2BUA_LOG_DEBUG( <<"received answer");
-	// Answer to original INVITE
-	//callState = CALL_ANSWERED;
-	setCallState(CallAccepted);
-	time(&connectTime);
-	try 
+	if ( myAppDialog == bLegAppDialog )
 	{
-	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
-	} 
-	catch (...) 
+	    B2BUA_LOG_DEBUG( <<"received answer");
+	    // Answer to original INVITE
+	    //callState = CALL_ANSWERED;
+	    setCallState(CallAccepted);
+	    time(&connectTime);
+	    try 
+	    {
+		setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+	    } 
+	    catch (...) 
+	    {
+		// FIXME - stop the call
+		setClearingReasonMediaFail();
+		B2BUA_LOG_WARNING( <<"onAnswer: exception while processing SDP");
+		setCallState(CallStop);
+		return;
+	    }
+	}
+	else //if ( myAppDialog == aFirstLegAppDialog )
 	{
-	    // FIXME - stop the call
-	    setClearingReasonMediaFail();
-	    B2BUA_LOG_WARNING( <<"onAnswer: exception while processing SDP");
-	    setCallState(CallStop);
-	    return;
+	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress); //note: to vtdu confirm rather than create
+	    doCallAnswered();
 	}
     } 
     else 
@@ -1444,7 +1499,7 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	    //should get all alegs
 	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
 	}
-	else
+	else if (myAppDialog == aFirstLegAppDialog)
 	{
 	    B2BUA_LOG_DEBUG( <<"answer received from A leg");
 	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );//!!!存疑:a的应答不应该再访问分发，而是修改sdp后直接发给前端
@@ -1460,7 +1515,7 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
     }
 }
 
-void B2BCall::onMediaTimeout() 
+void B2BCall::onMediaTimeout() //!!!be careful
 {
     B2BUA_LOG_NOTICE( <<"call hangup due to media timeout");
     if(connectTime == 0)

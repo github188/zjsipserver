@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2009/01/08 05:02:19 zhangjun Exp $
+# $Id: Makefile,v 1.8 2009/01/09 09:27:28 zhangjun Exp $
 VERSION:=$(shell cat VERSION)
 REPRO_USER?=repro
 
@@ -87,7 +87,6 @@ SRC 	+=   \
 	megaeyes/MegaWebServer.cxx \
 	megaeyes/MegaHttpConnection.cxx \
 	megaeyes/B2buaThread.cxx \
-	megaeyes/MegaSipEntity.cxx \
 	\
 
 
