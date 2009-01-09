@@ -62,7 +62,8 @@ void MyInviteSessionHandler::onInfoSuccess(InviteSessionHandle, const SipMessage
 void MyInviteSessionHandler::onInfoFailure(InviteSessionHandle, const SipMessage& msg) {
 }
 
-void MyInviteSessionHandler::onProvisional(ClientInviteSessionHandle cis, const SipMessage& msg) {
+void MyInviteSessionHandler::onProvisional(ClientInviteSessionHandle cis, const SipMessage& msg) 
+{
     B2BCall *call = getB2BCall(cis.get());
     if(call == NULL) 
     {
@@ -306,9 +307,20 @@ void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle is, const SipMe
 {
     // FIXME
     //这里确实应该什么都不做,由B2BCall的状态机驱动向前端发起noOffer请求!!!
+    
+    B2BCall *call = getB2BCall(is.get());
+    if(call == NULL)
+    {
+        B2BUA_LOG_WARNING( <<"onOffer: unrecognised dialog");
+        return;
+    }
+    B2BUA_LOG_DEBUG( <<"onOffer received");
+    MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+    call->onOfferRequired( myAppDialog );
 }
 
-void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) {
+void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& msg, const SdpContents& sdp) 
+{
     B2BCall *call = getB2BCall(is.get());
     if(call == NULL) 
     {

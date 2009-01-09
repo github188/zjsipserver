@@ -25,6 +25,13 @@ using namespace std;
 //  onNewSession  -> doNewCall -> doAuthorizationPending ->doAuthorizationSuccess ->doMediaProxySuccess ->doReadyToDial(send noOffer to t) ->
 //  onOffer(recv t offer) -> doCallOffered(send offer to c) -> onAnswer(recv c answer) -> doCallAnswered(send answer to t) -> doCallActive
 
+// new add sequence
+//c offer t:
+// onOffer(recv c offer) -> sis->provideAnswer(sdp)[send answer to c]
+
+//t offer c:
+// onOfferRequired( recv c noOffer) -> sis->provideOffer(sdp)[send offer to c] -> onAnswer
+
 
 Data B2BCall::callStateNames[] = 
 {
@@ -1065,6 +1072,18 @@ void B2BCall::doDialEarlyMediaProxyFail()
     setCallState(CallStop);
 }
 
+void B2BCall::onOfferRequired(MyAppDialog *myAppDialog) // t offer c: new add client, send offer to aleg
+{
+    if( (myAppDialog != aFirstLegAppDialog) && (myAppDialog != bLegAppDialog) && (callState == CallActive) )
+    {
+	ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
+	SdpContents& sdp = mediaManager->getBLegSdp();
+        sis->provideOffer(sdp);
+        sis->accept();
+    }
+}
+
+
 void B2BCall::doCallOffered() //t offer c: send offer to aleg
 {
     ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
@@ -1360,6 +1379,7 @@ void B2BCall::onRejected(int statusCode, const Data& reason)
     }
 }
 
+
 //now, below function only support c offer t answer c , don't support c nooffer t offer c answer t
 void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
@@ -1371,7 +1391,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
 	try 
 	{
-	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
+	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );//to vtdu create
 	}
 	catch (...) 
 	{
@@ -1393,7 +1413,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	B2BUA_LOG_DEBUG( << "received SDP offer from B leg");
 	try 
 	{
-	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+	    setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress); //to vtdu create
 	    doCallOffered();//send 200 with offer to a
             //send ack to b. NTD, now state is DialInProgress
 	} 
@@ -1413,7 +1433,7 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	    otherSdp = (SdpContents *)mediaManager->getBLegSdp().clone();
 	}
     } 
-    else //other aleg appdialog
+    else //other aleg appdialog. new add client
     {
 	//B2BUA_LOG_ERR( <<"onOffer: unrecognised myAppDialog");
 	//throw new exception;
@@ -1422,10 +1442,10 @@ void B2BCall::onOffer(MyAppDialog *myAppDialog, const SdpContents& sdp, const in
 	    B2BUA_LOG_DEBUG( << "received SDP offer from A leg");
 	    try 
 	    {
-		setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );
+		setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );//to vtdu append
 
 		ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get()); 
-		SdpContents& sdp = mediaManager->getALegSdp( myAppDialog->getDialogId().getCallId() );
+		SdpContents& sdp = mediaManager->getBLegSdp();
 		sis->provideAnswer(sdp); 
 		sis->accept(); //other aleg should provide answer right now.
 	    }
@@ -1466,7 +1486,7 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	    time(&connectTime);
 	    try 
 	    {
-		setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);
+		setBLegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress);//note: to vtdu confirm rather than create
 	    } 
 	    catch (...) 
 	    {
@@ -1477,7 +1497,7 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 		return;
 	    }
 	}
-	else //if ( myAppDialog == aFirstLegAppDialog )
+	else //if ( myAppDialog == aFirstLegAppDialog ) note: must be aFirstLegAppDialog
 	{
 	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress); //note: to vtdu confirm rather than create
 	    doCallAnswered();
@@ -1505,6 +1525,11 @@ void B2BCall::onAnswer(MyAppDialog *myAppDialog, const SdpContents& sdp, const i
 	    setALegSdp ( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress );//!!!存疑:a的应答不应该再访问分发，而是修改sdp后直接发给前端
 	    inviteSession = (InviteSession *)( bLegAppDialog->getInviteSession().get() );
 	    otherSdp = (SdpContents *)mediaManager->getALegSdp( myAppDialog->getDialogId().getCallId() ).clone();
+	}
+	else
+	{
+	    //new add client, use vtdu
+	    setALegSdp( myAppDialog->getDialogId().getCallId(), sdp, msgSourceAddress); //note: to vtdu append
 	}
 
 	if ( inviteSession != NULL )

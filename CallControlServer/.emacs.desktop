@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Fri Jan  9 17:26:07 2009
+;; Created Fri Jan  9 18:29:39 2009
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
 (setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("docallans" "onanswer" "doCallOffered()" "onoffer" "getaleg" "docallan" "doCallAnswered" "answered" "acce" "onans" "docalloffered" "onanswer" "readytoda" "onanswer" "docalloffered" "onoffer"))
+(setq regexp-search-ring '("onanswer" "onoffer" "onofferqu" "onanswer" "onoffer" "onofferq" "onoffer" "onofferr" "onoffer" "onofferre" "oncallo" "onanswer" "docalloffered" "onans" "docallanswer" "confirm"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -554,17 +554,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
-  "ChangeLog.zj"
-  'text-mode
-  '(nil)
-  4288
-  '(1070 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/RtpProxyUtil.cxx"
   "RtpProxyUtil.cxx"
   'c++-mode
@@ -590,7 +579,7 @@
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/megaeyes/MegaSipEntity.cxx"
   "MegaSipEntity.cxx"
   'c++-mode
-  '(abbrev-mode)
+  '(abbrev-mode nil)
   122
   '(nil nil)
   nil
@@ -601,7 +590,7 @@
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/megaeyes/MegaSipEntity.hxx"
   "MegaSipEntity.hxx"
   'c++-mode
-  '(abbrev-mode)
+  '(abbrev-mode nil)
   1096
   '(1197 nil)
   nil
@@ -653,23 +642,12 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.hxx"
-  "B2BCall.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  6517
-  '(6470 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MyInviteSessionHandler.cxx"
-  "MyInviteSessionHandler.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1054
-  '(10409 nil)
+  "/home/zhangjun/projects/alpha/CallControlServer/ChangeLog.zj"
+  "ChangeLog.zj"
+  'text-mode
+  '(nil)
+  3308
+  '(1070 nil)
   nil
   nil
   nil)
@@ -679,8 +657,30 @@
   "B2BCall.cxx"
   'c++-mode
   '(abbrev-mode nil)
-  930
-  '(996 nil)
+  1564
+  '(25186 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MyInviteSessionHandler.cxx"
+  "MyInviteSessionHandler.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  10637
+  '(10410 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.hxx"
+  "B2BCall.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  8779
+  '(8728 nil)
   nil
   nil
   nil)

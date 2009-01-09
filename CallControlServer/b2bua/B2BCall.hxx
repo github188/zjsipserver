@@ -287,6 +287,9 @@ public:
     
     // For B2BCallManager
     void onStopping();
+    
+    //zhangjun new add 
+    void onOfferRequired(MyAppDialog *myAppDialog);
 
     void releaseAppDialog(MyAppDialog *myAppDialog);
     void releaseAppDialogSet(MyAppDialogSet *myAppDialogSet);
