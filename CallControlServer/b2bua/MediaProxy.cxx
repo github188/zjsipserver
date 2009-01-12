@@ -51,6 +51,7 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
     if(originalSdp != NULL)
 	delete originalSdp;
     originalSdp = (SdpContents *)sdp.clone();
+
     if(newSdp != NULL)
 	delete newSdp;
     newSdp = (SdpContents *)sdp.clone();
@@ -115,18 +116,23 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
     }
 
     //uri= 1000000111_1@192.168.0.1 ,but term id = 1000000111@192.168.0.1 NTD!!!
-    entity::Terminal *term = NULL;
-    if ( entity::Terminals.find(mediaManager.b2BCall.destinationAddr)!= entity::Terminals.end() )
-    {
-	term = entity::Terminals[mediaManager.b2BCall.destinationAddr];//assume destinationAddr(URI) is terminal's identify 
-    }
-    else
+    entity::Terminal* term = mediaManager.getTerminal();
+    if ( !term )
     {
 	return 405;//error
     }
 
-    mediaManager.nTransType_ = term->getTransType();
-    if ( entity::Terminal::C2V2T == mediaManager.nTransType_ ) //!!!up to max conn number need fixme
+    if ( isNatTraversal )
+    {
+	mediaManager.nTransType_ = entity::Terminal::C2V2T;
+    }
+
+    if ( -1 == mediaManager.nTransType_ ) //new create will handle this. add not
+    {
+	mediaManager.nTransType_ = term->getTransType();
+    }
+    
+    if ( !isNatTraversal && (entity::Terminal::C2V2T == mediaManager.nTransType_) ) //!!!up to max conn number need fixme
     {
 	callerAsymmetric = false;
 
@@ -136,9 +142,9 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 	B2BUA_LOG_INFO( << "Succed Max ConnNum, need use vtdu!");
     }
     
-    if ( isNatTraversal || UPTOMAXCONN )
+    if ( isNatTraversal || (entity::Terminal::C2V2T == mediaManager.nTransType_) )
     {
-	newSdp->session().clearMedium();
+	newSdp->session().clearMedium();//clear all media info in sdp
 	list<SdpContents::Session::Medium>::iterator i = originalSdp->session().media().begin();
 	//!!!get media filed "m=" from originsdp, put it into newSdp after changing
 	while(i != originalSdp->session().media().end()) 
@@ -151,7 +157,7 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 		    B2BUA_LOG_WARNING( <<"only one medium definition supported");
 		    return MM_SDP_BAD;
 		}
-
+		
 		// Check for a connection spec
 		if( (*i).getMediumConnections().size() > 1 ) 
 		{
@@ -159,7 +165,7 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 		    B2BUA_LOG_WARNING( <<"multiple medium specific connections not supported");
 		    return MM_SDP_BAD;
 		}
-
+		
 		if( (*i).getMediumConnections().size() == 1 ) 
 		{
 		    const SdpContents::Session::Connection& mc = (*i).getMediumConnections().front();//mc only used to check address match
@@ -177,7 +183,7 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 		// connections is implemented:
 		//m.getMediumConnections().clear();
 		medium.setConnection(newSdp->session().connection());
-
+		
 //		if(mediaManager.aLegProxy == this) 
 		if(mediaManager.bLegProxy == this)
 		{

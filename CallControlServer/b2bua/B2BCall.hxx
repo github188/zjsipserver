@@ -47,7 +47,7 @@ public:
 	MediaProxyFail,
 	ReadyToDial,				// Route ready
 	DialInProgress,				// INVITE sent
-	DialFailed,					// Network error, e.g. ICMP
+	DialFailed,				// Network error, e.g. ICMP
 	DialRejected,				// SIP error received
 						// error code in data member
 						// failureStatusCode
@@ -59,25 +59,25 @@ public:
 						// to try another carrier
 						// e.g. Busy
 //    DialReceived100,				// 100 response received
-	DialReceived180,				// 180 response received
+	DialReceived180,			// 180 response received
 //    DialReceived183,				// 183 response received
-	DialReceivedEarlyAnswer,			// early answer (SDP) received
+	DialReceivedEarlyAnswer,		// early answer (SDP) received
 //    DialEarlyMediaProxyRequested,		// Media proxy requested for
 	// early media
-	DialEarlyMediaProxySuccess,			// Media Proxy ready
-	DialEarlyMediaProxyFail,			// Media Proxy failed
+	DialEarlyMediaProxySuccess,		// Media Proxy ready
+	DialEarlyMediaProxyFail,		// Media Proxy failed
 	CallAccepted,				// 200 received
 //    CallAcceptedMediaProxyRequested,		// Media proxy requested for
 	// media
 	CallAcceptedMediaProxySuccess,		// Media Proxy ready
-	CallAcceptedMediaProxyFail,			// Media proxy failed
-	CallActive,					// Call in progress
+	CallAcceptedMediaProxyFail,		// Media proxy failed
+	CallActive,				// Call in progress
 	CallerHangup,				// Caller has hungup
 	CalleeHangup,				// Callee has hungup
 	LocalHangup,				// B2BUA initiated hangup
-	CallStop,					// Call is stopped
-//    CallStopMediaProxyNotified,			// Media proxy informed
-	CallStopMediaProxySuccess,			// Media proxy acknowledged
+	CallStop,				// Call is stopped
+//    CallStopMediaProxyNotified,		// Media proxy informed
+	CallStopMediaProxySuccess,		// Media proxy acknowledged
 	CallStopMediaProxyFail,			// Media proxy failed to ack
 	CallStopFinal				// Call can be purged from
 						// the system
@@ -89,9 +89,9 @@ public:
     {
 	NoAnswer = 0,	// caller gave up/timeout
 	Busy,		// callee indicated busy
-	Congestion,		// callee indicated congestion
+	Congestion,	// callee indicated congestion
 	Error,		// callee indicated error
-	Answered		// call was answered
+	Answered	// call was answered
     };
 
     static const char *basicClearingReasonName[];
@@ -114,13 +114,13 @@ public:
 	RejectOther,	// rejectOtherCode = SIP error code
 	
 	// Answered
-	AnsweredALegHangup,	// A leg hangup first
+	AnsweredALegHangup, // A leg hangup first
 	AnsweredBLegHangup, // B leg hangup first
 	AnsweredLimit,      // reached limit
 	AnsweredShutdown,   // Answered, B2BUA shutdown
 	AnsweredError,      // An error occured, e.g. during a re-INVITE
-	AnsweredNoMedia,	// Media stopped
-	AnsweredUnknown	// Answered, hangup for unknown reason
+	AnsweredNoMedia,    // Media stopped
+	AnsweredUnknown	    // Answered, hangup for unknown reason
     };
 
     CDRHandler& cdrHandler;
@@ -183,7 +183,7 @@ public:
     // Returns true if successful, false if new state is not
     // permitted
 
-    resip::Data iD_; //!!!unique identify
+    resip::Data iD_; //!!!unique identify. 暂时不以它做唯一标识,用destinationAddr来做
 
 protected:
     bool setCallState(B2BCallState newCallState);
@@ -267,6 +267,8 @@ public:
 
     virtual ~B2BCall();
     
+    void addALegAppDialog(MyAppDialog *aLegAppDialog);
+
     void setBLegAppDialog(MyAppDialog *myAppDialog);
     
     // called every time we go through the main program loop

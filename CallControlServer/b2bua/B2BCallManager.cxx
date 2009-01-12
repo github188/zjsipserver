@@ -20,56 +20,132 @@ B2BCallManager::B2BCallManager(resip::DialogUsageManager& dum,
     mustStopCalls = false;
 }
 
-B2BCallManager::~B2BCallManager() {
+B2BCallManager::~B2BCallManager() 
+{
 }
 
-void B2BCallManager::setAuthorizationManager(AuthorizationManager *authorizationManager) {
+void 
+B2BCallManager::setAuthorizationManager(AuthorizationManager *authorizationManager) 
+{
   this->authorizationManager = authorizationManager;
 }
 
-TaskManager::TaskResult B2BCallManager::doTaskProcessing() {
+TaskManager::TaskResult 
+B2BCallManager::doTaskProcessing() 
+{
     time_t now;
 
     if(mustStopCalls) 
     {
 	B2BUA_LOG_NOTICE( <<"notifying calls to stop");
-	list<B2BCall *>::iterator call = calls.begin();
-	while(call != calls.end()) {
-	    (*call)->onStopping();
-	    call++;
+
+//	B2BCallList::iterator call = calls.begin();
+//	while(call != calls.end()) 
+//	{
+//	    (*call)->onStopping();
+//	    call++;
+//	}
+
+	B2BCallMap::iterator i = callmaps.begin();
+	for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
+	{
+	    B2BCallList::iterator j = (i->second).begin();
+	    while( j != (i->second).end() )
+	    {
+		(*j)->onStopping();
+		j++;
+	    }
 	}
+
 	mustStopCalls = false;
     }
 
     time(&now);
-    list<B2BCall *>::iterator i = calls.begin();
-    while(i != calls.end()) {
+
+/*
+    B2BCallList::iterator i = calls.begin();
+    while(i != calls.end()) 
+    {
 	(*i)->checkProgress(now, stopping);
-	if((*i)->isComplete()) {
+	if((*i)->isComplete()) 
+	{
 	    B2BCall *call = *i;
 	    i++;
 	    calls.remove(call);
 	    delete call;
-	} else
+	} 
+	else
 	    i++;
     }
-    if(stopping && calls.begin() == calls.end()) {
+*/
+
+    B2BCallMap::iterator i = callmaps.begin();
+    for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
+    {
+	B2BCallList::iterator j = (i->second).begin();//j is std::list's iterator
+	while(  j!= (i->second).end() )
+	{
+	    (*j)->checkProgress(now, stopping);
+	    if( (*j)->isComplete() )
+	    {
+		B2BCall *call = *j;
+		j++;
+		(i->second).remove(call);
+		delete call;
+	    }
+	    else
+		j++;
+	}
+    }
+
+
+//    if(stopping && calls.begin() == calls.end()) 
+    if(stopping && this->empty() )
+    {
 	B2BUA_LOG_NOTICE( <<"no (more) calls in progress");
 	return TaskManager::TaskComplete;
     }
+
     return TaskManager::TaskNotComplete;
 }
 
-void B2BCallManager::stop() {
-  stopping = true;
-  mustStopCalls = true;
+bool 
+B2BCallManager::empty()
+{
+    B2BCallMap::iterator i = callmaps.begin();
+    for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
+    {
+	if ( !(i->second).empty() )
+	{
+	    return false;
+	}
+    }
+
+    return true;
 }
 
-bool B2BCallManager::isStopping() {
-  return stopping;
+void 
+B2BCallManager::stop() 
+{
+    stopping = true;
+    mustStopCalls = true;
 }
 
-void B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
+bool 
+B2BCallManager::isStopping() 
+{
+    return stopping;
+}
+
+
+B2BCallList*
+B2BCallManager::getB2BCall( const resip::Uri &destUri )
+{
+    return &(callmaps[destUri]);
+}
+
+void 
+B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
 			       const resip::Uri& destinationAddr, const resip::Data& authRealm, 
 			       const resip::Data& authUser, const resip::Data& authPassword, 
 			       const resip::Data& srcIp, const resip::Data& contextId, 
@@ -82,14 +158,49 @@ void B2BCallManager::onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& s
 				authRealm, authUser, authPassword, srcIp, 
 				contextId, accountId, baseIp, controlId);
 
-    calls.push_back(call);
+//  calls.push_back(call);
+    callmaps[destinationAddr].push_back(call);
 }
 
-void B2BCallManager::logStats() {
+void 
+B2BCallManager::logStats() 
+{
     int preDial = 0, dialing = 0, connected = 0, finishing = 0, unknown = 0;
+
+    B2BCallMap::iterator i = callmaps.begin();
+    for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
+    {
+	B2BCallList::iterator j = (i->second).begin();//j is std::list's iterator
+	while(  j!= (i->second).end() )
+	{
+	    switch((*j)->getStatus())
+	    {
+	    case B2BCall::PreDial:
+		preDial++;
+		break;
+	    case B2BCall::Dialing:
+		dialing++;
+		break;
+	    case B2BCall::Connected:
+		connected++;
+		break;
+	    case B2BCall::Finishing:
+		finishing++;
+		break;
+	    default:
+		unknown++;
+		break;
+	    }
+	    j++;
+	}
+    }
+
+/*
     list<B2BCall *>::iterator call = calls.begin();
-    while(call != calls.end()) {
-	switch((*call)->getStatus()) {
+    while(call != calls.end()) 
+    {
+	switch((*call)->getStatus()) 
+	{
 	case B2BCall::PreDial:
 	    preDial++;
 	    break;
@@ -108,6 +219,8 @@ void B2BCallManager::logStats() {
 	}
 	call++;
     }
+*/
+
     B2BUA_LOG_NOTICE( <<"call info: preDial = "<< preDial<<" dialing = "<<dialing <<" connected = "<< connected<<" finishing = "
 		      << finishing<<" unknown = "<< unknown<<" total = " << (preDial + dialing + connected + finishing + unknown) );
 }

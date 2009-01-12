@@ -5,6 +5,8 @@
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/Data.hxx"
 
+#include "b2bua/megaeyes/MegaSipEntity.hxx"
+
 namespace b2bua
 {
 
@@ -94,6 +96,15 @@ public:
     resip::SdpContents& getBLegSdp();
     
     void onMediaTimeout();
+
+    bool isC2V2T()
+	{
+	    return nTransType_ == entity::Terminal::C2V2T;
+	}
+
+    void updateTermStatus();
+
+    entity::Terminal *getTerminal();
 
 public:
     int nTransType_;

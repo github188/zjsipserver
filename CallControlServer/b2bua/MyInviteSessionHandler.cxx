@@ -217,18 +217,36 @@ void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteS
     Data authRealm("");
     Data authUser("");
     Data authPassword(""); 
-    if(msg.exists(h_ProxyAuthorizations)) {
+    if(msg.exists(h_ProxyAuthorizations)) 
+    {
 	for(Auths::const_iterator it = msg.header(h_ProxyAuthorizations).begin(); it != msg.header(h_ProxyAuthorizations).end(); it++) {
-	    if(dum.isMyDomain(it->param(p_realm))) {
+	    if(dum.isMyDomain(it->param(p_realm))) 
+	    {
 		authRealm = it->param(p_realm);
 		authUser = it->param(p_username);
 	    }
 	}
     }
+
     try 
     {
-	callManager.onNewCall((MyAppDialog *)sis->getAppDialog().get(), msg.header(h_From), msg.header(h_RequestLine).uri(), 
-			      authRealm, authUser, Data(""), sourceIp, contextId, accountId, baseIp, controlId);
+	B2BCallList* calls = callManager.getB2BCall( msg.header(h_RequestLine).uri() );
+
+	B2BCallList::iterator i = calls->begin();
+	for( ; i!=calls->end(); ++i )
+	{
+	    if ( (*i)->mediaManager->isC2V2T()  )
+	    {
+		(*i)->addALegAppDialog( dynamic_cast<MyAppDialog*>(sis->getAppDialog().get()) );
+		break;
+	    }
+	}
+
+	if ( calls->end() == i )
+	{
+	    callManager.onNewCall((MyAppDialog *)sis->getAppDialog().get(), msg.header(h_From), msg.header(h_RequestLine).uri(), 
+				  authRealm, authUser, Data(""), sourceIp, contextId, accountId, baseIp, controlId);
+	}
     } 
     catch (...) 
     {
@@ -237,7 +255,8 @@ void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteS
     }
 }
 
-void MyInviteSessionHandler::onNewSession(ClientInviteSessionHandle cis, InviteSession::OfferAnswerType oat, const SipMessage& msg) {
+void MyInviteSessionHandler::onNewSession(ClientInviteSessionHandle cis, InviteSession::OfferAnswerType oat, const SipMessage& msg) 
+{
 }
 
 void MyInviteSessionHandler::onTerminated(InviteSessionHandle is, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg) 

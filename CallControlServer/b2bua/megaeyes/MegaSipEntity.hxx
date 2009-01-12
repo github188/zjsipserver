@@ -29,6 +29,10 @@ You may look up rutil/HashMap.hxx file, it use MACRO implement hash function of 
 namespace entity
 {
 
+#define DEVIDLEN 18
+#define CLIENTIDLEN 14
+#define USERIDLEN 18    
+
 class SipEntity //base class for all sip device  
 {
 public:
@@ -61,13 +65,14 @@ public:
 		return C2V2T;
 	    }
 	}
-private:
+
+public:
     int mMaxConnNum;
     int mCameraNum;
     int mCurConnNum;
 };
 
-extern __gnu_cxx::hash_map<resip::Uri, Terminal*> Terminals;//!!!when register, need add terminal to Terminals
+extern __gnu_cxx::hash_map<resip::Data, Terminal*> Terminals;//!!!when register, need add terminal to Terminals
 
 }
 #endif

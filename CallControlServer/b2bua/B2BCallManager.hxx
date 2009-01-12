@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <list>
-
+#include <map>
 
 #include "resip/dum/DialogUsageManager.hxx"
 
@@ -15,47 +15,54 @@
 
 namespace b2bua
 {
+typedef std::list<B2BCall *> B2BCallList;    
 
-class B2BCallManager : public TaskManager::RecurringTask {
-
+class B2BCallManager : public TaskManager::RecurringTask 
+{
 protected:
-  resip::DialogUsageManager& dum;
-  AuthorizationManager *authorizationManager;
+    resip::DialogUsageManager& dum;
+    AuthorizationManager *authorizationManager;
 
-  std::list<B2BCall *> calls;
-
-  bool stopping;
-  bool mustStopCalls;
-
-  CDRHandler& cdrHandler;
+//  B2BCallList calls;
+    
+    typedef std::map<resip::Uri, B2BCallList> B2BCallMap;
+    B2BCallMap callmaps;
+    
+    bool stopping;
+    bool mustStopCalls;
+    
+    CDRHandler& cdrHandler;
 
 public:
-  B2BCallManager(resip::DialogUsageManager& dum, AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
-  virtual ~B2BCallManager();
+    B2BCallManager(resip::DialogUsageManager& dum, AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
+    virtual ~B2BCallManager();
+  
+    B2BCallList* getB2BCall( const resip::Uri &destUri );
+  
+    void setAuthorizationManager(AuthorizationManager *authorizationManager);
+    
+    TaskManager::TaskResult doTaskProcessing();
 
-  void setAuthorizationManager(AuthorizationManager *authorizationManager);
-
-  TaskManager::TaskResult doTaskProcessing();
-
-  /**
-   * Stop accepting new calls 
-   * Shutdown existing calls
-   * Blocks until all existing calls stopped
-   */
-  void stop();
-  bool isStopping();
-
-  void onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
-		 const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+    /**
+     * Stop accepting new calls 
+     * Shutdown existing calls
+     * Blocks until all existing calls stopped
+     */
+    void stop();
+    bool isStopping();
+    
+    void onNewCall(MyAppDialog *aLegDialog, const resip::NameAddr& sourceAddr, 
+		   const resip::Uri& destinationAddr, const resip::Data& authRealm, 
 		 const resip::Data& authUser, const resip::Data& authPassword, 
-		 const resip::Data& srcIp, const resip::Data& contextId, 
-		 const resip::Data& accountId, const resip::Data& baseIp, 
-		 const resip::Data& controlId);
+		   const resip::Data& srcIp, const resip::Data& contextId, 
+		   const resip::Data& accountId, const resip::Data& baseIp, 
+		   const resip::Data& controlId);
+    
+    void logStats();
 
-  void logStats();
-
+    bool empty();
 };
-
+    
 }
 
 #endif

@@ -50,7 +50,7 @@ MediaManager::MediaManager(B2BCall& b2BCall,
     //aLegProxy = NULL;
     bLegProxy = NULL;
     rtpProxyUtil = NULL;
-    nTransType_ = 0;
+    nTransType_ = -1;
 };
 
 
@@ -90,6 +90,41 @@ MediaManager::setToTag(const Data& toTag)
 {
     this->toTag = toTag;
 };
+
+entity::Terminal *
+MediaManager::getTerminal()
+{
+    resip::Data termid = b2BCall.destinationAddr.user().substr(0,DEVIDLEN);
+
+    if ( entity::Terminals.find(termid)!= entity::Terminals.end() )
+    {
+	return entity::Terminals[termid];
+    }
+    else
+    {
+	return NULL;
+    }
+}
+
+void 
+MediaManager::updateTermStatus()
+{
+    entity::Terminal* term = getTerminal();
+    if ( term )
+    {
+	switch( b2BCall.getStatus() ) 
+	{
+	case B2BCall::Connected:
+	    term->mCurConnNum++;
+	    break;
+	case B2BCall::Finishing:
+	    term->mCurConnNum--;
+	    break;
+	default:
+	    break;
+	}
+    }
+}
 
 int 
 MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 

@@ -82,6 +82,14 @@ const char *B2BCall::basicClearingReasonName[] =
   B2BCall::callController = callController;
 } */
 
+void 
+B2BCall::addALegAppDialog(MyAppDialog *aLegAppDialog)
+{
+    assert(aLegAppDialog!=NULL);
+    this->aLegAppDialogs[aLegAppDialog->getDialogId().getCallId()] = aLegAppDialog;
+    aLegAppDialog->setB2BCall(this);
+}
+
 B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationManager& authorizationManager, 
 		 MyAppDialog *aLegAppDialog, const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, 
 		 const resip::Data& authRealm, const resip::Data& authUser, const resip::Data& authPassword, 
@@ -1187,17 +1195,19 @@ void B2BCall::doCallStop() //it will invoked is only bleg or last aleg cancel or
     
 //    if(aLegAppDialog != NULL) 
     std::map<resip::Data, MyAppDialog*>::iterator i = aLegAppDialogs.begin();
-    for ( ; i!=aLegAppDialogs.end(); ++i )
+    for ( ; i!=aLegAppDialogs.end(); ++i ) //say goodbye to every aleg
     {
 	ServerInviteSession *sis = (ServerInviteSession *)((i->second)->getInviteSession().get());
-	sis->end();
+	sis->end(); 
     } 
 
     if(bLegAppDialogSet != NULL) 
     {
 	bLegAppDialogSet->end();
     }
-    writeCDR();
+
+//    writeCDR();
+
     setCallState(CallStopFinal);
 }
 
@@ -1571,7 +1581,7 @@ void B2BCall::onHangup(MyAppDialog *myAppDialog)
     else if ( aLegAppDialogs.find( myAppDialog->getDialogId().getCallId() ) != aLegAppDialogs.end() )
     {
 	B2BUA_LOG_DEBUG( <<"call hung up by 1 aleg");
-	doHangup(myAppDialog);
+	//doHangup(myAppDialog); Don't need it!!!
     }
     else 
     {

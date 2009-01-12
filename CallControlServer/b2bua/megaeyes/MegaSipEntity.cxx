@@ -2,5 +2,5 @@
 
 using namespace entity;
 
-__gnu_cxx::hash_map<resip::Uri, Terminal*> entity::Terminals;
+__gnu_cxx::hash_map<resip::Data, Terminal*> entity::Terminals;
 
