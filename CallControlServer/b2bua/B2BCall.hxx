@@ -235,7 +235,9 @@ protected:
     void setClearingReasonMediaFail();
 
     void writeCDR();
-    
+
+    //help functions
+
 public:
 
     // More basic then B2BCallState, used for reporting

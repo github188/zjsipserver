@@ -96,14 +96,7 @@ MediaManager::getTerminal()
 {
     resip::Data termid = b2BCall.destinationAddr.user().substr(0,DEVIDLEN);
 
-    if ( entity::Terminals.find(termid)!= entity::Terminals.end() )
-    {
-	return entity::Terminals[termid];
-    }
-    else
-    {
-	return NULL;
-    }
+    return entity::getTerminal( termid );
 }
 
 void 

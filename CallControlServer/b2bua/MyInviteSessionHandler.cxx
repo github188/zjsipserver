@@ -327,12 +327,13 @@ void MyInviteSessionHandler::onOfferRequired(InviteSessionHandle is, const SipMe
     // FIXME
     //这里确实应该什么都不做,由B2BCall的状态机驱动向前端发起noOffer请求!!!
     
-    B2BCall *call = getB2BCall(is.get());
+    B2BCall *call = this->getB2BCall(is.get());
     if(call == NULL)
     {
         B2BUA_LOG_WARNING( <<"onOffer: unrecognised dialog");
         return;
     }
+    
     B2BUA_LOG_DEBUG( <<"onOffer received");
     MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
     call->onOfferRequired( myAppDialog );
@@ -346,6 +347,7 @@ void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& m
 	B2BUA_LOG_WARNING( <<"onOffer: unrecognised dialog");
 	return;
     }
+    
     B2BUA_LOG_DEBUG( <<"onOffer received");
     MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
     Tuple sourceTuple = msg.getSource();
@@ -356,9 +358,10 @@ void MyInviteSessionHandler::onOffer(InviteSessionHandle is, const SipMessage& m
 /**
  * Handy utility functions
  */
-B2BCall *MyInviteSessionHandler::getB2BCall(InviteSession *is) {
-  MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
-  return (B2BCall *)myAppDialog->getB2BCall();
+B2BCall *MyInviteSessionHandler::getB2BCall(InviteSession *is) 
+{
+    MyAppDialog *myAppDialog = (MyAppDialog *)is->getAppDialog().get();
+    return (B2BCall *)myAppDialog->getB2BCall();
 }
 
 /* ====================================================================

@@ -141,7 +141,10 @@ B2BCallManager::isStopping()
 B2BCallList*
 B2BCallManager::getB2BCall( const resip::Uri &destUri )
 {
-    return &(callmaps[destUri]);
+    if ( callmaps.find( destUri )!= callmaps.end() )
+	return &(callmaps[destUri]);
+    else 
+	throw new exception;
 }
 
 void 

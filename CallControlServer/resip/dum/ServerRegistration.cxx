@@ -107,71 +107,71 @@ ServerRegistration::reject(int statusCode)
 void 
 ServerRegistration::dispatch(const SipMessage& msg)
 {
-   DebugLog( << "got a registration" );
+    DebugLog( << "got a registration" );
    
-   assert(msg.isRequest());
-   ServerRegistrationHandler* handler = mDum.mServerRegistrationHandler;
-   RegistrationPersistenceManager *database = mDum.mRegistrationPersistenceManager;
+    assert(msg.isRequest());
+    ServerRegistrationHandler* handler = mDum.mServerRegistrationHandler;
+    RegistrationPersistenceManager *database = mDum.mRegistrationPersistenceManager;
 
     enum {ADD, REMOVE, REFRESH} operation = REFRESH;
 
     if (!handler || !database)
     {
-      // ?bwc? This is a server error; why are we sending a 4xx?
-       DebugLog( << "No handler or DB - sending 405" );
+	// ?bwc? This is a server error; why are we sending a 4xx?
+	DebugLog( << "No handler or DB - sending 405" );
        
-       SharedPtr<SipMessage> failure(new SipMessage);
-       mDum.makeResponse(*failure, msg, 405);
-       mDum.send(failure);
-       delete(this);
-       return;
+	SharedPtr<SipMessage> failure(new SipMessage);
+	mDum.makeResponse(*failure, msg, 405);
+	mDum.send(failure);
+	delete(this);
+	return;
     }
 
     mAor = msg.header(h_To).uri().getAorAsUri();
 
-   // Checks to see whether this scheme is valid, and supported.
-   if( !( (mAor.scheme()=="sip" || mAor.scheme()=="sips") 
-            && mDum.getMasterProfile()->isSchemeSupported(mAor.scheme()) ) )
-   {
-       DebugLog( << "Bad scheme in Aor" );
+    // Checks to see whether this scheme is valid, and supported.
+    if( !( (mAor.scheme()=="sip" || mAor.scheme()=="sips") 
+	   && mDum.getMasterProfile()->isSchemeSupported(mAor.scheme()) ) )
+    {
+	DebugLog( << "Bad scheme in Aor" );
        
-       SharedPtr<SipMessage> failure(new SipMessage);
-       mDum.makeResponse(*failure, msg, 400);
-       failure->header(h_StatusLine).reason() = "Bad/unsupported scheme in To: " + mAor.scheme();
-       mDum.send(failure);
-       delete(this);
-       return;
-   }
+	SharedPtr<SipMessage> failure(new SipMessage);
+	mDum.makeResponse(*failure, msg, 400);
+	failure->header(h_StatusLine).reason() = "Bad/unsupported scheme in To: " + mAor.scheme();
+	mDum.send(failure);
+	delete(this);
+	return;
+    }
    
 
     database->lockRecord(mAor);
 
-   UInt32 globalExpires=3600;   
-   UInt32 returnCode=0;
-   handler->getGlobalExpires(msg,mDum.getMasterProfile(),globalExpires,returnCode); 
+    UInt32 globalExpires=3600;   
+    UInt32 returnCode=0;
+    handler->getGlobalExpires(msg,mDum.getMasterProfile(),globalExpires,returnCode); 
 
-   if (returnCode >= 400)
-   {
-      SharedPtr<SipMessage> failure(new SipMessage);
-      mDum.makeResponse(*failure, msg, returnCode);
-      if (423 == returnCode)
-      {
-         failure->header(h_StatusLine).reason() = "Interval Too Brief";
-         failure->header(h_MinExpires).value() = globalExpires;
-      }
-      mDum.send(failure);
-      database->unlockRecord(mAor);
-      delete(this);
-      return;
-   }
+    if (returnCode >= 400)
+    {
+	SharedPtr<SipMessage> failure(new SipMessage);
+	mDum.makeResponse(*failure, msg, returnCode);
+	if (423 == returnCode)
+	{
+	    failure->header(h_StatusLine).reason() = "Interval Too Brief";
+	    failure->header(h_MinExpires).value() = globalExpires;
+	}
+	mDum.send(failure);
+	database->unlockRecord(mAor);
+	delete(this);
+	return;
+    }
 
     mOriginalContacts = database->getContacts(mAor);
 
     // If no conacts are present in the request, this is simply a query.
     if (!msg.exists(h_Contacts))
     {
-      handler->onQuery(getHandle(), msg);
-      return;
+	handler->onQuery(getHandle(), msg);
+	return;
     }
 
     ParserContainer<NameAddr> contactList(msg.header(h_Contacts));
@@ -179,164 +179,164 @@ ServerRegistration::dispatch(const SipMessage& msg)
     UInt64 now=Timer::getTimeSecs();
     ParserContainer<NameAddr>::iterator iEnd(contactList.end());
 
-   UInt32 expires=0;
-   for (i = contactList.begin(); i != iEnd; ++i )
+    UInt32 expires=0;
+    for (i = contactList.begin(); i != iEnd; ++i )
     {
-      if(!i->isWellFormed())
-      {
-         SharedPtr<SipMessage> failure(new SipMessage);
-         mDum.makeResponse(*failure, msg, 400, "Malformed Contact");
-         mDum.send(failure);
-         database->unlockRecord(mAor);
-         delete(this);
-         return;
-      }
+	if(!i->isWellFormed())
+	{
+	    SharedPtr<SipMessage> failure(new SipMessage);
+	    mDum.makeResponse(*failure, msg, 400, "Malformed Contact");
+	    mDum.send(failure);
+	    database->unlockRecord(mAor);
+	    delete(this);
+	    return;
+	}
 
-      expires = globalExpires;
-      handler->getContactExpires(*i,mDum.getMasterProfile(),expires,returnCode);       
+	expires = globalExpires;
+	handler->getContactExpires(*i,mDum.getMasterProfile(),expires,returnCode);       
 
-      // Check for "Contact: *" style deregistration
-      if (i->isAllContacts())
-      {
-        if (contactList.size() > 1 || expires != 0)
-        {
-           SharedPtr<SipMessage> failure(new SipMessage);
-           mDum.makeResponse(*failure, msg, 400, "Invalid use of 'Contact: *'");
-           mDum.send(failure);
-           database->unlockRecord(mAor);
-           delete(this);
-           return;
-        }
+	// Check for "Contact: *" style deregistration
+	if (i->isAllContacts())
+	{
+	    if (contactList.size() > 1 || expires != 0)
+	    {
+		SharedPtr<SipMessage> failure(new SipMessage);
+		mDum.makeResponse(*failure, msg, 400, "Invalid use of 'Contact: *'");
+		mDum.send(failure);
+		database->unlockRecord(mAor);
+		delete(this);
+		return;
+	    }
 
-        database->removeAor(mAor);
-        handler->onRemoveAll(getHandle(), msg);
-        return;
-      }
+	    database->removeAor(mAor);
+	    handler->onRemoveAll(getHandle(), msg);
+	    return;
+	}
 
-      ContactInstanceRecord rec;
-      rec.mContact=*i;
-      rec.mRegExpires=(UInt64)expires+now;
+	ContactInstanceRecord rec;
+	rec.mContact=*i;
+	rec.mRegExpires=(UInt64)expires+now;
 
-      if(i->exists(p_Instance))
-      {
-         rec.mInstance=i->param(p_Instance);
-      }
+	if(i->exists(p_Instance))
+	{
+	    rec.mInstance=i->param(p_Instance);
+	}
 
-      if(!msg.empty(h_Paths))
-      {
-         rec.mSipPath=msg.header(h_Paths);
-      }
+	if(!msg.empty(h_Paths))
+	{
+	    rec.mSipPath=msg.header(h_Paths);
+	}
 
-      rec.mLastUpdated=now;
+	rec.mLastUpdated=now;
 
-      // .bwc. If, in the end, this is true, it means all necessary conditions
-      // for outbound support have been met.
-      bool supportsOutbound=InteropHelper::getOutboundSupported();
+	// .bwc. If, in the end, this is true, it means all necessary conditions
+	// for outbound support have been met.
+	bool supportsOutbound=InteropHelper::getOutboundSupported();
 
-      // .bwc. We only store flow information if we have a direct flow to the
-      // endpoint. We do not create a flow if there is an edge-proxy, because if
-      // our connection to the edge proxy fails, the flow from the edge-proxy to
-      // the endpoint is still good, so we should not discard the registration.
-      bool haveDirectFlow=true;
+	// .bwc. We only store flow information if we have a direct flow to the
+	// endpoint. We do not create a flow if there is an edge-proxy, because if
+	// our connection to the edge proxy fails, the flow from the edge-proxy to
+	// the endpoint is still good, so we should not discard the registration.
+	bool haveDirectFlow=true;
 
-      if(supportsOutbound)
-      {
-         try
-         {
-            if(!i->exists(p_Instance) || !i->exists(p_regid))
-            {
-               DebugLog(<<"instance or reg-id missing");
-               supportsOutbound=false;
-            }
+	if(supportsOutbound)
+	{
+	    try
+	    {
+		if(!i->exists(p_Instance) || !i->exists(p_regid))
+		{
+		    DebugLog(<<"instance or reg-id missing");
+		    supportsOutbound=false;
+		}
 
-            if(!msg.empty(h_Paths))
-            {
-               haveDirectFlow=false;
-               if(!msg.header(h_Paths).back().exists(p_ob))
-               {
-                  DebugLog(<<"last Path doesn't have ob");
-                  supportsOutbound=false;
-               }
-            }
-            else if(msg.header(h_Vias).size() > 1)
-            {
-               DebugLog(<<"more than one Via, and no Path");
-               supportsOutbound=false;
-            }
-         }
-         catch(resip::ParseBuffer::Exception&)
-         {
-            supportsOutbound=false;
-         }
-      }
-      else
-      {
-         DebugLog(<<"outbound support disabled");
-      }
+		if(!msg.empty(h_Paths))
+		{
+		    haveDirectFlow=false;
+		    if(!msg.header(h_Paths).back().exists(p_ob))
+		    {
+			DebugLog(<<"last Path doesn't have ob");
+			supportsOutbound=false;
+		    }
+		}
+		else if(msg.header(h_Vias).size() > 1)
+		{
+		    DebugLog(<<"more than one Via, and no Path");
+		    supportsOutbound=false;
+		}
+	    }
+	    catch(resip::ParseBuffer::Exception&)
+	    {
+		supportsOutbound=false;
+	    }
+	}
+	else
+	{
+	    DebugLog(<<"outbound support disabled");
+	}
 
-      // .bwc. The outbound processing
-      if(supportsOutbound)
-      {
-         rec.mRegId=i->param(p_regid);
-         if(haveDirectFlow)
-         {
-            // .bwc. We NEVER record the source if outbound is not being used.
-            // There is nothing we can do with this info in the non-outbound
-            // case that doesn't flagrantly violate spec (yet).
-            // (Example: If we remember this info with the intent of sending
-            // incoming stuff to this source directly, we end up being forced
-            // to record-route with a flow token to give in-dialog stuff a
-            // chance of working. Once we have record-routed, we have set this
-            // decision in stone for the rest of the dialog, preventing target
-            // refresh requests from working. If record-route was mutable, 
-            // maybe it would be okay to do this, but until this is officially
-            // allowed, we shouldn't touch it.)
-            rec.mReceivedFrom=msg.getSource();
-            // .bwc. In the outbound case, we should fail if the connection is
-            // gone. No recovery should be attempted by the server.
-            rec.mReceivedFrom.onlyUseExistingConnection=true;
-            DebugLog(<<"Set rec.mReceivedFrom: " << rec.mReceivedFrom);
-         }
-      }
-      else if(InteropHelper::getRRTokenHackEnabled())
-      {
-         // .bwc. If we are going to do the broken thing, and record-route with
-         // flow-tokens every time, we enable it here. Keep in mind, this will
-         // either break target-refreshes (if we have a direct connection to the
-         // endpoint), or we have a good chance of inadvertently including a 
-         // proxy that didn't record-route in the dialog.
-         // !bwc! TODO remove this once mid-dialog connection reuse is handled
-         // by most endpoints.
-         rec.mReceivedFrom=msg.getSource();
-         rec.mReceivedFrom.onlyUseExistingConnection=false;
-         DebugLog(<<"Set rec.mReceivedFrom: " << rec.mReceivedFrom);
-      }
+	// .bwc. The outbound processing
+	if(supportsOutbound)
+	{
+	    rec.mRegId=i->param(p_regid);
+	    if(haveDirectFlow)
+	    {
+		// .bwc. We NEVER record the source if outbound is not being used.
+		// There is nothing we can do with this info in the non-outbound
+		// case that doesn't flagrantly violate spec (yet).
+		// (Example: If we remember this info with the intent of sending
+		// incoming stuff to this source directly, we end up being forced
+		// to record-route with a flow token to give in-dialog stuff a
+		// chance of working. Once we have record-routed, we have set this
+		// decision in stone for the rest of the dialog, preventing target
+		// refresh requests from working. If record-route was mutable, 
+		// maybe it would be okay to do this, but until this is officially
+		// allowed, we shouldn't touch it.)
+		rec.mReceivedFrom=msg.getSource();
+		// .bwc. In the outbound case, we should fail if the connection is
+		// gone. No recovery should be attempted by the server.
+		rec.mReceivedFrom.onlyUseExistingConnection=true;
+		DebugLog(<<"Set rec.mReceivedFrom: " << rec.mReceivedFrom);
+	    }
+	}
+	else if(InteropHelper::getRRTokenHackEnabled())
+	{
+	    // .bwc. If we are going to do the broken thing, and record-route with
+	    // flow-tokens every time, we enable it here. Keep in mind, this will
+	    // either break target-refreshes (if we have a direct connection to the
+	    // endpoint), or we have a good chance of inadvertently including a 
+	    // proxy that didn't record-route in the dialog.
+	    // !bwc! TODO remove this once mid-dialog connection reuse is handled
+	    // by most endpoints.
+	    rec.mReceivedFrom=msg.getSource();
+	    rec.mReceivedFrom.onlyUseExistingConnection=false;
+	    DebugLog(<<"Set rec.mReceivedFrom: " << rec.mReceivedFrom);
+	}
       
-      // Check to see if this is a removal.
-      if (expires == 0)
-      {
-        if (operation == REFRESH)
-        {
-          operation = REMOVE;
-        }
-        database->removeContact(mAor, rec);
-      }
-      // Otherwise, it's an addition or refresh.
-      else
-      {
-        RegistrationPersistenceManager::update_status_t status;
-        InfoLog (<< "Adding " << mAor << " -> " << *i  );
-        DebugLog(<< "Contact has tuple " << rec.mReceivedFrom);
-         status = database->updateContact(mAor, rec);
-        if (status == RegistrationPersistenceManager::CONTACT_CREATED)
-        {
-          operation = ADD;
-        }
-      }
+	// Check to see if this is a removal.
+	if (expires == 0)
+	{
+	    if (operation == REFRESH)
+	    {
+		operation = REMOVE;
+	    }
+	    database->removeContact(mAor, rec);
+	}
+	// Otherwise, it's an addition or refresh.
+	else
+	{
+	    RegistrationPersistenceManager::update_status_t status;
+	    InfoLog (<< "Adding " << mAor << " -> " << *i  );
+	    DebugLog(<< "Contact has tuple " << rec.mReceivedFrom);
+	    status = database->updateContact(mAor, rec);
+	    if (status == RegistrationPersistenceManager::CONTACT_CREATED)
+	    {
+		operation = ADD;
+	    }
+	}
    
-      // !bwc! If we perform outbound processing for any Contact, we need to
-      // set this to true.
-      mDidOutbound |= supportsOutbound;
+	// !bwc! If we perform outbound processing for any Contact, we need to
+	// set this to true.
+	mDidOutbound |= supportsOutbound;
 
     }
 
@@ -352,15 +352,15 @@ ServerRegistration::dispatch(const SipMessage& msg)
 
     switch (operation)
     {
-      case REFRESH:
+    case REFRESH:
         handler->onRefresh(getHandle(), msg);
         break;
 
-      case REMOVE:
+    case REMOVE:
         handler->onRemove(getHandle(), msg);
         break;
 
-      case ADD:
+    case ADD:
         handler->onAdd(getHandle(), msg);
         break;
     }

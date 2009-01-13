@@ -10,6 +10,8 @@
 #include "rutil/Data.hxx"
 #include "rutil/SharedPtr.hxx"
 
+#include "b2bua/megaeyes/MegaSipEntity.hxx"
+
 namespace b2bua
 {
 
@@ -28,7 +30,8 @@ namespace b2bua
 #define CC_REQUEST_DENIED 12			// Request denied for 
 						// administrative reason
 
-class CallRoute {
+class CallRoute 
+{
 public:
   virtual ~CallRoute();
   virtual const resip::Data& getAppRef1() = 0;
@@ -50,7 +53,7 @@ public:
 		   const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, 
 		   const resip::Data& controlId, time_t startTime)
 	: sourceAddr(sourceAddr), 
-	  destinationAddr(destinationAddr), 
+	  destinationAddr(destinationAddr),
 	  authRealm(authRealm), 
 	  authUser(authUser), 
 	  authPassword(authPassword), 
@@ -121,7 +124,8 @@ private:
     time_t startTime_;
 };
 
-class CallHandle {
+class CallHandle 
+{
 public:
     virtual ~CallHandle();
     virtual int getAuthResult() = 0; 
@@ -140,16 +144,24 @@ public:
 class MegaCallHandle : public CallHandle
 {
 public:
-    MegaCallHandle(const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, 
-		   const resip::Data& authUser, const resip::Data& authPass, const resip::Data& srcIp, 
-		   const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, 
-		   const resip::Data& controlId, time_t startTime)
+    MegaCallHandle( const resip::NameAddr& sourceAddr, const resip::Uri& destinationAddr, const resip::Data& authRealm, 
+		    const resip::Data& authUser, const resip::Data& authPass, const resip::Data& srcIp, 
+		    const resip::Data& contextId, const resip::Data& accountId, const resip::Data& baseIp, 
+		    const resip::Data& controlId, time_t startTime )
 	: realm_(authRealm)
 	{
-	    MegaCallRoute *mcr = new MegaCallRoute(sourceAddr, destinationAddr, authRealm, authUser, 
-						   authPass, srcIp, contextId, accountId, baseIp, 
-						   controlId, startTime);
-	    routelist_.push_front(mcr);
+	    try
+	    {
+		resip::Uri newuri = updateDestAddr(destinationAddr);
+		MegaCallRoute *mcr = new MegaCallRoute(sourceAddr, newuri, authRealm, authUser, 
+						       authPass, srcIp, contextId, accountId, baseIp, 
+						       controlId, startTime);
+		routelist_.push_front(mcr);
+	    }
+	    catch(...)
+	    {
+		//if terminal not be here, no push route
+	    }
 	}
 
     virtual ~MegaCallHandle() 
@@ -195,6 +207,27 @@ public:
 	{
 	    return routelist_;
 	}
+
+private:
+     resip::Uri updateDestAddr(const resip::Uri& destinationAddr)
+	{
+	    resip::Uri newUri = destinationAddr;
+	    newUri.user() = newUri.user().substr(0,DEVIDLEN); 
+
+	    entity::Terminal *term = entity::getTerminal( newUri.user() );
+
+	    if ( term )
+	    {
+		newUri.host() = term->host_;
+		newUri.port() = term->port_;
+		return newUri;
+	    }
+	    else
+	    {
+		throw new std::exception;
+	    }
+	}
+
 private:
     time_t connectTime_;
     time_t finishTime_;

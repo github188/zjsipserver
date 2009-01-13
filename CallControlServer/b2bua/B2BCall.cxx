@@ -832,16 +832,18 @@ void B2BCall::doAuthorizationSuccess()
 {
     // point to the first route
     callRoute = callHandle->getRoutes().begin();
-    if(callRoute == callHandle->getRoutes().end()) {
+    if ( callRoute == callHandle->getRoutes().end() ) 
+    {
 	appRef1 = Data("");
 	appRef2 = Data("");
 	setClearingReason(InvalidDestination, -1);
 	B2BUA_LOG_NOTICE( <<"no routes returned");
 	ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get()); 
-	sis->reject(500);  // Server internal error
+	sis->reject(404);  // Server internal error // find not terminal
 	setCallState(CallStop);
 	return;
     }
+
     appRef1 = (*callRoute)->getAppRef1();
     appRef2 = (*callRoute)->getAppRef2();
     setCallState(MediaProxySuccess);
@@ -909,7 +911,7 @@ void B2BCall::doReadyToDial() //c offer t
     outboundUserProfile->setDefaultFrom((*callRoute)->getSourceAddr());
     outboundUserProfile->setDigestCredential((*callRoute)->getAuthRealm(), (*callRoute)->getAuthUser(), (*callRoute)->getAuthPass());
 
-    if((*callRoute)->getOutboundProxy() != Uri())
+    if( (*callRoute)->getOutboundProxy() != Uri() )
     {
 	outboundUserProfile->setOutboundProxy((*callRoute)->getOutboundProxy());
     }
@@ -917,11 +919,15 @@ void B2BCall::doReadyToDial() //c offer t
 
     SharedPtr<SipMessage> msgB;
 
+    //use real terminal host to gene addrUri
+    Uri camUri = (*callRoute)->getDestinationAddr().uri();
+    
+
     try 
     {   //client provide offer
 	B2BUA_LOG_INFO( <<"Client Provide Offer, Send to Terminal" );
 	SdpContents *initialOffer = (SdpContents *)mediaManager->getALegSdp( aFirstLegAppDialog->getDialogId().getCallId() ).clone();
-	msgB = dum.makeInviteSession((*callRoute)->getDestinationAddr(), outboundUserProfile, initialOffer, bLegAppDialogSet);
+	msgB = dum.makeInviteSession( (*callRoute)->getDestinationAddr(), outboundUserProfile, initialOffer, bLegAppDialogSet );
 	delete initialOffer;
 	dum.send(msgB);
 
@@ -1082,7 +1088,7 @@ void B2BCall::doDialEarlyMediaProxyFail()
 
 void B2BCall::onOfferRequired(MyAppDialog *myAppDialog) // t offer c: new add client, send offer to aleg
 {
-    if( (myAppDialog != aFirstLegAppDialog) && (myAppDialog != bLegAppDialog) && (callState == CallActive) )
+    if( (myAppDialog != aFirstLegAppDialog) && (myAppDialog != bLegAppDialog) && ( CallActive == callState ) )
     {
 	ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
 	SdpContents& sdp = mediaManager->getBLegSdp();
@@ -1090,7 +1096,6 @@ void B2BCall::onOfferRequired(MyAppDialog *myAppDialog) // t offer c: new add cl
         sis->accept();
     }
 }
-
 
 void B2BCall::doCallOffered() //t offer c: send offer to aleg
 {
