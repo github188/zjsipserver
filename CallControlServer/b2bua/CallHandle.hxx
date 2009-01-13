@@ -10,7 +10,7 @@
 #include "rutil/Data.hxx"
 #include "rutil/SharedPtr.hxx"
 
-#include "b2bua/megaeyes/MegaSipEntity.hxx"
+#include "resip/dum/megaeyes/MegaSipEntity.hxx"
 
 namespace b2bua
 {

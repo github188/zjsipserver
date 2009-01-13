@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2009/01/09 09:27:29 zhangjun Exp $
+# $Id: Makefile,v 1.3 2009/01/13 09:49:58 zhangjun Exp $
 
 BUILD = ../build
 include $(BUILD)/Makefile.pre
@@ -28,8 +28,7 @@ SRC = \
 	MyInviteSessionHandler.cxx \
 	RtpProxyRecurringTask.cxx \
 	RtpProxyUtil.cxx \
-	TaskManager.cxx \
-	megaeyes/MegaSipEntity.cxx 
+	TaskManager.cxx 
 
 include $(BUILD)/Makefile.post
 

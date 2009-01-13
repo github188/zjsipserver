@@ -5,7 +5,7 @@
 #include "Logging.hxx"
 #include "MediaProxy.hxx"
 
-#include "b2bua/megaeyes/MegaSipEntity.hxx"
+#include "resip/dum/megaeyes/MegaSipEntity.hxx"
 
 using namespace b2bua;
 using namespace resip;

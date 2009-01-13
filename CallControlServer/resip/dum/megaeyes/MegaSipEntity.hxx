@@ -5,6 +5,7 @@
 #include <ext/hash_map>
 #include "rutil/Data.hxx"
 #include "resip/stack/Uri.hxx"
+#include "resip/stack/NameAddr.hxx"
 
 namespace __gnu_cxx
 {
@@ -36,7 +37,11 @@ namespace entity
 class SipEntity //base class for all sip device  
 {
 public:
-    SipEntity();
+    SipEntity()
+	{}
+
+    virtual ~SipEntity()
+	{}
 
 protected:
     resip::Uri uri_;
@@ -48,8 +53,12 @@ public:
     enum TransType { FULL, C2T, C2V2T };
 
 public:
-    Terminal();
+    Terminal()
+	{}
     
+    virtual ~Terminal()
+	{}
+
     TransType getTransType()
 	{
 	    if ( mCurConnNum >= mMaxConnNum )
@@ -76,7 +85,16 @@ public:
 };
 
 extern __gnu_cxx::hash_map<resip::Data, Terminal*> Terminals;//!!!when register, need add terminal to Terminals
+
 Terminal* getTerminal( const resip::Data &id );
+
+void setTerminal( const resip::Uri &termUri, const resip::NameAddr &termContact );
+
+enum DevType { CLIENT,USER,TERMINAL,STORE,DISPATCH,SIPPROXY,DISPLAY };
+
+DevType getDevType( const resip::Uri& devUri );
+
+void storeEntity( const resip::Uri &devUri, const resip::NameAddr &devContact );
 
 }
 #endif

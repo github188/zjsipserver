@@ -110,7 +110,6 @@
 /KeepAliveManager.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /KeepAliveTimeout.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /KeepAliveTimeout.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
-/Makefile/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MasterProfile.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MasterProfile.hxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
 /MergedRequestKey.cxx/1.1.1.1/Tue Nov 25 10:47:54 2008//
@@ -180,5 +179,6 @@ D/doc////
 D/ssl////
 D/test////
 /ServerAuthManager.cxx/1.3/Mon Jan  5 12:40:12 2009//
-/ServerRegistration.cxx/1.2/Tue Jan 13 07:55:12 2009//
 D/megaeyes////
+/Makefile/1.2/Tue Jan 13 09:49:58 2009//
+/ServerRegistration.cxx/1.3/Tue Jan 13 09:48:37 2009//

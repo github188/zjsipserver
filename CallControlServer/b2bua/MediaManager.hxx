@@ -5,7 +5,7 @@
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/Data.hxx"
 
-#include "b2bua/megaeyes/MegaSipEntity.hxx"
+#include "resip/dum/megaeyes/MegaSipEntity.hxx"
 
 namespace b2bua
 {

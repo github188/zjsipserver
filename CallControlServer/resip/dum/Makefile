@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1.1.1 2008/11/25 10:47:54 zhangjun Exp $
+# $Id: Makefile,v 1.2 2009/01/13 09:49:58 zhangjun Exp $
 
 BUILD = ../../build
 include $(BUILD)/Makefile.pre
@@ -83,7 +83,8 @@ SRC =   \
 	HttpProvider.cxx \
 	HttpGetMessage.cxx \
 	DumHelper.cxx \
-	MergedRequestRemovalCommand.cxx
+	MergedRequestRemovalCommand.cxx \
+	megaeyes/MegaSipEntity.cxx 
 
 ifeq ($(USE_SSL),yes)
 SRC += \

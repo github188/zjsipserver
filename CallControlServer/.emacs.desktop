@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Tue Jan 13 15:55:14 2009
+;; Created Tue Jan 13 17:49:27 2009
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
 (setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("handler" "accept" "onoffer" "dorea" "onoffer" "term" "get" "new" "iter" "erase" "remove" "calls" "docallstop" "dohangup" "onhangup" "release"))
+(setq regexp-search-ring '("entity" "sipentity" "b2bua" "handler" "accept" "onoffer" "dorea" "term" "get" "new" "iter" "erase" "remove" "calls" "docallstop" "dohangup"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -543,17 +543,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.hxx"
-  "MediaManager.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  2911
-  '(2875 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCallManager.cxx"
   "B2BCallManager.cxx"
   'c++-mode
@@ -571,17 +560,6 @@
   '(abbrev-mode nil)
   6020
   '(8348 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.cxx"
-  "MediaProxy.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1081
-  '(3563 nil)
   nil
   nil
   nil)
@@ -631,56 +609,12 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.cxx"
-  "MediaManager.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1899
-  '(1857 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/megaeyes/MegaSipEntity.cxx"
-  "MegaSipEntity.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  313
-  '(192 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/megaeyes/MegaSipEntity.hxx"
-  "MegaSipEntity.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  1483
-  '(1325 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.cxx"
   "B2BCall.cxx"
   'c++-mode
   '(abbrev-mode nil)
   24894
   '(25753 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/CallHandle.hxx"
-  "CallHandle.hxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  5131
-  '(272 nil)
   nil
   nil
   nil)
@@ -697,23 +631,111 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/ServerRegistration.cxx"
-  "ServerRegistration.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  3913
-  '(3415 nil)
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/Makefile"
+  "Makefile<3>"
+  'makefile-mode
+  '(nil)
+  700
+  '(nil nil)
   nil
   nil
-  nil)
+  '((overwrite-mode)))
 
 (desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/Makefile"
   "Makefile<2>"
   'makefile-mode
   '(nil)
-  1941
-  '(nil nil)
+  1024
+  '(1943 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.cxx"
+  "MediaManager.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  63
+  '(1857 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaManager.hxx"
+  "MediaManager.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  961
+  '(2915 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/CallHandle.hxx"
+  "CallHandle.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  231
+  '(276 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/MediaProxy.cxx"
+  "MediaProxy.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  3594
+  '(113 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/obj.debug.Linux.i686/MyAppDialog.d"
+  "MyAppDialog.d"
+  'text-mode
+  '(nil)
+  7646
+  '(1 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/megaeyes/MegaSipEntity.hxx"
+  "MegaSipEntity.hxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1863
+  '(1793 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/megaeyes/MegaSipEntity.cxx"
+  "MegaSipEntity.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  377
+  '(255 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/resip/dum/ServerRegistration.cxx"
+  "ServerRegistration.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  9702
+  '(5841 nil)
   nil
   nil
   nil)

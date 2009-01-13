@@ -11,6 +11,8 @@
 #include "rutil/Timer.hxx"
 #include "rutil/WinLeakCheck.hxx"
 
+#include "resip/dum/megaeyes/MegaSipEntity.hxx"
+
 #define RESIPROCATE_SUBSYSTEM Subsystem::DUM
 
 using namespace resip;
@@ -332,6 +334,10 @@ ServerRegistration::dispatch(const SipMessage& msg)
 	    {
 		operation = ADD;
 	    }
+	    
+	    //zhangjun add begin , assume only a contact
+	    entity::storeEntity( mAor, *i ); 
+	    //zhangjun add end
 	}
    
 	// !bwc! If we perform outbound processing for any Contact, we need to
