@@ -28,7 +28,7 @@ class StatisticsManager : public StatisticsMessage::Payload
          StatsMemUsed
       } Measurement;
       
-      StatisticsManager(SipStack& stack, unsigned long intervalSecs=60);
+      StatisticsManager(SipStack& stack, unsigned long intervalSecs=600);
 
       void process();
       // not stricly thread-safe; needs to be called through the fifo somehow

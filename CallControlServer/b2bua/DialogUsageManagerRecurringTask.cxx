@@ -24,6 +24,8 @@ DialogUsageManagerRecurringTask::DialogUsageManagerRecurringTask( resip::DialogU
 
 TaskManager::TaskResult DialogUsageManagerRecurringTask::doTaskProcessing() 
 {
+//    B2BUA_LOG_NOTICE( <<"DialogUsageManagerRecurringTask is running!");
+
     while(mDum->process()); 
 
     // FIXME If sipStack and dum are finished, then we should return TaskDone
@@ -40,6 +42,7 @@ TaskManager::TaskResult DialogUsageManagerRecurringTask::doTaskProcessing()
 
 void DialogUsageManagerRecurringTask::stop() 
 {
+    B2BUA_LOG_NOTICE( <<"DialogUsageManagerRecurringTask is stoped!");
     stopping = true;
     time(&stopTime);
     stopTime += STOP_TIMEOUT;

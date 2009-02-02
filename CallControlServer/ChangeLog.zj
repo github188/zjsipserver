@@ -64,6 +64,10 @@
     涉及文件: repro/repro.cxx L432-L436
 
 11. B2BUA
+    注意: Dialog.cxx的Dialog构造函数里,会强制检查Contact域,如果有多个contact或者没有,那么就会报错.
+	  这说明凡是创建对话的请求比如INVITE或者SUBSCRIBE都必须有contact域
+
+
     2009-01-05: 将b2bua的记录日志方式改成统一的resip使用的方式.
     2009-01-07: 调整MediaProxy.cxx的updateSdp函数的内容,支持我们的流程
     2009-01-07: MediaManager::setALegSdp函数传入callid, 包括B2BCall::setALegSdp也一样.这样做的目的是使每个mediaproxy都使用callid做标识
@@ -74,6 +78,14 @@
 		修改完MediaManager对A端的MediaProxy的管理,支持多个A端MediaProxy		
 
     2009-01-09: 完成B2BCall里的客户端不发offer的模式.(尚未实现后加入的客户端请求:已经实现)		
+
+    2009-01-13: 在ServerRegistration.cxx里当设备注册时,调用storeEntity函数将其加入表里,存储user/host/port等信息
+		将MegaSipEntity.cxx文件从b2bua里移到dum里
+		在CallHandle类的构造函数里将传入的设备requestLineUri里的ip地址转换成存储在Terminal里的真正的host
+		将B2BCallManager里存放B2BCall的容器改成map-list方式,原来是list方式
+
+    2009-01-14: 在appDialog传来Bye消息,B2BCall在调用dohangup函数时会把对应callid的MediaProxy对象delete
+		将StatisticsManager.hxx的默认状态信息打印间隔时间改为600s 									
 
     11.1  重要的修改:要妥为管理各个dialog的新建实践,这会涉及到修改B2BCall原有的状态机,比如doNewCall的修改. 
 	  这个B2BCall的建立者会调用doNewCall,但是之后的参加者就不会了,而是调用其他函数.
@@ -96,6 +108,6 @@
     11.2  要改动B2BCall的onOffer和OnAnswer函数,因为这两个函数都假定了offer是由a端发来的,answer是由b端发来的,其实这是不成立的,a端可能不发offer而发answer
 	  b端可能不发answer而发offer
 
-    11.3  	          	  	  
+    11.3  当B2BCall的某一个aLegAppdialog退出后,要正确的释放对应的MediaProxy对象	          	  	  
 
     		    

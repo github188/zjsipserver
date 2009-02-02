@@ -46,14 +46,22 @@ MediaProxy::~MediaProxy()
 //!!!Transport have 2 types, 1 is c2t:client to terminal, 2 is c2v2t:client to vtdu to terminal
 int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgSourceAddress ) 
 {
+    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp start!" );
     bool callerAsymmetric = true;
     bool calleeAsymmetric = true;
     if(originalSdp != NULL)
+    {
 	delete originalSdp;
+    }
+
+    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp clone sdp to originalsdp!" );
     originalSdp = (SdpContents *)sdp.clone();
 
     if(newSdp != NULL)
+    {
 	delete newSdp;
+    }
+    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp clone sdp to newsdp!" );
     newSdp = (SdpContents *)sdp.clone();
 
     // Process the Origin
@@ -116,6 +124,7 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
     }
 
     //uri= 1000000111_1@192.168.0.1 ,but term id = 1000000111@192.168.0.1 NTD!!!
+    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp this!" );    
     entity::Terminal* term = mediaManager.getTerminal();
     if ( !term )
     {

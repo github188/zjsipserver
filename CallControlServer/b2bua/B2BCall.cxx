@@ -1167,7 +1167,7 @@ void B2BCall::doCallAcceptedMediaProxyFail()
 
 void B2BCall::doCallActive() 
 {
-    if(callHandle->mustHangup()) 
+    if( callHandle->mustHangup() ) 
     {
 	B2BUA_LOG_DEBUG( <<"ending a call due to mustHangup()");
 	setClearingReason(AnsweredLimit, -1);
@@ -1177,8 +1177,10 @@ void B2BCall::doCallActive()
 
 void B2BCall::doHangup(MyAppDialog *myAppDialog) //handle 1 aleg say goodbye
 {
-    ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
-    sis->end();
+    //ServerInviteSession *sis = (ServerInviteSession *)(myAppDialog->getInviteSession().get());
+    //sis->end();
+
+    mediaManager->erase( myAppDialog->getDialogId().getCallId() ); //delete alegproxy
 }
 
 void B2BCall::doHangup() 
@@ -1586,7 +1588,7 @@ void B2BCall::onHangup(MyAppDialog *myAppDialog)
     else if ( aLegAppDialogs.find( myAppDialog->getDialogId().getCallId() ) != aLegAppDialogs.end() )
     {
 	B2BUA_LOG_DEBUG( <<"call hung up by 1 aleg");
-	//doHangup(myAppDialog); Don't need it!!!
+	//doHangup(myAppDialog); Don't need it!!! because InviteSession.dispatchBye will send 200OK resp
     }
     else 
     {

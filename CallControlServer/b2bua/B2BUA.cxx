@@ -18,9 +18,11 @@ using namespace b2bua;
 using namespace resip;
 using namespace std;
 
-B2BUA::B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler) {
+B2BUA::B2BUA(AuthorizationManager *authorizationManager, CDRHandler& cdrHandler) 
+{
 
-    if(authorizationManager == NULL) {
+    if(authorizationManager == NULL) 
+    {
 	authorizationManager = new DefaultAuthorizationManager();
     }
 
@@ -70,37 +72,44 @@ B2BUA::init(resip::DialogUsageManager *dum) //zhangjun add
 
     dum->setDialogSetHandler(new MyDialogSetHandler());//!!!handle response, look DialogSet.cxx L603
 
-    //custom invitesessionhandler
-    MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum, *callManager);
-    dum->setInviteSessionHandler(uas);
-
-//    DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(*sipStack, *dum);
+//  DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(*sipStack, *dum);
     DialogUsageManagerRecurringTask *dumTask = new DialogUsageManagerRecurringTask(dum);
     taskManager->addRecurringTask(dumTask);
 
     DailyCDRHandler cdrHandler("test.cdr");
     callManager = new B2BCallManager(*dum, authorizationManager, cdrHandler);
     taskManager->addRecurringTask(callManager);
+
+    //custom invitesessionhandler
+    assert(dum!=0);
+    assert(callManager!=0);
+    MyInviteSessionHandler *uas = new MyInviteSessionHandler(*dum, *callManager);
+    dum->setInviteSessionHandler(uas);
 }
 
 B2BUA::~B2BUA() 
 {
 }
 
-void B2BUA::setAuthorizationManager(AuthorizationManager *authorizationManager) {
-  this->authorizationManager = authorizationManager;
-  callManager->setAuthorizationManager(authorizationManager);
+void B2BUA::setAuthorizationManager(AuthorizationManager *authorizationManager) 
+{
+    this->authorizationManager = authorizationManager;
+    callManager->setAuthorizationManager(authorizationManager);
 }
 
-void B2BUA::run() {
-  taskManager->start(); 
+void B2BUA::run() 
+{
+    B2BUA_LOG_NOTICE( <<"B2BUA beginning boot process");
+    taskManager->start(); 
 }
 
-void B2BUA::logStats() {
-  callManager->logStats();
+void B2BUA::logStats() 
+{
+    callManager->logStats();
 }
 
-void B2BUA::stop() {
+void B2BUA::stop() 
+{
     //B2BUA_LOG_CRIT( <<"B2BUA::stop not implemented!");
     //assert(0);
     B2BUA_LOG_NOTICE( <<"B2BUA beginning shutdown process");

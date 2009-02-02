@@ -7,6 +7,8 @@
 #include "resip/stack/Uri.hxx"
 #include "resip/stack/NameAddr.hxx"
 
+#include "rutil/resipfaststreams.hxx"
+
 namespace __gnu_cxx
 {
 
@@ -54,6 +56,7 @@ public:
 
 public:
     Terminal()
+	:port_(0),mMaxConnNum_(16),mCameraNum_(4),mCurConnNum_(0)
 	{}
     
     virtual ~Terminal()
@@ -61,11 +64,11 @@ public:
 
     TransType getTransType()
 	{
-	    if ( mCurConnNum >= mMaxConnNum )
+	    if ( mCurConnNum_ >= mMaxConnNum_ )
 	    {
 		return FULL;
 	    }
-	    else if ( mCurConnNum < mMaxConnNum - mCameraNum )
+	    else if ( mCurConnNum_ < mMaxConnNum_ - mCameraNum_ )
 	    {
 		return C2T;
 	    }
@@ -79,10 +82,18 @@ public:
     resip::Data id_;
     resip::Data host_;
     int port_;
-    int mMaxConnNum;
-    int mCameraNum;
-    int mCurConnNum;
+    int mMaxConnNum_;
+    int mCameraNum_;
+    int mCurConnNum_;
 };
+
+#ifndef  RESIP_USE_STL_STREAMS
+EncodeStream& 
+operator<<(EncodeStream& strm, const Terminal& term);
+#endif
+
+std::ostream& 
+operator<<(std::ostream& strm, const Terminal& term);
 
 extern __gnu_cxx::hash_map<resip::Data, Terminal*> Terminals;//!!!when register, need add terminal to Terminals
 

@@ -108,10 +108,10 @@ MediaManager::updateTermStatus()
 	switch( b2BCall.getStatus() ) 
 	{
 	case B2BCall::Connected:
-	    term->mCurConnNum++;
+	    term->mCurConnNum_++;
 	    break;
 	case B2BCall::Finishing:
-	    term->mCurConnNum--;
+	    term->mCurConnNum_--;
 	    break;
 	default:
 	    break;
@@ -120,10 +120,36 @@ MediaManager::updateTermStatus()
 }
 
 int 
+MediaManager::erase( const resip::Data& callid )
+{
+    if ( aLegProxys.find(callid) != aLegProxys.end() )
+    {
+	MediaProxy *alegmp = NULL;
+	alegmp = aLegProxys[callid];
+	if ( alegmp )
+	{
+	    delete alegmp;
+	    return 0;
+	}
+    }
+
+    return -1;
+}
+
+int 
 MediaManager::setALegSdp(const resip::Data& callid, const SdpContents& sdp, const in_addr_t& msgSourceAddress) 
 {
-    MediaProxy *alegmp = new MediaProxy(*this,callid);
-    aLegProxys[callid] = alegmp;
+    MediaProxy *alegmp = NULL;
+
+    if ( aLegProxys.find(callid) == aLegProxys.end() )
+    {
+	alegmp = new MediaProxy(*this,callid);
+	aLegProxys[callid] = alegmp;
+    }
+    else
+    {
+	alegmp = aLegProxys[callid];
+    }
 
     return alegmp->updateSdp(sdp, msgSourceAddress);
 };

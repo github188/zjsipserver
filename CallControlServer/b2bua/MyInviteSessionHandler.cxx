@@ -168,25 +168,30 @@ void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteS
     //cerr << "onNewSession sis" << endl;
 
     // Are we shutting down?  If so, reject the call with SIP code 503
-    if(callManager.isStopping()) {
-	B2BUA_LOG_DEBUG( <<"rejecting inbound call as we are stopping");
+    if( callManager.isStopping() ) 
+    {
+	B2BUA_LOG_INFO( <<"rejecting inbound call as we are stopping");
 	sis->reject(503);
 	return;
     }
 
     // Check the headers
-    if(!msg.exists(h_From)) {
+    if(!msg.exists(h_From)) 
+    {
 	B2BUA_LOG_WARNING( <<"inbound connection missing from header, rejecting dialog");
 	sis->reject(603);
 	return;
     }
+
     // FIXME - do above for all headers
-    if(msg.getReceivedTransport() == 0) {
+    if(msg.getReceivedTransport() == 0) 
+    {
 	// msg not received from the wire
 	// FIXME
 	B2BUA_LOG_WARNING( <<"request not received from the wire");
 	sis->reject(603);
     }
+
     Tuple sourceTuple = msg.getSource();
     Data sourceIp = Data(inet_ntoa(sourceTuple.toGenericIPAddress().v4Address.sin_addr));
     Data contextId;
@@ -194,25 +199,33 @@ void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteS
     Data baseIp;
     Data controlId;
     ExtensionHeader xContextId("X-MyB2BUA-Context-ID");
-    if(msg.exists(xContextId)) {
+    if(msg.exists(xContextId)) 
+    {
 	const StringCategories& contextIds = msg.header(xContextId);
 	contextId = Data((contextIds.begin())->value());
     }
+
     ExtensionHeader xAccountId("X-MyB2BUA-Account-ID");
-    if(msg.exists(xAccountId)) {
+    if(msg.exists(xAccountId)) 
+    {
 	const StringCategories& accountIds = msg.header(xAccountId);
 	accountId = Data((accountIds.begin())->value());
     }
+
     ExtensionHeader xBaseIp("X-MyB2BUA-Base-IP");
-    if(msg.exists(xBaseIp)) {
+    if(msg.exists(xBaseIp)) 
+    {
 	const StringCategories& baseIps = msg.header(xBaseIp);
 	baseIp = Data((baseIps.begin())->value());
     }
+
     ExtensionHeader xControlId("X-MyB2BUA-Control-ID");
-    if(msg.exists(xControlId)) {
+    if(msg.exists(xControlId)) 
+    {
 	const StringCategories& controlIds = msg.header(xControlId);
 	controlId = Data((controlIds.begin())->value());
     }
+
     // Now inspect the authentication info
     Data authRealm("");
     Data authUser("");

@@ -48,7 +48,11 @@ protected:
 public:
     //Contructs
     B2BUA()
-	{}
+	{
+	    taskManager = NULL;
+	    callManager = NULL;
+	    authorizationManager = NULL;
+	}
 
     virtual ~B2BUA();
 

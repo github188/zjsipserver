@@ -84,6 +84,8 @@ public:
     int setALegSdp( const resip::Data& callid,
 		    const resip::SdpContents& sdp, 
 		    const in_addr_t& msgSourceAddress );
+
+    int erase( const resip::Data& callid ); //erase mediaproxy that match callid 
     
     // generate an offer (to send to B leg)
     resip::SdpContents& getALegSdp( const resip::Data& callid );

@@ -27,13 +27,15 @@ B2BCallManager::~B2BCallManager()
 void 
 B2BCallManager::setAuthorizationManager(AuthorizationManager *authorizationManager) 
 {
-  this->authorizationManager = authorizationManager;
+    this->authorizationManager = authorizationManager;
 }
 
 TaskManager::TaskResult 
 B2BCallManager::doTaskProcessing() 
 {
     time_t now;
+
+//    B2BUA_LOG_NOTICE( <<"B2BCallManager is running!");
 
     if(mustStopCalls) 
     {
@@ -90,7 +92,7 @@ B2BCallManager::doTaskProcessing()
 	    {
 		B2BCall *call = *j;
 		j++;
-		(i->second).remove(call);
+		(i->second).remove(call); //from b2blist delete it
 		delete call;
 	    }
 	    else
@@ -98,7 +100,10 @@ B2BCallManager::doTaskProcessing()
 	}
     }
 
-
+    if ( stopping )
+    {
+	B2BUA_LOG_NOTICE( <<"B2BCallManager is stopping!");
+    }
 //    if(stopping && calls.begin() == calls.end()) 
     if(stopping && this->empty() )
     {
@@ -127,6 +132,7 @@ B2BCallManager::empty()
 void 
 B2BCallManager::stop() 
 {
+    B2BUA_LOG_NOTICE( <<"B2BCallManager is stopped!");
     stopping = true;
     mustStopCalls = true;
 }
@@ -144,7 +150,12 @@ B2BCallManager::getB2BCall( const resip::Uri &destUri )
     if ( callmaps.find( destUri )!= callmaps.end() )
 	return &(callmaps[destUri]);
     else 
-	throw new exception;
+    {
+	B2BCallList bclist;
+	callmaps[destUri] = bclist;
+	//throw new exception;
+	return &(callmaps[destUri]);
+    }
 }
 
 void 

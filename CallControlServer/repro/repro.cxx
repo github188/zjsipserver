@@ -159,7 +159,7 @@ getB2bDum( SipStack& stack )
     //!!!INVITE CANCEL ACK BYE OPTIONS UPDATE PRACKis what profile support in default
     profile->addSupportedMimeType( resip::INFO, resip::Mime("application", "global_eye_v10+xml") );
     profile->addSupportedMethod( resip::INFO );
-
+    dum->setMasterProfile(profile);
     //resip::MessageFilterRule::HostpartList hostlist;
     //hostlist.push_back("192.168.5.232");
 
@@ -502,7 +502,9 @@ main(int argc, char** argv)
 	// Install rules so that the registrar only gets REGISTERs
 	resip::MessageFilterRule::MethodList methodList;
 	methodList.push_back(resip::REGISTER);
+	profile->addSupportedMimeType( resip::REGISTER, resip::Mime("application", "global_eye_v10+xml") );
 	profile->addSupportedMethod(resip::REGISTER);
+	
 
 	//!!!zhangjun change begin:增加媒体会话访问相关的处理指令,这些指令应该交给b2bua处理
 
@@ -576,14 +578,7 @@ main(int argc, char** argv)
 	dumThread = new DumThread(*dum);
     }
 
-    stack.registerTransactionUser(proxy);
-    // !bwc! If, in the future, we do anything client-side using DUM with this 
-    // stack, we'll need to rework things (maybe use two stacks).
-    stack.setFixBadDialogIdentifiers(false);
-    stack.setFixBadCSeqNumbers(false);
-
-
-//zhangjun add mega web server
+//zhangjun add mega web server and b2bua
     //web access interface
     MegaWebServer mws( regData, 8080, resip::V4, realm, dum );
     MegaWebServerThread mwsThread(mws);
@@ -596,6 +591,12 @@ main(int argc, char** argv)
     b2b.init(b2bdum);
     B2buaThread b2bThread(b2b);
 //zhangjun add end
+
+    stack.registerTransactionUser(proxy);
+    // !bwc! If, in the future, we do anything client-side using DUM with this 
+    // stack, we'll need to rework things (maybe use two stacks).
+    stack.setFixBadDialogIdentifiers(false);
+    stack.setFixBadCSeqNumbers(false);
 
     /* Make it all go */
     stackThread.run();

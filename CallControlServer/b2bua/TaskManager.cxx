@@ -8,19 +8,26 @@
 using namespace b2bua;
 using namespace std;
 
-TaskManager::TaskManager() {
+TaskManager::TaskManager() 
+{
 }
 
-void TaskManager::start() {
-    while(true) {
+void TaskManager::start() 
+{
+    while(true) 
+    {
 	int incompleteCount = 0;
 	list<RecurringTask *>::iterator iterator = recurringTasks.begin();
-	while(iterator != recurringTasks.end()) {
+	
+	while(iterator != recurringTasks.end()) 
+	{
 	    // FIXME - read return value, remove completed tasks
+	    //B2BUA_LOG_NOTICE( <<"B2BUA TaskManager start process");
 	    RecurringTask *t = *iterator;
 	    iterator++;
 	    TaskResult r = t->doTaskProcessing();
-	    switch(r) {
+	    switch(r) 
+	    {
 	    case TaskComplete:
 		recurringTasks.remove(t);
 		break;
@@ -32,6 +39,7 @@ void TaskManager::start() {
 		break;
 	    }
 	}
+
 	if(incompleteCount == 0) 
 	{
 	    // All tasks are done
@@ -42,23 +50,29 @@ void TaskManager::start() {
     }
 }
 
-void TaskManager::addRecurringTask(RecurringTask *t) {
-  recurringTasks.push_back(t);
+void TaskManager::addRecurringTask(RecurringTask *t) 
+{
+    recurringTasks.push_back(t);
 }
 
-void TaskManager::scheduleTask(ScheduledTask *t, time_t& executionTime) {
+void TaskManager::scheduleTask(ScheduledTask *t, time_t& executionTime) 
+{
   // FIXME - not yet implemented
     B2BUA_LOG_CRIT( <<"scheduleTask not implemented");
-  assert(0);
+    assert(0);
 }
 
-void TaskManager::stop() {
-  list<RecurringTask *>::iterator iterator = recurringTasks.begin();
-  while(iterator != recurringTasks.end()) {
-    RecurringTask *t = *iterator;
-    iterator++;
-    t->stop();
-  }
+void TaskManager::stop() 
+{
+    B2BUA_LOG_NOTICE( <<"B2BUA TaskManager is stopped!");
+
+    list<RecurringTask *>::iterator iterator = recurringTasks.begin();
+    while(iterator != recurringTasks.end()) 
+    {
+	RecurringTask *t = *iterator;
+	iterator++;
+	t->stop();
+    }
 }
 
 /* ====================================================================
