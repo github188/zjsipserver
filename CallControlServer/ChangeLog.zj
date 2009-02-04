@@ -110,4 +110,8 @@
 
     11.3  当B2BCall的某一个aLegAppdialog退出后,要正确的释放对应的MediaProxy对象	          	  	  
 
-    		    
+    2009-02-02:
+        今天遇到的现象是，当收到Invite请求后如果在80ms内没有发送响应，那么TransactionState层会自动发送100响应    		    
+	单向出错处理已经测试完毕，今天
+
+	

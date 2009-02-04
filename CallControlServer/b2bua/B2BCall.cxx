@@ -116,6 +116,8 @@ B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationM
 
     //this->aLegAppDialog = aLegAppDialog;
     this->aFirstLegAppDialog = aLegAppDialog;
+
+    B2BUA_LOG_DEBUG( <<"B2BCall add alegappdialog callid "<<aLegAppDialog->getDialogId().getCallId() );
     this->aLegAppDialogs[aLegAppDialog->getDialogId().getCallId()] = aLegAppDialog;
     aLegAppDialog->setB2BCall(this);
     
@@ -284,7 +286,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case DialReceived180:
 	case DialReceivedEarlyAnswer:
 	case CallAccepted:
-	    //case CallStop:
+	case CallStop: //zhangjun add
 	    callState = newCallState;
 	    return true;
 	default:
@@ -607,6 +609,7 @@ void B2BCall::releaseAppDialog(MyAppDialog *myAppDialog) //MyAppDialog's deconst
     //{
     //	aLegAppDialog = NULL;
     //  }
+    B2BUA_LOG_DEBUG( <<"releaseAppDialog for callid " <<myAppDialog->getDialogId().getCallId() );
 
     if ( aLegAppDialogs.find(myAppDialog->getDialogId().getCallId()) != aLegAppDialogs.end() )
     {
@@ -624,6 +627,8 @@ void B2BCall::releaseAppDialog(MyAppDialog *myAppDialog) //MyAppDialog's deconst
 
 void B2BCall::releaseAppDialogSet(MyAppDialogSet *myAppDialogSet) 
 {
+    B2BUA_LOG_DEBUG( <<"releaseAppDialogSet" );
+
     if(myAppDialogSet == bLegAppDialogSet) 
     {
 	bLegAppDialogSet = NULL;
@@ -666,6 +671,7 @@ void B2BCall::checkProgress(time_t now, bool stopping)
 	break;
     case DialInProgress:
 	// FIXME - route timeout?
+	doDialInProgress();
 	break;
     case DialFailed:
 	doDialFailed();
@@ -783,12 +789,22 @@ B2BCall::CallStatus B2BCall::getStatus()
     }
 }
 
+void B2BCall::doDialInProgress()
+{
+    time_t now;
+
+    time(&now);
+    if ( now - startTime > 15 )
+	setCallState(CallStop);
+}
+
 void B2BCall::doNewCall() //only first caller will invoke this function!!!
 {
     // Indicate trying
     //ServerInviteSession *sis = (ServerInviteSession *)(aLegAppDialog->getInviteSession().get());
     ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get());
-    sis->provisional(100);
+    B2BUA_LOG_DEBUG( <<"doNewCall send 100Trying!");
+    //sis->provisional(100);
     callHandle = authorizationManager.authorizeCall(sourceAddr, destinationAddr, authRealm, 
 						    authUser, authPassword, srcIp, contextId, 
 						    accountId, baseIp, controlId, startTime);
@@ -946,12 +962,19 @@ void B2BCall::doReadyToDial() //c offer t
 // A route failed (timeout, ICMP, invalid domain, etc), try the next route
 void B2BCall::doDialFailed() 
 {
-    if(bLegAppDialogSet != NULL) {
+    if ( bLegAppDialogSet != NULL ) 
+    {
 	bLegAppDialogSet->end();
 	bLegAppDialogSet->setB2BCall(NULL);
+	bLegAppDialogSet = NULL;
     }
-    bLegAppDialogSet = NULL;
-    bLegAppDialog = NULL;
+    
+    if ( bLegAppDialog != NULL )
+    {
+	bLegAppDialog->setB2BCall(NULL);
+	bLegAppDialog = NULL;
+    }
+
     failureStatusCode = -1;
     //setClearingReason(AuthError, -1);
     setCallState(SelectAlternateRoute); 
@@ -965,27 +988,33 @@ void B2BCall::doDialRejected()
     {
     case -1:
 	//setClearingReason(AuthError, -1);
-    setCallState(SelectAlternateRoute);
-    doSelectAlternateRoute();
-    break;
-    //case 480: // Temporarily not available
+	setCallState(SelectAlternateRoute);
+	doSelectAlternateRoute();
+	break;
+	//case 480: // Temporarily not available
     case 486: // Busy
 	//case 600: // Busy everywhere
 	//case 603: // Decline
-    // We will consider all of the above to be `BUSY'
+	// We will consider all of the above to be `BUSY'
 	setClearingReason(RejectBusy, failureStatusCode);
 	setCallState(DialAborted);
 	doDialAborted();
 	break;
     default:
 	//setClearingReason(RejectOther, failureStatusCode);
-	if(bLegAppDialogSet != NULL) 
+	if ( bLegAppDialogSet != NULL ) 
 	{
 	    bLegAppDialogSet->end();
-	bLegAppDialogSet->setB2BCall(NULL);
+	    bLegAppDialogSet->setB2BCall(NULL);
+	    bLegAppDialogSet = NULL;
 	}
-	bLegAppDialogSet = NULL;
-	bLegAppDialog = NULL;
+
+	if ( bLegAppDialog != NULL )
+	{
+	    bLegAppDialog->setB2BCall(NULL);
+	    bLegAppDialog = NULL;
+	}
+
 	setCallState(SelectAlternateRoute);
 	doSelectAlternateRoute();
 	break;
@@ -1020,6 +1049,7 @@ void B2BCall::doDialAborted()
     {
 	setClearingReason(RejectOther, failureStatusCode);
 	sis->reject(failureStatusCode);
+	B2BUA_LOG_DEBUG( << "B2BCall::doDialAborted reject "<< failureStatusCode );
     }
     setCallState(CallStop);
     doCallStop();
@@ -1204,13 +1234,23 @@ void B2BCall::doCallStop() //it will invoked is only bleg or last aleg cancel or
     std::map<resip::Data, MyAppDialog*>::iterator i = aLegAppDialogs.begin();
     for ( ; i!=aLegAppDialogs.end(); ++i ) //say goodbye to every aleg
     {
+	(i->second)->setB2BCall(NULL);
+
 	ServerInviteSession *sis = (ServerInviteSession *)((i->second)->getInviteSession().get());
+	B2BUA_LOG_DEBUG( <<"B2BCall::doCallStop() end ServerInviteSession callid " <<i->first );	
 	sis->end(); 
     } 
 
-    if(bLegAppDialogSet != NULL) 
+    if ( bLegAppDialogSet != NULL ) 
     {
+	B2BUA_LOG_DEBUG( <<"B2BCall::doCallStop() end bLegAppDialogSet "  );
 	bLegAppDialogSet->end();
+	bLegAppDialogSet->setB2BCall(NULL);
+    }
+
+    if ( bLegAppDialog != NULL )
+    {
+	bLegAppDialog->setB2BCall(NULL);
     }
 
 //    writeCDR();
@@ -1571,7 +1611,12 @@ void B2BCall::onMediaTimeout() //!!!be careful
 void B2BCall::onHangup(MyAppDialog *myAppDialog) 
 {
 //    if(myAppDialog == aLegAppDialog) 
-    if(myAppDialog == bLegAppDialog) 
+    if ( NULL == myAppDialog )
+    {
+	B2BUA_LOG_INFO( <<"Call is stopped by control");
+	setCallState(CallStop);
+    }
+    else if ( myAppDialog == bLegAppDialog ) 
     {
 	B2BUA_LOG_DEBUG( <<"call hung up by bleg");
 	setClearingReason(AnsweredBLegHangup, -1);

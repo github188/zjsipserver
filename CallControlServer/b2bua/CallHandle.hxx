@@ -209,10 +209,20 @@ public:
 	}
 
 private:
-     resip::Uri updateDestAddr(const resip::Uri& destinationAddr)
+    resip::Uri updateDestAddr(const resip::Uri& destinationAddr)
 	{
 	    resip::Uri newUri = destinationAddr;
-	    newUri.user() = newUri.user().substr(0,DEVIDLEN); 
+	    //newUri.user() = newUri.user().substr(0,DEVIDLEN); 
+
+	    resip::Data userName = destinationAddr.user();
+	    if ( userName.size() < DEVIDLEN )
+	    {
+		newUri.user() = userName;
+	    }
+	    else
+	    {
+		newUri.user() = userName.substr(0,DEVIDLEN);
+	    }
 
 	    entity::Terminal *term = entity::getTerminal( newUri.user() );
 

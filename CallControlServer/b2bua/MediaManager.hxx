@@ -106,7 +106,7 @@ public:
 
     void updateTermStatus();
 
-    entity::Terminal *getTerminal();
+    entity::Terminal *getTerminal( );
 
 public:
     int nTransType_;

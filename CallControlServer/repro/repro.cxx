@@ -197,6 +197,12 @@ main(int argc, char** argv)
 	exit( -1 );
     }
 
+    if ( signal( SIGHUP, signalHandler ) == SIG_ERR )
+    {
+        cerr << "Couldn't install signal handler for SIGHUP" << endl;
+        exit( -1 );
+    }
+
     /* Initialize a stack */
     initNetwork();
     CommandLineParser args(argc, argv);

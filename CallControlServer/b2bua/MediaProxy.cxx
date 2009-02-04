@@ -124,10 +124,10 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
     }
 
     //uri= 1000000111_1@192.168.0.1 ,but term id = 1000000111@192.168.0.1 NTD!!!
-    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp this!" );    
     entity::Terminal* term = mediaManager.getTerminal();
     if ( !term )
     {
+	B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp Don't find terminal "<< mediaManager.b2BCall.destinationAddr.user()  );
 	return 405;//error
     }
 
@@ -148,10 +148,23 @@ int MediaProxy::updateSdp ( const resip::SdpContents& sdp, const in_addr_t& msgS
 	newSdp->session().origin().setAddress(MediaManager::proxyAddress);     //change sdp's c=
 	newSdp->session().connection().setAddress(MediaManager::proxyAddress); //change sdp's c=
 
-	B2BUA_LOG_INFO( << "Succed Max ConnNum, need use vtdu!");
+	B2BUA_LOG_DEBUG( << "Current conn number succed camera number, need use vtdu!");
+    }
+
+    B2BUA_LOG_DEBUG( <<"B2BCall MediaProxy::updateSdp media transtype is "<< mediaManager.nTransType_ );    
+
+    if ( entity::Terminal::FULL == mediaManager.nTransType_ )
+    {
+	B2BUA_LOG_DEBUG( << "Current conn number succed max conn number, unable to use!");
+	return 406;
+    }
+
+    if ( entity::Terminal::C2T == mediaManager.nTransType_ )
+    {
+	B2BUA_LOG_DEBUG( << "Current conn number less than camera number, able to use!");
     }
     
-    if ( isNatTraversal || (entity::Terminal::C2V2T == mediaManager.nTransType_) )
+    if ( entity::Terminal::C2V2T == mediaManager.nTransType_ )
     {
 	newSdp->session().clearMedium();//clear all media info in sdp
 	list<SdpContents::Session::Medium>::iterator i = originalSdp->session().media().begin();

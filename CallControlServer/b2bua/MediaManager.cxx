@@ -92,9 +92,19 @@ MediaManager::setToTag(const Data& toTag)
 };
 
 entity::Terminal *
-MediaManager::getTerminal()
+MediaManager::getTerminal( )
 {
-    resip::Data termid = b2BCall.destinationAddr.user().substr(0,DEVIDLEN);
+    resip::Data termid;
+
+    resip::Data userName = b2BCall.destinationAddr.user();
+    if ( userName.size() < DEVIDLEN )
+    {
+	termid = userName;
+    }
+    else
+    {
+	termid = userName.substr(0,DEVIDLEN);
+    }
 
     return entity::getTerminal( termid );
 }

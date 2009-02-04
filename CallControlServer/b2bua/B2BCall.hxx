@@ -229,6 +229,7 @@ protected:
     void doHangup(MyAppDialog *myAppDialog);
     void doCallOffered();
     void doCallAnswered();
+    void doDialInProgress();
     
     // sets the clearing reason codes if necessary
     void setClearingReason(FullClearingReason reason, int code);

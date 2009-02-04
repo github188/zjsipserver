@@ -246,6 +246,7 @@ void MyInviteSessionHandler::onNewSession(ServerInviteSessionHandle sis, InviteS
 	B2BCallList* calls = callManager.getB2BCall( msg.header(h_RequestLine).uri() );
 
 	B2BCallList::iterator i = calls->begin();
+	//!!!below logic say: if have a b2bcall go vtdu, then all rest client go vtdu too. 
 	for( ; i!=calls->end(); ++i )
 	{
 	    if ( (*i)->mediaManager->isC2V2T()  )
