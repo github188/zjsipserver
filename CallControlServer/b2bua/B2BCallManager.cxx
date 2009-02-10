@@ -18,6 +18,8 @@ B2BCallManager::B2BCallManager(resip::DialogUsageManager& dum,
 {
     stopping = false;
     mustStopCalls = false;
+    time(&statisticsStartTime);
+    statisticsIntervalSecs = 60;
 }
 
 B2BCallManager::~B2BCallManager() 
@@ -33,20 +35,10 @@ B2BCallManager::setAuthorizationManager(AuthorizationManager *authorizationManag
 TaskManager::TaskResult 
 B2BCallManager::doTaskProcessing() 
 {
-    time_t now;
-
 //    B2BUA_LOG_NOTICE( <<"B2BCallManager is running!");
-
     if(mustStopCalls) 
     {
 	B2BUA_LOG_NOTICE( <<"notifying calls to stop");
-
-//	B2BCallList::iterator call = calls.begin();
-//	while(call != calls.end()) 
-//	{
-//	    (*call)->onStopping();
-//	    call++;
-//	}
 
 	B2BCallMap::iterator i = callmaps.begin();
 	for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
@@ -62,24 +54,9 @@ B2BCallManager::doTaskProcessing()
 	mustStopCalls = false;
     }
 
+    time_t now;
     time(&now);
-
-/*
-    B2BCallList::iterator i = calls.begin();
-    while(i != calls.end()) 
-    {
-	(*i)->checkProgress(now, stopping);
-	if((*i)->isComplete()) 
-	{
-	    B2BCall *call = *i;
-	    i++;
-	    calls.remove(call);
-	    delete call;
-	} 
-	else
-	    i++;
-    }
-*/
+    int B2BCallNumber=0;
 
     B2BCallMap::iterator i = callmaps.begin();
     for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
@@ -87,6 +64,7 @@ B2BCallManager::doTaskProcessing()
 	B2BCallList::iterator j = (i->second).begin();//j is std::list's iterator
 	while(  j!= (i->second).end() )
 	{
+	    ++B2BCallNumber;
 	    (*j)->checkProgress(now, stopping);
 	    if( (*j)->isComplete() )
 	    {
@@ -100,10 +78,12 @@ B2BCallManager::doTaskProcessing()
 	}
     }
 
-    if ( stopping )
+    if ( now - statisticsStartTime > statisticsIntervalSecs )
     {
-	B2BUA_LOG_NOTICE( <<"B2BCallManager is stopping!");
+	B2BUA_LOG_NOTICE( <<"B2BCall have "<<B2BCallNumber <<" !" );
+	statisticsStartTime = now;
     }
+
 //    if(stopping && calls.begin() == calls.end()) 
     if(stopping && this->empty() )
     {
@@ -118,7 +98,7 @@ bool
 B2BCallManager::empty()
 {
     B2BCallMap::iterator i = callmaps.begin();
-    for ( ; i!=callmaps.end(); ++i ) //say stop to every b2bcall
+    for ( ; i!=callmaps.end(); ++i ) 
     {
 	if ( !(i->second).empty() )
 	{
@@ -135,6 +115,17 @@ B2BCallManager::stop()
     B2BUA_LOG_NOTICE( <<"B2BCallManager is stopped!");
     stopping = true;
     mustStopCalls = true;
+
+    B2BCallMap::iterator i = callmaps.begin();
+    for ( ; i!=callmaps.end(); ++i )
+    {
+	B2BCallList::iterator j = (i->second).begin();//j is std::list's iterator
+        while(  j!= (i->second).end() )
+	{
+	    B2BUA_LOG_DEBUG( <<"B2BCall "<< (*j)->aFirstLegAppDialogCallId << " State is " << (*j)->B2BCallStateName[(*j)->callState] );
+	    j++;
+	}
+    }
 }
 
 bool 

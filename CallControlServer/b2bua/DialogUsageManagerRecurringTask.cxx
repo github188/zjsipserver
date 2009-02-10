@@ -26,7 +26,7 @@ TaskManager::TaskResult DialogUsageManagerRecurringTask::doTaskProcessing()
 {
 //    B2BUA_LOG_NOTICE( <<"DialogUsageManagerRecurringTask is running!");
 
-    while(mDum->process()); 
+    while( mDum->process(500) ); 
 
     // FIXME If sipStack and dum are finished, then we should return TaskDone
     if(!stopping)

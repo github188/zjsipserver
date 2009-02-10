@@ -82,7 +82,10 @@ public:
 	CallStopFinal				// Call can be purged from
 						// the system
     };
-  
+
+
+    static char *B2BCallStateName[];
+
     static resip::Data callStateNames[];
 
     typedef enum BasicClearingReason 
@@ -165,6 +168,7 @@ public:
     time_t timeout;
     
     //std::vector<MyAppDialog *> aLegAppDialogs;//!!!
+    resip::Data aFirstLegAppDialogCallId;
     std::map<resip::Data, MyAppDialog*> aLegAppDialogs;//!!!
     MyAppDialog *aFirstLegAppDialog;
     //MyAppDialog *aLegAppDialog; //should have multi!!!

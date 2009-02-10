@@ -32,6 +32,56 @@ using namespace std;
 //t offer c:
 // onOfferRequired( recv c noOffer) -> sis->provideOffer(sdp)[send offer to c] -> onAnswer
 
+char* B2BCall::B2BCallStateName[] =  
+{
+    "NewCall",				// just started
+    "CallerCancel",				// CANCEL received from A leg
+    "AuthorizationPending",
+    "AuthorizationSuccess",
+    "AuthorizationFail",
+//    RoutesPending,				// routes requested
+//    RoutesSuccess,
+//    RoutesFail,
+//   MediaProxyPending,				// Media Proxy requested
+    "MediaProxySuccess",
+    "MediaProxyFail",
+    "ReadyToDial",				// Route ready
+    "DialInProgress",				// INVITE sent
+    "DialFailed",				// Network error, e.g. ICMP
+    "DialRejected",				// SIP error received
+						// error code in data member
+						// failureStatusCode
+    "SelectAlternateRoute",			// Need to select another
+						// route
+    "DialAborted",				// No other carriers 
+						// available, or a failure
+						// that doesn't require us
+						// to try another carrier
+						// e.g. Busy
+//    DialReceived100,				// 100 response received
+    "DialReceived180",			// 180 response received
+//    DialReceived183,				// 183 response received
+    "DialReceivedEarlyAnswer",		// early answer (SDP) received
+//    DialEarlyMediaProxyRequested,		// Media proxy requested for
+    // early media
+    "DialEarlyMediaProxySuccess",		// Media Proxy ready
+    "DialEarlyMediaProxyFail",		// Media Proxy failed
+    "CallAccepted",				// 200 received
+//    CallAcceptedMediaProxyRequested,		// Media proxy requested for
+    // media
+    "CallAcceptedMediaProxySuccess",		// Media Proxy ready
+    "CallAcceptedMediaProxyFail",		// Media proxy failed
+    "CallActive",				// Call in progress
+    "CallerHangup",				// Caller has hungup
+    "CalleeHangup",				// Callee has hungup
+    "LocalHangup",				// B2BUA initiated hangup
+    "CallStop",				// Call is stopped
+//    CallStopMediaProxyNotified,		// Media proxy informed
+    "CallStopMediaProxySuccess",		// Media proxy acknowledged
+    "CallStopMediaProxyFail",			// Media proxy failed to ack
+    "CallStopFinal"				// Call can be purged from
+};
+
 
 Data B2BCall::callStateNames[] = 
 {
@@ -118,6 +168,7 @@ B2BCall::B2BCall(CDRHandler& cdrHandler, DialogUsageManager& dum, AuthorizationM
     this->aFirstLegAppDialog = aLegAppDialog;
 
     B2BUA_LOG_DEBUG( <<"B2BCall add alegappdialog callid "<<aLegAppDialog->getDialogId().getCallId() );
+    aFirstLegAppDialogCallId = aLegAppDialog->getDialogId().getCallId();
     this->aLegAppDialogs[aLegAppDialog->getDialogId().getCallId()] = aLegAppDialog;
     aLegAppDialog->setB2BCall(this);
     
@@ -212,7 +263,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case AuthorizationSuccess:
 	case AuthorizationFail:
 	case CallerCancel:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -300,7 +351,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	    //case MediaProxySuccess:
 	    //case ReadyToDial:
 	case SelectAlternateRoute:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -315,7 +366,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	    //case ReadyToDial:
 	case SelectAlternateRoute:
 	case DialAborted:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -368,7 +419,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case DialRejected:
 	case DialReceivedEarlyAnswer:
 	case CallAccepted:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -385,7 +436,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case DialEarlyMediaProxySuccess:
 	case DialEarlyMediaProxyFail:
 	case CallAccepted:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -409,7 +460,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case DialFailed:
 	case DialRejected:
 	case CallAccepted:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -436,7 +487,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case CallerHangup:
 	case CalleeHangup:
 	case LocalHangup:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -460,7 +511,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case CallerHangup:
 	case CalleeHangup:
 	case LocalHangup:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -484,7 +535,7 @@ bool B2BCall::isCallStatePermitted(B2BCall::B2BCallState newCallState)
 	case CallerHangup:
 	case CalleeHangup:
 	case LocalHangup:
-	    //case CallStop:
+	case CallStop:
 	    callState = newCallState;
 	    return true;
 	default:
@@ -743,7 +794,7 @@ void B2BCall::checkProgress(time_t now, bool stopping)
 
 bool B2BCall::isComplete() 
 {
-  return (callState == CallStopFinal);
+    return (callState == CallStopFinal);
 }
 
 B2BCall::CallStatus B2BCall::getStatus() 
@@ -817,6 +868,7 @@ void B2BCall::doNewCall() //only first caller will invoke this function!!!
     {
 	//must is here!!!
 	setCallState(AuthorizationPending);
+	doAuthorizationPending();
     }
 }
 
@@ -832,11 +884,13 @@ void B2BCall::doCallerCancel()
 
 void B2BCall::doAuthorizationPending() 
 {
-    switch(callHandle->getAuthResult()) {
+    switch(callHandle->getAuthResult()) 
+    {
     case CC_PENDING:
 	return;
     case CC_PERMITTED:
 	setCallState(AuthorizationSuccess);
+	doAuthorizationSuccess();
 	break;
     default:
 	setCallState(AuthorizationFail);
@@ -1158,6 +1212,7 @@ void B2BCall::doCallAnswered() //t offer c: c answer, send answer to bleg
 
 void B2BCall::doCallAccepted() 
 {
+    B2BUA_LOG_DEBUG( <<"doCallAccepted()");
     ServerInviteSession *sis = (ServerInviteSession *)(aFirstLegAppDialog->getInviteSession().get()); 
     if(!earlyAnswerSent) 
     {
@@ -1169,6 +1224,7 @@ void B2BCall::doCallAccepted()
 	catch(...) 
 	{
 	    //setClearingReason(Error, -1);
+	    B2BUA_LOG_DEBUG( <<"doCallAccepted getBLegSdp exception!" );
 	    setClearingReason(AnsweredError, -1);
 	    setCallState(CallAcceptedMediaProxyFail);
 	    return;

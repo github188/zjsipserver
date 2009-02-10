@@ -30,8 +30,10 @@ protected:
     
     bool stopping;
     bool mustStopCalls;
-    
     CDRHandler& cdrHandler;
+
+    time_t statisticsStartTime;
+    int statisticsIntervalSecs;
 
 public:
     B2BCallManager(resip::DialogUsageManager& dum, AuthorizationManager *authorizationManager, CDRHandler& cdrHandler);
