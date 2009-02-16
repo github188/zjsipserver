@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Mon Feb  9 18:04:48 2009
+;; Created Mon Feb 16 10:54:46 2009
 ;; Emacs version 21.3.1
 
 ;; Global section:
@@ -10,7 +10,7 @@
 (setq tags-file-name "/home/zhangjun/projects/alpha/CallControlServer/TAGS")
 (setq tags-table-list '("/home/zhangjun/projects/alpha/CallControlServer/TAGS"))
 (setq search-ring nil)
-(setq regexp-search-ring '("callstop" "onhangup" "callactive" "Denied\\s-+call\\s-+state\\s-+change" "clean" "iscomplete" "onHangup" "change:\\s-+5:MediaProxySuccess\\s-+->\\s-+7:ReadyToDial" "now" "onofferre" "CallAccepted" "doCallAccepted" "reject(" "docallstop" "dodialrejected" "dodialre"))
+(setq regexp-search-ring '("EVENT_ALARM_NOTIFY2USER" "NotifyUser" "callstop" "onhangup" "callactive" "Denied\\s-+call\\s-+state\\s-+change" "clean" "iscomplete" "onHangup" "change:\\s-+5:MediaProxySuccess\\s-+->\\s-+7:ReadyToDial" "now" "onofferre" "CallAccepted" "doCallAccepted" "reject(" "docallstop"))
 (setq register-alist nil)
 
 ;; Buffer section:
@@ -730,17 +730,6 @@
   nil)
 
 (desktop-create-buffer 205
-  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCallManager.cxx"
-  "B2BCallManager.cxx"
-  'c++-mode
-  '(abbrev-mode nil)
-  2282
-  '(1183 nil)
-  nil
-  nil
-  nil)
-
-(desktop-create-buffer 205
   "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCall.hxx"
   "B2BCall.hxx"
   'c++-mode
@@ -758,6 +747,17 @@
   '(abbrev-mode nil)
   13308
   '(12677 nil)
+  nil
+  nil
+  nil)
+
+(desktop-create-buffer 205
+  "/home/zhangjun/projects/alpha/CallControlServer/b2bua/B2BCallManager.cxx"
+  "B2BCallManager.cxx"
+  'c++-mode
+  '(abbrev-mode nil)
+  1700
+  '(1183 nil)
   nil
   nil
   nil)
