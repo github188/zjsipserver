@@ -1,0 +1,1 @@
+support telcom3.0
